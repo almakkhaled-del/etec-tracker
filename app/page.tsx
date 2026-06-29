@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link'
 
 export default function Landing() {
@@ -10,10 +9,10 @@ export default function Landing() {
       <nav style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64, position: 'sticky', top: 0, zIndex: 100 }}>
         <img src="/logo.png" alt="شواهدي" style={{ height: 44 }} />
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <Link href="/" style={{ padding: '8px 18px', fontSize: 14, borderRadius: 8, border: '1px solid #e5e7eb', textDecoration: 'none', color: '#374151' }}>
+          <Link href="/login" style={{ padding: '8px 18px', fontSize: 14, borderRadius: 8, border: '1px solid #e5e7eb', textDecoration: 'none', color: '#374151' }}>
             تسجيل الدخول
           </Link>
-          <Link href="/" style={{ padding: '8px 18px', fontSize: 14, borderRadius: 8, background: '#1d4ed8', color: '#fff', textDecoration: 'none', fontWeight: 600 }}>
+          <Link href="/register" style={{ padding: '8px 18px', fontSize: 14, borderRadius: 8, background: '#1d4ed8', color: '#fff', textDecoration: 'none', fontWeight: 600 }}>
             ابدأ مجاناً
           </Link>
         </div>
@@ -32,10 +31,10 @@ export default function Landing() {
           شواهدي تساعد مدارس التعليم العام على توثيق وتنظيم شواهد معايير الاعتماد المدرسي — مجال بمجال، مؤشراً بمؤشر.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/" style={{ padding: '14px 36px', fontSize: 16, fontWeight: 700, background: '#1d4ed8', color: '#fff', borderRadius: 10, textDecoration: 'none', boxShadow: '0 4px 14px rgba(29,78,216,0.3)' }}>
+          <Link href="/register" style={{ padding: '14px 36px', fontSize: 16, fontWeight: 700, background: '#1d4ed8', color: '#fff', borderRadius: 10, textDecoration: 'none', boxShadow: '0 4px 14px rgba(29,78,216,0.3)' }}>
             سجّل مدرستك الآن ←
           </Link>
-          <Link href="/" style={{ padding: '14px 36px', fontSize: 16, border: '1.5px solid #d1d5db', borderRadius: 10, textDecoration: 'none', color: '#374151', background: '#fff' }}>
+          <Link href="/login" style={{ padding: '14px 36px', fontSize: 16, border: '1.5px solid #d1d5db', borderRadius: 10, textDecoration: 'none', color: '#374151', background: '#fff' }}>
             تسجيل الدخول
           </Link>
         </div>
@@ -96,10 +95,10 @@ export default function Landing() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
             {[
-              { icon: '📋', title: 'لوحة اكتمال فورية', desc: 'تعرف في ثوانٍ أي المجالات مكتملة وأيها يحتاج شواهد إضافية — بشكل بصري واضح.' },
-              { icon: '📤', title: 'رفع شواهد بسهولة', desc: 'ارفع صوراً وملفات PDF ومستندات مباشرة تحت كل مؤشر من المؤشرات الـ 38.' },
-              { icon: '📝', title: 'نماذج جاهزة', desc: 'محاضر لجان وخطط تشغيلية وتقارير — تعبّئها وتطلع PDF احترافي باسم مدرستك.' },
-              { icon: '🖨️', title: 'تقرير كامل بضغطة', desc: 'اطبع ملف شواهد مدرستك كاملاً ومرتباً جاهزاً لأي زيارة تقويم أو اعتماد.' },
+              { icon: '📋', title: 'لوحة اكتمال فورية', desc: 'تعرف في ثوانٍ أي المجالات مكتملة وأيها يحتاج شواهد إضافية.' },
+              { icon: '📤', title: 'رفع شواهد بسهولة', desc: 'ارفع صوراً وملفات PDF ومستندات مباشرة تحت كل مؤشر.' },
+              { icon: '📝', title: 'نماذج جاهزة', desc: 'محاضر لجان وخطط تشغيلية — تعبّئها وتطلع PDF باسم مدرستك.' },
+              { icon: '🖨️', title: 'تقرير كامل بضغطة', desc: 'اطبع ملف شواهد مدرستك كاملاً ومرتباً جاهزاً لأي زيارة.' },
             ].map(f => (
               <div key={f.title} style={{ padding: '1.25rem 1.5rem', background: '#f8fafc', borderRadius: 12, border: '1px solid #e5e7eb' }}>
                 <p style={{ fontSize: 30, margin: '0 0 10px' }}>{f.icon}</p>
@@ -125,7 +124,7 @@ export default function Landing() {
                 </p>
               ))}
             </div>
-            <Link href="/" style={{ display: 'block', padding: '14px', fontSize: 16, fontWeight: 700, background: '#1d4ed8', color: '#fff', borderRadius: 10, textDecoration: 'none' }}>
+            <Link href="/register" style={{ display: 'block', padding: '14px', fontSize: 16, fontWeight: 700, background: '#1d4ed8', color: '#fff', borderRadius: 10, textDecoration: 'none' }}>
               سجّل مدرستك الآن ←
             </Link>
           </div>
