@@ -2,31 +2,17 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
+import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
-type Indicator = {
-  id: number
-  code: string
-  name_ar: string
-  order_num: number
-  evidence_count: number
-  status: string
-}
+const NAVY = '#0B1F3A'
+const GOLD = '#C28A1F'
+const CREAM = '#FBF8F2'
 
 type Standard = {
-  id: number
-  code: string
-  name_ar: string
-  order_num: number
-  indicators: Indicator[]
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  empty: 'فارغ', started: 'بدأ', good: 'جيد', excellent: 'ممتاز'
-}
-const STATUS_COLOR: Record<string, string> = {
-  empty: '#dc2626', started: '#d97706', good: '#2563eb', excellent: '#16a34a'
+  id: number; code: string; name_ar: string; order_num: number
+  total_indicators: number; completed: number; total_evidences: number
 }
 
 export default function DomainPage() {
@@ -39,31 +25,20 @@ export default function DomainPage() {
   useEffect(() => {
     if (!school) return
     async function load() {
-      const { data: domainData } = await supabase
-        .from('domains').select('*').eq('id', id).single()
-      const { data: standardsData } = await supabase
-        .from('standards').select('*').eq('domain_id', id).order('order_num')
-      const { data: indicatorsData } = await supabase
-        .from('indicators').select('*').order('order_num')
-      const { data: evidences } = await supabase
-        .from('evidences')
-        .select('id, indicator_id')
-        .eq('school_id', school!.id)
+      const { data: domainData } = await supabase.from('domains').select('*').eq('id', id).single()
+      const { data: standardsData } = await supabase.from('standards').select('*').eq('domain_id', id).order('order_num')
+      const { data: indicatorsData } = await supabase.from('indicators').select('id, standard_id')
+      const { data: evidences } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
 
       if (standardsData && indicatorsData) {
         const evByInd: Record<number, number> = {}
-        evidences?.forEach(e => {
-          evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1
-        })
+        evidences?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
+
         const enriched = standardsData.map(s => {
-          const inds = indicatorsData
-            .filter(i => i.standard_id === s.id)
-            .map(i => {
-              const count = evByInd[i.id] || 0
-              const status = count === 0 ? 'empty' : count < 3 ? 'started' : count < 5 ? 'good' : 'excellent'
-              return { ...i, evidence_count: count, status }
-            })
-          return { ...s, indicators: inds }
+          const indIds = indicatorsData.filter(i => i.standard_id === s.id).map(i => i.id)
+          const completed = indIds.filter(iid => (evByInd[iid] || 0) > 0).length
+          const totalEv = indIds.reduce((sum, iid) => sum + (evByInd[iid] || 0), 0)
+          return { ...s, total_indicators: indIds.length, completed, total_evidences: totalEv }
         })
         setDomain(domainData)
         setStandards(enriched)
@@ -73,70 +48,112 @@ export default function DomainPage() {
     load()
   }, [id, school])
 
-  const totalInd = standards.reduce((s, st) => s + st.indicators.length, 0)
-  const completedInd = standards.reduce((s, st) => s + st.indicators.filter(i => i.status !== 'empty').length, 0)
-  const totalEv = standards.reduce((s, st) => s + st.indicators.reduce((ss, i) => ss + i.evidence_count, 0), 0)
+  const totalInd = standards.reduce((s, st) => s + st.total_indicators, 0)
+  const completedInd = standards.reduce((s, st) => s + st.completed, 0)
 
   if (schoolLoading || loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif' }}>
-      <p style={{ color: '#6b7280' }}>جاري التحميل...</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
+      <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '24px 16px', maxWidth: 720, margin: '0 auto', fontFamily: 'Tajawal, sans-serif', direction: 'rtl' }}>
-      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+    <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
+      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
+      <style>{`
+        .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
+        .std-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(11,31,58,0.10); border-color: rgba(194,138,31,0.3) !important; }
+      `}</style>
 
-      <div style={{ marginBottom: 20 }}>
-        <Link href="/dashboard" style={{ textDecoration: 'none', color: '#6b7280', fontSize: 13 }}>
-          ← الرئيسية
-        </Link>
-      </div>
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <AppSidebar activeDomainId={Number(id)} />
 
-      <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: '#111827', marginBottom: 4 }}>{domain?.name_ar}</h1>
-        <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>{totalInd} مؤشراً · {completedInd} مكتمل · {totalEv} شاهد</p>
-      </div>
-
-      {standards.map(standard => (
-        <div key={standard.id} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, marginBottom: 12, overflow: 'hidden' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f9fafb' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 11, background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: 6 }}>{standard.code}</span>
-              <p style={{ fontWeight: 600, fontSize: 14, margin: 0, color: '#111827' }}>{standard.name_ar}</p>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <header style={{
+            background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
+            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            position: 'sticky', top: 0, zIndex: 50
+          }}>
+            <div>
+              <Link href="/dashboard" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                ← الرئيسية
+              </Link>
+              <p style={{ fontSize: 18, fontWeight: 800, color: NAVY, margin: '4px 0 0' }}>{domain?.name_ar}</p>
             </div>
-            <span style={{ fontSize: 12, color: '#6b7280' }}>
-              {standard.indicators.filter(i => i.status !== 'empty').length} / {standard.indicators.length}
-            </span>
-          </div>
+          </header>
 
-          {standard.indicators.map((indicator, idx) => (
-            <Link key={indicator.id} href={`/indicator/${indicator.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ padding: '12px 16px', borderBottom: idx < standard.indicators.length - 1 ? '1px solid #f3f4f6' : 'none', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-                <span style={{ fontSize: 18 }}>
-                  {indicator.status === 'empty' ? '⭕' : indicator.status === 'excellent' ? '✅' : '🔵'}
-                </span>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 13, margin: 0, color: '#111827' }}>{indicator.name_ar}</p>
-                  <p style={{ fontSize: 11, color: '#6b7280', margin: '2px 0 0' }}>{indicator.code} · {indicator.evidence_count} شواهد</p>
-                </div>
-                <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 20, background: STATUS_COLOR[indicator.status] + '18', color: STATUS_COLOR[indicator.status], fontWeight: 500 }}>
-                  {STATUS_LABEL[indicator.status]}
-                </span>
+          <main style={{ padding: '32px 28px', maxWidth: 880, margin: '0 auto' }}>
+
+            {/* شريط الفهم البسيط */}
+            <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '20px 24px', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 20 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 14, background: 'rgba(194,138,31,0.1)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0
+              }}>
+                📋
               </div>
-            </Link>
-          ))}
-        </div>
-      ))}
+              <div style={{ flex: 1 }}>
+                <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: '0 0 4px' }}>
+                  هذا المجال يحتوي على {standards.length} معايير، وتحت كل معيار مجموعة مؤشرات تحتاج شواهد
+                </p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: 0 }}>
+                  أكملت {completedInd} من {totalInd} مؤشراً
+                </p>
+              </div>
+              <div style={{ textAlign: 'left', flexShrink: 0 }}>
+                <p style={{ fontSize: 26, fontWeight: 800, color: GOLD, margin: 0 }}>
+                  {totalInd ? Math.round((completedInd / totalInd) * 100) : 0}%
+                </p>
+              </div>
+            </div>
 
-      {completedInd < totalInd && (
-        <div style={{ marginTop: 8, background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span>⚠️</span>
-          <p style={{ fontSize: 13, color: '#92400e', margin: 0 }}>
-            {totalInd - completedInd} مؤشراً بدون شواهد — أضف شاهداً لكل منها لرفع تصنيفك
-          </p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 6 }}>اختر معياراً للبدء</p>
+            <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 18 }}>
+              كل معيار فيه مجموعة مؤشرات — اضغط على المعيار لترى مؤشراته وترفع شواهده
+            </p>
+
+            <div style={{ display: 'grid', gap: 14 }}>
+              {standards.map((standard, idx) => {
+                const pct = standard.total_indicators ? Math.round((standard.completed / standard.total_indicators) * 100) : 0
+                return (
+                  <Link key={standard.id} href={`/standard/${standard.id}`} className="std-card" style={{
+                    textDecoration: 'none', color: 'inherit', background: '#fff', borderRadius: 16,
+                    border: '1.5px solid rgba(11,31,58,0.07)', padding: '20px 24px',
+                    display: 'flex', alignItems: 'center', gap: 18, transition: 'all 0.2s'
+                  }}>
+                    <div style={{
+                      width: 48, height: 48, borderRadius: 12, background: NAVY,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                    }}>
+                      <span style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>{idx + 1}</span>
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 700, fontSize: 16, color: NAVY, margin: '0 0 6px' }}>{standard.name_ar}</p>
+                      <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>
+                        {standard.total_indicators} مؤشراً · {standard.total_evidences} شاهد مرفوع
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                      <div style={{ width: 80 }}>
+                        <div style={{ background: '#EDEAE0', borderRadius: 99, height: 6, marginBottom: 6 }}>
+                          <div style={{
+                            width: `${pct || 2}%`, height: '100%', borderRadius: 99,
+                            background: pct === 100 ? '#16a34a' : GOLD, transition: 'width 0.4s'
+                          }} />
+                        </div>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: NAVY, margin: 0, textAlign: 'center' }}>{pct}%</p>
+                      </div>
+                      <span style={{ fontSize: 20, color: '#C0BCA8' }}>←</span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </main>
         </div>
-      )}
+      </div>
     </div>
   )
 }

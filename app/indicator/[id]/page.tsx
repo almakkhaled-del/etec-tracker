@@ -2,19 +2,18 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
+import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
+const NAVY = '#0B1F3A'
+const GOLD = '#C28A1F'
+const GOLD_LIGHT = '#E8C275'
+const CREAM = '#FBF8F2'
+
 type Evidence = {
-  id: string
-  title: string
-  description: string
-  evidence_type: string
-  file_url: string
-  file_name: string
-  evidence_date: string
-  pdf_pages: string[] | null
-  created_at: string
+  id: string; title: string; description: string; evidence_type: string
+  file_url: string; file_name: string; evidence_date: string; pdf_pages: string[] | null
 }
 
 export default function IndicatorPage() {
@@ -31,44 +30,36 @@ export default function IndicatorPage() {
   const [description, setDescription] = useState('')
   const [date, setDate] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [dragOver, setDragOver] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [pdfJsReady, setPdfJsReady] = useState(false)
 
-  // تحميل مكتبة pdf.js من CDN
   useEffect(() => {
     if ((window as any).pdfjsLib) { setPdfJsReady(true); return }
     const script = document.createElement('script')
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
     script.onload = () => {
-      (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+      (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
       setPdfJsReady(true)
     }
     document.body.appendChild(script)
   }, [])
 
   async function loadEvidences(schoolId: string) {
-    const { data: evs } = await supabase
-      .from('evidences')
-      .select('*')
-      .eq('indicator_id', Number(id))
-      .eq('school_id', schoolId)
-      .order('created_at', { ascending: false })
+    const { data: evs } = await supabase.from('evidences').select('*').eq('indicator_id', Number(id)).eq('school_id', schoolId).order('created_at', { ascending: false })
     setEvidences(evs || [])
   }
 
   useEffect(() => {
     async function load() {
-      const { data: ind } = await supabase
-        .from('indicators').select('*').eq('id', id).single()
+      const { data: ind } = await supabase.from('indicators').select('*').eq('id', id).single()
       if (ind) {
         setIndicator(ind)
-        const { data: std } = await supabase
-          .from('standards').select('*').eq('id', ind.standard_id).single()
+        const { data: std } = await supabase.from('standards').select('*').eq('id', ind.standard_id).single()
         if (std) {
           setStandard(std)
-          const { data: dom } = await supabase
-            .from('domains').select('*').eq('id', std.domain_id).single()
+          const { data: dom } = await supabase.from('domains').select('*').eq('id', std.domain_id).single()
           setDomain(dom)
         }
       }
@@ -77,17 +68,13 @@ export default function IndicatorPage() {
     load()
   }, [id])
 
-  useEffect(() => {
-    if (school) loadEvidences(school.id)
-  }, [school, id])
+  useEffect(() => { if (school) loadEvidences(school.id) }, [school, id])
 
-  // تحويل PDF إلى مصفوفة من صور (Blob)
   async function convertPdfToImages(pdfFile: File): Promise<Blob[]> {
     const pdfjsLib = (window as any).pdfjsLib
     const arrayBuffer = await pdfFile.arrayBuffer()
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
     const images: Blob[] = []
-
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       setUploadStatus(`جاري تحويل صفحة ${pageNum} من ${pdf.numPages}...`)
       const page = await pdf.getPage(pageNum)
@@ -97,13 +84,23 @@ export default function IndicatorPage() {
       canvas.width = viewport.width
       canvas.height = viewport.height
       await page.render({ canvasContext: context, viewport }).promise
-
-      const blob: Blob = await new Promise(resolve => {
-        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85)
-      })
+      const blob: Blob = await new Promise(resolve => canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85))
       images.push(blob)
     }
     return images
+  }
+
+  function handleFileSelect(selectedFile: File) {
+    setFile(selectedFile)
+    if (!title) setTitle(selectedFile.name.replace(/\.[^/.]+$/, ''))
+    setShowForm(true)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const dropped = e.dataTransfer.files?.[0]
+    if (dropped) handleFileSelect(dropped)
   }
 
   async function uploadEvidence() {
@@ -119,36 +116,27 @@ export default function IndicatorPage() {
 
       if (file) {
         const isPdf = file.type === 'application/pdf'
-
         if (isPdf && pdfJsReady) {
-          // تحويل PDF إلى صور ورفعها كلها
           const images = await convertPdfToImages(file)
           const uploadedUrls: string[] = []
-
           for (let i = 0; i < images.length; i++) {
             setUploadStatus(`رفع صفحة ${i + 1} من ${images.length}...`)
             const path = `${school.id}/${id}/${Date.now()}_page${i + 1}.jpg`
-            const { error: upErr } = await supabase.storage
-              .from('school-evidences').upload(path, images[i])
+            const { error: upErr } = await supabase.storage.from('school-evidences').upload(path, images[i])
             if (upErr) throw upErr
-            const { data: urlData } = supabase.storage
-              .from('school-evidences').getPublicUrl(path)
+            const { data: urlData } = supabase.storage.from('school-evidences').getPublicUrl(path)
             uploadedUrls.push(urlData.publicUrl)
           }
-
           pdf_pages = uploadedUrls
-          file_url = uploadedUrls[0] // أول صفحة كمعاينة
+          file_url = uploadedUrls[0]
           file_name = file.name
           evidence_type = 'pdf'
         } else {
-          // رفع عادي (صورة أو PDF بدون تحويل لو فشلت المكتبة)
           const ext = file.name.split('.').pop()
           const path = `${school.id}/${id}/${Date.now()}.${ext}`
-          const { error: uploadError } = await supabase.storage
-            .from('school-evidences').upload(path, file)
+          const { error: uploadError } = await supabase.storage.from('school-evidences').upload(path, file)
           if (uploadError) throw uploadError
-          const { data: urlData } = supabase.storage
-            .from('school-evidences').getPublicUrl(path)
+          const { data: urlData } = supabase.storage.from('school-evidences').getPublicUrl(path)
           file_url = urlData.publicUrl
           file_name = file.name
           evidence_type = file.type.startsWith('image/') ? 'image' : 'pdf'
@@ -157,21 +145,11 @@ export default function IndicatorPage() {
 
       setUploadStatus('جاري الحفظ...')
       await supabase.from('evidences').insert({
-        school_id: school.id,
-        indicator_id: Number(id),
-        title,
-        description,
-        evidence_type,
-        file_url,
-        file_name,
-        pdf_pages,
-        evidence_date: date || null,
+        school_id: school.id, indicator_id: Number(id), title, description, evidence_type,
+        file_url, file_name, pdf_pages, evidence_date: date || null,
       })
 
-      setTitle('')
-      setDescription('')
-      setDate('')
-      setFile(null)
+      setTitle(''); setDescription(''); setDate(''); setFile(null); setShowForm(false)
       if (fileRef.current) fileRef.current.value = ''
       await loadEvidences(school.id)
     } catch (e: any) {
@@ -188,104 +166,165 @@ export default function IndicatorPage() {
   }
 
   const status = evidences.length === 0 ? 'فارغ' : evidences.length < 3 ? 'بدأ' : evidences.length < 5 ? 'جيد' : 'ممتاز'
-  const statusColor = evidences.length === 0 ? '#dc2626' : evidences.length < 3 ? '#d97706' : evidences.length < 5 ? '#2563eb' : '#16a34a'
+  const statusColor = evidences.length === 0 ? '#DC2626' : evidences.length < 3 ? '#D97706' : evidences.length < 5 ? '#1d4ed8' : '#16a34a'
+  const statusBg = evidences.length === 0 ? '#FEF2F2' : evidences.length < 3 ? '#FFFBEB' : evidences.length < 5 ? '#EFF6FF' : '#F0FDF4'
 
   if (schoolLoading || loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif' }}>
-      <p style={{ color: '#6b7280' }}>جاري التحميل...</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
+      <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '24px 16px', maxWidth: 720, margin: '0 auto', fontFamily: 'Tajawal, sans-serif', direction: 'rtl' }}>
-      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+    <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
+      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
+      <style>{`
+        .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
+        .ev-card:hover { box-shadow: 0 6px 18px rgba(11,31,58,0.08); }
+        .drop-zone { transition: all 0.2s; }
+        .drop-zone.over { background: rgba(194,138,31,0.06); border-color: #C28A1F !important; }
+      `}</style>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 13, color: '#6b7280', flexWrap: 'wrap' }}>
-        <Link href="/dashboard" style={{ textDecoration: 'none', color: '#6b7280' }}>الرئيسية</Link>
-        <span>←</span>
-        <Link href={`/domain/${domain?.id}`} style={{ textDecoration: 'none', color: '#6b7280' }}>{domain?.name_ar}</Link>
-        <span>←</span>
-        <span style={{ color: '#111827' }}>{standard?.name_ar}</span>
-      </div>
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <AppSidebar activeDomainId={domain?.id} />
 
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '16px 20px', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
-          <p style={{ fontSize: 15, fontWeight: 600, color: '#111827', margin: 0, lineHeight: 1.6 }}>{indicator?.name_ar}</p>
-          <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: statusColor + '18', color: statusColor, fontWeight: 600, whiteSpace: 'nowrap' }}>
-            {status}
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 11, background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: 6 }}>{indicator?.code}</span>
-          <span style={{ fontSize: 12, color: '#6b7280' }}>{evidences.length} شواهد مرفوعة</span>
-        </div>
-      </div>
-
-      {evidences.length > 0 && (
-        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, marginBottom: 16, overflow: 'hidden' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #f3f4f6', background: '#f9fafb' }}>
-            <p style={{ fontWeight: 600, fontSize: 14, margin: 0 }}>الشواهد المرفوعة ({evidences.length})</p>
-          </div>
-          {evidences.map((ev, idx) => (
-            <div key={ev.id} style={{ padding: '12px 16px', borderBottom: idx < evidences.length - 1 ? '1px solid #f3f4f6' : 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 22 }}>
-                {ev.evidence_type === 'image' ? '🖼️' : ev.evidence_type === 'pdf' ? '📄' : '📝'}
-              </span>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, margin: 0, color: '#111827' }}>{ev.title}</p>
-                {ev.description && <p style={{ fontSize: 12, color: '#6b7280', margin: '2px 0 0' }}>{ev.description}</p>}
-                {ev.pdf_pages && ev.pdf_pages.length > 0 && (
-                  <p style={{ fontSize: 11, color: '#16a34a', margin: '2px 0 0' }}>✓ تم تحويل {ev.pdf_pages.length} صفحة لصور</p>
-                )}
-                {ev.evidence_date && <p style={{ fontSize: 11, color: '#9ca3af', margin: '2px 0 0' }}>{ev.evidence_date}</p>}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <header style={{
+            background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
+            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
+            position: 'sticky', top: 0, zIndex: 50
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif', flexWrap: 'wrap' }}>
+                <Link href="/dashboard" style={{ color: '#8A8270', textDecoration: 'none' }}>الرئيسية</Link>
+                <span>←</span>
+                <Link href={`/domain/${domain?.id}`} style={{ color: '#8A8270', textDecoration: 'none' }}>{domain?.name_ar}</Link>
+                <span>←</span>
+                <Link href={`/standard/${standard?.id}`} style={{ color: '#8A8270', textDecoration: 'none' }}>{standard?.name_ar}</Link>
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {ev.file_url && (
-                  <a href={ev.file_url} target="_blank" rel="noreferrer"
-                    style={{ fontSize: 12, padding: '4px 10px', background: '#eff6ff', color: '#2563eb', borderRadius: 6, textDecoration: 'none' }}>
-                    عرض
-                  </a>
+              <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: '4px 0 0', lineHeight: 1.4, maxWidth: 600 }}>{indicator?.name_ar}</p>
+            </div>
+          </header>
+
+          <main style={{ padding: '32px 28px', maxWidth: 760, margin: '0 auto' }}>
+
+            {/* حالة المؤشر */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+              <span style={{ fontSize: 11, background: 'rgba(11,31,58,0.06)', color: NAVY, padding: '4px 12px', borderRadius: 8, fontWeight: 600 }}>
+                مؤشر {indicator?.code}
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 700, padding: '5px 14px', borderRadius: 20, background: statusBg, color: statusColor }}>
+                {status} — {evidences.length} شواهد
+              </span>
+            </div>
+
+            {/* منطقة الرفع - Drag & Drop */}
+            <div
+              className={`drop-zone ${dragOver ? 'over' : ''}`}
+              onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => fileRef.current?.click()}
+              style={{
+                border: '2px dashed rgba(11,31,58,0.18)', borderRadius: 18, padding: '40px 24px',
+                textAlign: 'center', cursor: 'pointer', background: '#fff', marginBottom: 24
+              }}
+            >
+              <div style={{
+                width: 64, height: 64, borderRadius: 16, background: 'rgba(194,138,31,0.1)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 28
+              }}>
+                📎
+              </div>
+              <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: '0 0 6px' }}>
+                اسحب الملف هنا أو اضغط للاختيار
+              </p>
+              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>
+                صورة (JPG, PNG) أو ملف PDF — يدعم الرفع التلقائي بدون ضغط
+              </p>
+              <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
+                onChange={e => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
+            </div>
+
+            {/* نموذج تفاصيل الشاهد - يظهر بعد اختيار ملف */}
+            {showForm && (
+              <div style={{ background: '#fff', border: `1.5px solid ${GOLD}`, borderRadius: 16, padding: '20px 22px', marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '10px 14px', background: 'rgba(194,138,31,0.06)', borderRadius: 10 }}>
+                  <span style={{ fontSize: 20 }}>{file?.type === 'application/pdf' ? '📄' : '🖼️'}</span>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: NAVY, margin: 0, flex: 1, wordBreak: 'break-all' }}>{file?.name}</p>
+                  <button onClick={() => { setFile(null); setShowForm(false) }} style={{
+                    background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626', fontSize: 13, fontFamily: 'Tajawal, sans-serif'
+                  }}>إزالة</button>
+                </div>
+
+                <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6, display: 'block' }}>عنوان الشاهد *</label>
+                <input type="text" value={title} onChange={e => setTitle(e.target.value)}
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(11,31,58,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box' }} />
+
+                <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6, display: 'block' }}>وصف مختصر (اختياري)</label>
+                <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2}
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(11,31,58,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', resize: 'none', boxSizing: 'border-box' }} />
+
+                <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6, display: 'block' }}>التاريخ</label>
+                <input type="date" value={date} onChange={e => setDate(e.target.value)}
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(11,31,58,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 16, boxSizing: 'border-box' }} />
+
+                {uploadStatus && (
+                  <p className="body-font" style={{ fontSize: 12, color: GOLD, textAlign: 'center', marginBottom: 12 }}>{uploadStatus}</p>
                 )}
-                <button onClick={() => deleteEvidence(ev.id)}
-                  style={{ fontSize: 12, padding: '4px 10px', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
-                  حذف
+
+                <button onClick={uploadEvidence} disabled={uploading} style={{
+                  width: '100%', padding: '13px', background: uploading ? '#9ca3af' : `linear-gradient(135deg, #D9A441, ${GOLD})`,
+                  color: NAVY, border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700,
+                  cursor: uploading ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif'
+                }}>
+                  {uploading ? 'جاري الرفع...' : 'حفظ الشاهد ✓'}
                 </button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            )}
 
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, overflow: 'hidden' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #f3f4f6', background: '#f9fafb' }}>
-          <p style={{ fontWeight: 600, fontSize: 14, margin: 0 }}>إضافة شاهد جديد</p>
-        </div>
-        <div style={{ padding: '16px' }}>
-          <input type="text" placeholder="عنوان الشاهد *" value={title}
-            onChange={e => setTitle(e.target.value)}
-            style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, marginBottom: 10, fontFamily: 'Tajawal, sans-serif', boxSizing: 'border-box' }} />
-          <textarea placeholder="وصف مختصر (اختياري)" value={description}
-            onChange={e => setDescription(e.target.value)} rows={2}
-            style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, marginBottom: 10, fontFamily: 'Tajawal, sans-serif', resize: 'none', boxSizing: 'border-box' }} />
-          <input type="date" value={date} onChange={e => setDate(e.target.value)}
-            style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' }} />
-          <div style={{ border: '2px dashed #e5e7eb', borderRadius: 8, padding: '20px', textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}
-            onClick={() => fileRef.current?.click()}>
-            <p style={{ fontSize: 14, color: '#6b7280', margin: 0 }}>
-              {file ? `✅ ${file.name}` : '📎 اضغط لرفع ملف (صورة أو PDF)'}
-            </p>
-          </div>
-          <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
-            onChange={e => setFile(e.target.files?.[0] || null)} />
-
-          {uploadStatus && (
-            <p style={{ fontSize: 12, color: '#1d4ed8', textAlign: 'center', marginBottom: 10 }}>{uploadStatus}</p>
-          )}
-
-          <button onClick={uploadEvidence} disabled={uploading}
-            style={{ width: '100%', padding: '12px', background: uploading ? '#9ca3af' : '#2563eb', color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
-            {uploading ? 'جاري الرفع...' : 'رفع الشاهد ✓'}
-          </button>
+            {/* الشواهد المرفوعة - بطاقات */}
+            {evidences.length > 0 && (
+              <>
+                <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 14 }}>الشواهد المرفوعة ({evidences.length})</p>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  {evidences.map(ev => (
+                    <div key={ev.id} className="ev-card" style={{
+                      background: '#fff', border: '1px solid rgba(11,31,58,0.08)', borderRadius: 14,
+                      padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14, transition: 'box-shadow 0.2s'
+                    }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                        background: ev.evidence_type === 'image' ? '#F0FDF4' : '#EFF6FF',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+                      }}>
+                        {ev.evidence_type === 'image' ? '🖼️' : ev.evidence_type === 'pdf' ? '📄' : '📝'}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, margin: '0 0 2px' }}>{ev.title}</p>
+                        <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
+                          {ev.pdf_pages?.length ? `${ev.pdf_pages.length} صفحة محوّلة` : ''}
+                          {ev.evidence_date ? ` · ${ev.evidence_date}` : ''}
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                        {ev.file_url && (
+                          <a href={ev.file_url} target="_blank" rel="noreferrer" style={{
+                            fontSize: 12, padding: '7px 14px', background: 'rgba(11,31,58,0.05)', color: NAVY,
+                            borderRadius: 8, textDecoration: 'none', fontWeight: 600
+                          }}>عرض</a>
+                        )}
+                        <button onClick={() => deleteEvidence(ev.id)} style={{
+                          fontSize: 12, padding: '7px 14px', background: '#FEF2F2', color: '#DC2626',
+                          border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: 'Tajawal, sans-serif'
+                        }}>حذف</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </main>
         </div>
       </div>
     </div>

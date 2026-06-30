@@ -2,11 +2,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
+import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
 
 const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
 const GOLD_LIGHT = '#E8C275'
 const CREAM = '#FBF8F2'
 
@@ -26,21 +25,14 @@ function CircleProgress({ percent, color, size = 92 }: { percent: number; color:
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
       <circle cx={size / 2} cy={size / 2} r={r} stroke="#EDEAE0" strokeWidth={stroke} fill="none" />
-      <circle
-        cx={size / 2} cy={size / 2} r={r}
-        stroke={color} strokeWidth={stroke} fill="none"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-      />
+      <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none"
+        strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
+        style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
     </svg>
   )
 }
 
 export default function Dashboard() {
-  const router = useRouter()
-  const pathname = usePathname()
   const { school, loading: schoolLoading } = useSchool()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,16 +44,13 @@ export default function Dashboard() {
       const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
       const { data: standards } = await supabase.from('standards').select('id, domain_id')
       const { data: indicators } = await supabase.from('indicators').select('id, standard_id')
-      const { data: evidences } = await supabase
-        .from('evidences').select('id, indicator_id').eq('school_id', school!.id)
+      const { data: evidences } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
 
       if (domainsData && standards && indicators) {
         const evByIndicator: Record<number, number> = {}
         evidences?.forEach(e => { evByIndicator[e.indicator_id] = (evByIndicator[e.indicator_id] || 0) + 1 })
-
         const stdByDomain: Record<number, number[]> = {}
         standards.forEach(s => { if (!stdByDomain[s.domain_id]) stdByDomain[s.domain_id] = []; stdByDomain[s.domain_id].push(s.id) })
-
         const indByStd: Record<number, number[]> = {}
         indicators.forEach(i => { if (!indByStd[i.standard_id]) indByStd[i.standard_id] = []; indByStd[i.standard_id].push(i.id) })
 
@@ -85,15 +74,8 @@ export default function Dashboard() {
   }, [school])
 
   const completion = stats.total ? Math.round((stats.completed / stats.total) * 100) : 0
-
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
   const isTrial = school?.subscription_status === 'trial'
-
   const principalFirstName = school?.principal_name?.split(' ')[0] || 'مدير المدرسة'
 
   if (schoolLoading) return (
@@ -105,100 +87,22 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
-
       <style>{`
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
-        .sidebar-link:hover { background: rgba(255,255,255,0.06) !important; }
         .domain-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(11,31,58,0.08); }
-        @media (max-width: 860px) {
-          .sidebar-desktop { display: none !important; }
-        }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <AppSidebar />
 
-        {/* ============ SIDEBAR ============ */}
-        <aside className="sidebar-desktop" style={{
-          width: 252, background: NAVY, flexShrink: 0, display: 'flex', flexDirection: 'column',
-          position: 'sticky', top: 0, height: '100vh', padding: '28px 0', overflowY: 'auto'
-        }}>
-          <div style={{ padding: '0 24px', marginBottom: 32 }}>
-            <Link href="/dashboard">
-              <img src="/logo.png" alt="شواهدي" style={{ height: 36, filter: 'brightness(0) invert(1)' }} />
-            </Link>
-          </div>
-
-          <nav style={{ flex: 1, padding: '0 14px' }}>
-            <Link href="/dashboard" className="sidebar-link" style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
-              textDecoration: 'none', marginBottom: 4,
-              background: pathname === '/dashboard' ? 'rgba(232,194,117,0.14)' : 'transparent',
-              color: pathname === '/dashboard' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
-            }}>
-              <span style={{ fontSize: 16 }}>🏠</span>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>الرئيسية</span>
-            </Link>
-
-            <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', padding: '18px 14px 8px', margin: 0, letterSpacing: 1 }}>
-              المجالات
-            </p>
-
-            {domains.map(domain => {
-              const pct = domain.total_indicators ? Math.round(((domain.completed || 0) / domain.total_indicators) * 100) : 0
-              const isActive = pathname === `/domain/${domain.id}`
-              return (
-                <Link key={domain.id} href={`/domain/${domain.id}`} className="sidebar-link" style={{
-                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
-                  textDecoration: 'none', marginBottom: 2,
-                  background: isActive ? 'rgba(232,194,117,0.14)' : 'transparent',
-                  color: isActive ? GOLD_LIGHT : 'rgba(255,255,255,0.72)'
-                }}>
-                  <span style={{ fontSize: 14, flexShrink: 0 }}>{DOMAIN_ICONS[domain.code]}</span>
-                  <span style={{ fontSize: 13, fontWeight: 500, flex: 1, lineHeight: 1.4 }}>{domain.name_ar}</span>
-                  <span className="body-font" style={{ fontSize: 11, opacity: 0.7, flexShrink: 0 }}>{pct}%</span>
-                </Link>
-              )
-            })}
-
-            <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', padding: '18px 14px 8px', margin: 0, letterSpacing: 1 }}>
-              أخرى
-            </p>
-
-            <Link href="/print" className="sidebar-link" style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
-              textDecoration: 'none', marginBottom: 4,
-              background: pathname === '/print' ? 'rgba(232,194,117,0.14)' : 'transparent',
-              color: pathname === '/print' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
-            }}>
-              <span style={{ fontSize: 16 }}>🖨️</span>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>التقرير الكامل</span>
-            </Link>
-          </nav>
-
-          <div style={{ padding: '0 14px' }}>
-            <button onClick={handleLogout} className="sidebar-link body-font" style={{
-              display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '11px 14px',
-              borderRadius: 10, background: 'transparent', border: 'none', cursor: 'pointer',
-              color: 'rgba(255,255,255,0.6)', fontSize: 14, fontFamily: 'Tajawal, sans-serif'
-            }}>
-              <span style={{ fontSize: 16 }}>🚪</span>
-              <span>تسجيل الخروج</span>
-            </button>
-          </div>
-        </aside>
-
-        {/* ============ MAIN CONTENT ============ */}
         <div style={{ flex: 1, minWidth: 0 }}>
-
           <header style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
-              <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
-                مرحباً، {principalFirstName} 👋
-              </p>
+              <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>مرحباً، {principalFirstName} 👋</p>
               <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
                 {school?.name} — معايير التقويم والاعتماد المدرسي 1446هـ
               </p>
@@ -225,7 +129,7 @@ export default function Dashboard() {
           <main style={{ padding: '32px 28px', maxWidth: 1100, margin: '0 auto' }}>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
-              <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
                 <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: '0 0 8px' }}>نسبة الاكتمال الكلية</p>
                 <p style={{ fontSize: 34, fontWeight: 800, color: '#fff', margin: 0 }}>{loading ? '—' : `${completion}%`}</p>
                 <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.12)', borderRadius: 99, marginTop: 14 }}>
@@ -259,10 +163,7 @@ export default function Dashboard() {
                   }}>
                     <div style={{ position: 'relative', flexShrink: 0 }}>
                       <CircleProgress percent={pct} color={color} />
-                      <div style={{
-                        position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexDirection: 'column'
-                      }}>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontSize: 18, fontWeight: 800, color: NAVY }}>{pct}%</span>
                       </div>
                     </div>
