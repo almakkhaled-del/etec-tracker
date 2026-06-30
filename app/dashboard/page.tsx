@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useSchool } from '@/lib/useSchool'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -18,47 +19,22 @@ type Domain = {
 
 export default function Dashboard() {
   const router = useRouter()
+  const { school, loading: schoolLoading } = useSchool()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
-  const [school, setSchool] = useState<any>(null)
   const [stats, setStats] = useState({ total: 38, completed: 0, evidences: 0 })
 
   useEffect(() => {
+    if (!school) return
     async function load() {
-      // تحقق من الجلسة
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
-
-      // جلب بيانات المدرسة
-      const { data: schoolUser } = await supabase
-        .from('school_users')
-        .select('school_id')
-        .eq('auth_id', user.id)
-        .single()
-
-      if (schoolUser) {
-        const { data: schoolData } = await supabase
-          .from('schools')
-          .select('*')
-          .eq('id', schoolUser.school_id)
-          .single()
-
-        if (schoolData) {
-          setSchool(schoolData)
-          // تحقق من انتهاء الاشتراك
-          const isExpired = new Date(schoolData.subscription_end) < new Date()
-          if (isExpired || schoolData.subscription_status === 'expired') {
-            router.push('/expired')
-            return
-          }
-        }
-      }
-
-      // جلب المجالات
       const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
       const { data: standards } = await supabase.from('standards').select('id, domain_id')
       const { data: indicators } = await supabase.from('indicators').select('id, standard_id')
-      const { data: evidences } = await supabase.from('evidences').select('id, indicator_id')
+      // فلترة الشواهد بـ school_id الخاص بالمدرسة الحالية فقط
+      const { data: evidences } = await supabase
+        .from('evidences')
+        .select('id, indicator_id')
+        .eq('school_id', school!.id)
 
       if (domainsData && standards && indicators) {
         const evByIndicator: Record<number, number> = {}
@@ -94,7 +70,7 @@ export default function Dashboard() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [school])
 
   const completion = Math.round((stats.completed / stats.total) * 100)
 
@@ -103,15 +79,19 @@ export default function Dashboard() {
     router.push('/login')
   }
 
-  // حساب أيام التجربة المتبقية
   const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
   const isTrial = school?.subscription_status === 'trial'
+
+  if (schoolLoading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif' }}>
+      <p style={{ color: '#6b7280' }}>جاري التحميل...</p>
+    </div>
+  )
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8f9fa', fontFamily: 'Tajawal, sans-serif', direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
 
-      {/* الهيدر */}
       <nav style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
         <img src="/logo.png" alt="شواهدي" style={{ height: 36 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -129,15 +109,13 @@ export default function Dashboard() {
 
       <div style={{ padding: '24px 16px', maxWidth: 720, margin: '0 auto' }}>
 
-        {/* العنوان */}
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>
-            {loading ? '...' : school?.name}
+            {school?.name}
           </h1>
           <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>معايير التقويم والاعتماد المدرسي — 1446هـ</p>
         </div>
 
-        {/* الإحصائيات */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>
           {[
             { label: 'إجمالي المؤشرات', value: stats.total, color: '#2563eb' },
@@ -145,13 +123,12 @@ export default function Dashboard() {
             { label: 'إجمالي الشواهد', value: stats.evidences, color: '#2563eb' },
           ].map(s => (
             <div key={s.label} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '14px 12px', textAlign: 'center' }}>
-              <p style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, margin: '0 0 6px' }}>{s.label}</p>
+              <p style={{ fontSize: 11, color: '#6b7280', margin: '0 0 6px' }}>{s.label}</p>
               <p style={{ fontSize: 26, fontWeight: 700, color: s.color, margin: 0 }}>{loading ? '—' : s.value}</p>
             </div>
           ))}
         </div>
 
-        {/* شريط الاكتمال */}
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <p style={{ fontSize: 14, fontWeight: 500, margin: 0 }}>نسبة الاكتمال الكلية</p>
@@ -169,7 +146,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* المجالات */}
         <div style={{ display: 'grid', gap: 12 }}>
           {loading ? [1,2,3,4].map(i => (
             <div key={i} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 20, height: 100, opacity: 0.4 }} />
