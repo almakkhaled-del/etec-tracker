@@ -7,11 +7,11 @@ export default function Landing() {
 
       <style>{`
         @keyframes kenburns {
-          0%   { transform: scale(1) translate(0, 0); }
-          100% { transform: scale(1.08) translate(-1%, -1%); }
+          0%   { transform: scale(1.02) translate(0, 0); }
+          100% { transform: scale(1.08) translate(-1%, -0.5%); }
         }
         .hero-bg {
-          animation: kenburns 22s ease-in-out infinite alternate;
+          animation: kenburns 24s ease-in-out infinite alternate;
         }
         @media (prefers-reduced-motion: reduce) {
           .hero-bg { animation: none; }
@@ -47,76 +47,75 @@ export default function Landing() {
           <Link href="/register" className="cta-gold" style={{
             padding: '10px 24px', fontSize: 14, fontWeight: 700, borderRadius: 8,
             background: 'linear-gradient(135deg, #D9A441, #C28A1F)', color: '#0B1F3A',
-            textDecoration: 'none', transition: 'filter 0.2s'
+            textDecoration: 'none', transition: 'filter 0.2s', whiteSpace: 'nowrap'
           }}>
-            ابدأ مجاناً
+            حساب تجريبي لمدة 7 أيام
           </Link>
         </div>
       </nav>
 
-      {/* ============ HERO ============ */}
-      <section style={{ position: 'relative', overflow: 'hidden', minHeight: '88vh', display: 'flex', alignItems: 'center' }}>
+      {/* ============ HERO (صورة كاملة بدون نص فوقها) ============ */}
+      <section style={{ position: 'relative', overflow: 'hidden', height: '56vh', minHeight: 380, maxHeight: 560 }}>
         <div className="hero-bg" style={{
           position: 'absolute', inset: 0,
           backgroundImage: 'url(/hero.png)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'center 35%',
           zIndex: 0,
         }} />
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(90deg, rgba(11,31,58,0.94) 0%, rgba(11,31,58,0.82) 38%, rgba(11,31,58,0.45) 65%, rgba(11,31,58,0.15) 100%)',
+          background: 'linear-gradient(180deg, rgba(11,31,58,0.05) 0%, rgba(11,31,58,0.0) 50%, rgba(251,248,242,1) 100%)',
           zIndex: 1,
         }} />
+      </section>
 
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 1180, margin: '0 auto', padding: '0 28px', width: '100%' }}>
-          <div style={{ maxWidth: 620 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(217,164,65,0.16)', border: '1px solid rgba(217,164,65,0.4)',
-              color: '#E8C275', fontSize: 12, fontWeight: 600, padding: '6px 16px',
-              borderRadius: 30, marginBottom: 28, letterSpacing: 0.3
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#E8C275', display: 'inline-block' }} />
-              متوافق مع معايير هيئة تقويم التعليم والتدريب 2023
-            </div>
+      {/* ============ النص الرئيسي (تحت الهيرو) ============ */}
+      <section style={{ padding: '0 1.5rem 4rem', maxWidth: 760, margin: '0 auto', textAlign: 'center', marginTop: '-2rem', position: 'relative', zIndex: 2 }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          background: 'rgba(217,164,65,0.14)', border: '1px solid rgba(194,138,31,0.35)',
+          color: '#A6730F', fontSize: 12, fontWeight: 600, padding: '6px 16px',
+          borderRadius: 30, marginBottom: 26, letterSpacing: 0.3
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C28A1F', display: 'inline-block' }} />
+          متوافق مع معايير هيئة تقويم التعليم والتدريب
+        </div>
 
-            <h1 style={{ fontSize: 46, fontWeight: 900, lineHeight: 1.3, color: '#fff', marginBottom: 22 }}>
-              نظّم شواهد مدرستك<br />
-              <span style={{
-                background: 'linear-gradient(135deg, #E8C275, #C28A1F)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>وكن جاهزاً لزيارة التقويم</span>
-            </h1>
+        <h1 style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.35, color: '#0B1F3A', marginBottom: 22 }}>
+          نظّم شواهد مدرستك<br />
+          <span style={{
+            background: 'linear-gradient(135deg, #C28A1F, #A6730F)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>وكن جاهزاً لزيارة التقويم</span>
+        </h1>
 
-            <p className="body-font" style={{ fontSize: 17, color: 'rgba(255,255,255,0.85)', lineHeight: 1.9, marginBottom: 36, maxWidth: 520 }}>
-              شواهدي تساعد مدارس التعليم العام على توثيق وتنظيم شواهد معايير الاعتماد المدرسي — مجال بمجال، مؤشراً بمؤشر، حتى تستقبل لجنة التقويم بثقة كاملة.
-            </p>
+        <p className="body-font" style={{ fontSize: 17, color: '#5A5648', lineHeight: 1.9, marginBottom: 36, maxWidth: 540, margin: '0 auto 36px' }}>
+          شواهدي تساعد مدارس التعليم العام على توثيق وتنظيم شواهد معايير الاعتماد المدرسي — مجال بمجال، مؤشراً بمؤشر، حتى تستقبل لجنة التقويم بثقة كاملة.
+        </p>
 
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-              <Link href="/register" className="cta-gold" style={{
-                padding: '15px 38px', fontSize: 16, fontWeight: 700,
-                background: 'linear-gradient(135deg, #E8C275, #C28A1F)', color: '#0B1F3A',
-                borderRadius: 10, textDecoration: 'none',
-                boxShadow: '0 8px 24px rgba(217,164,65,0.35)', transition: 'filter 0.2s'
-              }}>
-                سجّل مدرستك الآن ←
-              </Link>
-              <Link href="/login" style={{
-                padding: '15px 38px', fontSize: 16, fontWeight: 600,
-                border: '1.5px solid rgba(255,255,255,0.35)', borderRadius: 10,
-                textDecoration: 'none', color: '#fff'
-              }}>
-                تسجيل الدخول
-              </Link>
-            </div>
-          </div>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Link href="/register" className="cta-gold" style={{
+            padding: '15px 38px', fontSize: 16, fontWeight: 700,
+            background: 'linear-gradient(135deg, #D9A441, #C28A1F)', color: '#0B1F3A',
+            borderRadius: 10, textDecoration: 'none',
+            boxShadow: '0 8px 24px rgba(194,138,31,0.28)', transition: 'filter 0.2s'
+          }}>
+            سجّل مدرستك الآن ←
+          </Link>
+          <Link href="/login" style={{
+            padding: '15px 38px', fontSize: 16, fontWeight: 600,
+            border: '1.5px solid rgba(11,31,58,0.2)', borderRadius: 10,
+            textDecoration: 'none', color: '#0B1F3A'
+          }}>
+            تسجيل الدخول
+          </Link>
         </div>
       </section>
 
       {/* ============ المجالات ============ */}
-      <section style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '3rem 1.5rem' }}>
+      <section style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', borderTop: '1px solid rgba(11,31,58,0.08)', padding: '3rem 1.5rem' }}>
         <p className="body-font" style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', marginBottom: 22, fontWeight: 600, letterSpacing: 1 }}>
           يغطي المجالات الأربعة لمعايير إتقان — 47 مؤشراً
         </p>
