@@ -45,7 +45,6 @@ export default function Dashboard() {
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     if (!school) return
@@ -95,10 +94,7 @@ export default function Dashboard() {
   const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
   const isTrial = school?.subscription_status === 'trial'
 
-  const navItems = [
-    { href: '/dashboard', icon: '🏠', label: 'الرئيسية' },
-    { href: '/print', icon: '🖨️', label: 'التقرير الكامل' },
-  ]
+  const principalFirstName = school?.principal_name?.split(' ')[0] || 'مدير المدرسة'
 
   if (schoolLoading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
@@ -116,10 +112,6 @@ export default function Dashboard() {
         .domain-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(11,31,58,0.08); }
         @media (max-width: 860px) {
           .sidebar-desktop { display: none !important; }
-          .mobile-toggle { display: flex !important; }
-        }
-        @media (min-width: 861px) {
-          .mobile-toggle { display: none !important; }
         }
       `}</style>
 
@@ -127,25 +119,60 @@ export default function Dashboard() {
 
         {/* ============ SIDEBAR ============ */}
         <aside className="sidebar-desktop" style={{
-          width: 248, background: NAVY, flexShrink: 0, display: 'flex', flexDirection: 'column',
-          position: 'sticky', top: 0, height: '100vh', padding: '28px 0'
+          width: 252, background: NAVY, flexShrink: 0, display: 'flex', flexDirection: 'column',
+          position: 'sticky', top: 0, height: '100vh', padding: '28px 0', overflowY: 'auto'
         }}>
-          <div style={{ padding: '0 24px', marginBottom: 36 }}>
-            <img src="/logo.png" alt="شواهدي" style={{ height: 38, filter: 'brightness(0) invert(1)' }} />
+          <div style={{ padding: '0 24px', marginBottom: 32 }}>
+            <Link href="/dashboard">
+              <img src="/logo.png" alt="شواهدي" style={{ height: 36, filter: 'brightness(0) invert(1)' }} />
+            </Link>
           </div>
 
           <nav style={{ flex: 1, padding: '0 14px' }}>
-            {navItems.map(item => (
-              <Link key={item.href} href={item.href} className="sidebar-link" style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
-                textDecoration: 'none', marginBottom: 4, transition: 'background 0.15s',
-                background: pathname === item.href ? 'rgba(232,194,117,0.14)' : 'transparent',
-                color: pathname === item.href ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
-              }}>
-                <span style={{ fontSize: 16 }}>{item.icon}</span>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{item.label}</span>
-              </Link>
-            ))}
+            <Link href="/dashboard" className="sidebar-link" style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
+              textDecoration: 'none', marginBottom: 4,
+              background: pathname === '/dashboard' ? 'rgba(232,194,117,0.14)' : 'transparent',
+              color: pathname === '/dashboard' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
+            }}>
+              <span style={{ fontSize: 16 }}>🏠</span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>الرئيسية</span>
+            </Link>
+
+            <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', padding: '18px 14px 8px', margin: 0, letterSpacing: 1 }}>
+              المجالات
+            </p>
+
+            {domains.map(domain => {
+              const pct = domain.total_indicators ? Math.round(((domain.completed || 0) / domain.total_indicators) * 100) : 0
+              const isActive = pathname === `/domain/${domain.id}`
+              return (
+                <Link key={domain.id} href={`/domain/${domain.id}`} className="sidebar-link" style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
+                  textDecoration: 'none', marginBottom: 2,
+                  background: isActive ? 'rgba(232,194,117,0.14)' : 'transparent',
+                  color: isActive ? GOLD_LIGHT : 'rgba(255,255,255,0.72)'
+                }}>
+                  <span style={{ fontSize: 14, flexShrink: 0 }}>{DOMAIN_ICONS[domain.code]}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, flex: 1, lineHeight: 1.4 }}>{domain.name_ar}</span>
+                  <span className="body-font" style={{ fontSize: 11, opacity: 0.7, flexShrink: 0 }}>{pct}%</span>
+                </Link>
+              )
+            })}
+
+            <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', padding: '18px 14px 8px', margin: 0, letterSpacing: 1 }}>
+              أخرى
+            </p>
+
+            <Link href="/print" className="sidebar-link" style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
+              textDecoration: 'none', marginBottom: 4,
+              background: pathname === '/print' ? 'rgba(232,194,117,0.14)' : 'transparent',
+              color: pathname === '/print' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
+            }}>
+              <span style={{ fontSize: 16 }}>🖨️</span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>التقرير الكامل</span>
+            </Link>
           </nav>
 
           <div style={{ padding: '0 14px' }}>
@@ -163,16 +190,17 @@ export default function Dashboard() {
         {/* ============ MAIN CONTENT ============ */}
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Top header */}
           <header style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
-            padding: '0 28px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
-              <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: 0 }}>{school?.name}</p>
+              <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
+                مرحباً، {principalFirstName} 👋
+              </p>
               <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                معايير التقويم والاعتماد المدرسي — 1446هـ
+                {school?.name} — معايير التقويم والاعتماد المدرسي 1446هـ
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -185,19 +213,17 @@ export default function Dashboard() {
                 </span>
               )}
               <div style={{
-                width: 38, height: 38, borderRadius: '50%', background: NAVY,
+                width: 40, height: 40, borderRadius: '50%', background: NAVY,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: GOLD_LIGHT, fontSize: 14, fontWeight: 700
+                color: GOLD_LIGHT, fontSize: 15, fontWeight: 700
               }}>
                 {school?.principal_name?.[0] || 'م'}
               </div>
             </div>
           </header>
 
-          {/* Content */}
           <main style={{ padding: '32px 28px', maxWidth: 1100, margin: '0 auto' }}>
 
-            {/* Stats row */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
               <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
                 <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: '0 0 8px' }}>نسبة الاكتمال الكلية</p>
@@ -218,7 +244,6 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Domain cards with circular progress */}
             <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 28 }}>
               {loading ? [1,2,3,4].map(i => (
@@ -258,7 +283,6 @@ export default function Dashboard() {
               })}
             </div>
 
-            {/* Print CTA */}
             <Link href="/print" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               background: 'linear-gradient(135deg, #C28A1F, #A6730F)', borderRadius: 16,
@@ -270,7 +294,7 @@ export default function Dashboard() {
                   اطبع ملف شواهد مدرستك كاملاً ومرتباً حسب المجالات والمعايير
                 </p>
               </div>
-              <span style={{ fontSize: 22 }}>←</span>
+              <span style={{ fontSize: 22, color: '#fff' }}>←</span>
             </Link>
 
             {!loading && stats.completed < stats.total && (
