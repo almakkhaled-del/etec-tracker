@@ -71,7 +71,8 @@ export default function Landing() {
       </section>
 
       {/* ============ النص الرئيسي (تحت الهيرو) ============ */}
-      <section style={{ padding: '4rem 1.5rem 4rem', maxWidth: 760, margin: '0 auto', textAlign: 'right', position: 'relative', zIndex: 2 }}>
+      <section style={{ padding: '4rem 1.5rem 4rem', maxWidth: 1180, margin: '0 auto', position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: 560, marginRight: '8%', marginLeft: 'auto', textAlign: 'right' }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           background: 'rgba(217,164,65,0.14)', border: '1px solid rgba(194,138,31,0.35)',
@@ -111,6 +112,7 @@ export default function Landing() {
           }}>
             تسجيل الدخول
           </Link>
+        </div>
         </div>
       </section>
 
