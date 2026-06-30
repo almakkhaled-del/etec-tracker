@@ -65,7 +65,7 @@ export default function Dashboard() {
         setDomains(enriched)
         const totalCompleted = enriched.reduce((s, d) => s + (d.completed || 0), 0)
         const totalEv = enriched.reduce((s, d) => s + (d.total_evidences || 0), 0)
-        setStats({ total: 0, completed: totalCompleted, evidences: totalEv })
+        const totalIndicators = enriched.reduce((s, d) => s + (d.total_indicators || 0), 0); setStats({ total: totalIndicators, completed: totalCompleted, evidences: totalEv })
       }
       setLoading(false)
     }
