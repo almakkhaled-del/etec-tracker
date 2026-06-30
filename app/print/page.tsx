@@ -42,7 +42,7 @@ export default function PrintPage() {
   const { school, loading: schoolLoading } = useSchool()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState({ total: 38, completed: 0, evidences: 0 })
+  const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
 
   useEffect(() => {
     if (!school) return
@@ -105,11 +105,11 @@ export default function PrintPage() {
           .page-break { page-break-before: always; }
           body { background: #fff !important; }
           .report-container { box-shadow: none !important; margin: 0 !important; }
+          .pdf-frame { height: 600px !important; }
         }
         .report-container { max-width: 800px; margin: 0 auto; background: #fff; }
       `}</style>
 
-      {/* شريط أدوات (لا يُطبع) */}
       <div className="no-print" style={{ position: 'sticky', top: 0, background: '#1d4ed8', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 100 }}>
         <Link href="/dashboard" style={{ color: '#fff', textDecoration: 'none', fontSize: 14 }}>← رجوع للرئيسية</Link>
         <button onClick={() => window.print()} style={{ background: '#fff', color: '#1d4ed8', border: 'none', padding: '8px 24px', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
@@ -119,7 +119,6 @@ export default function PrintPage() {
 
       <div className="report-container" style={{ padding: '2rem', boxShadow: '0 0 20px rgba(0,0,0,0.1)', margin: '20px auto' }}>
 
-        {/* صفحة الغلاف */}
         <div style={{ textAlign: 'center', padding: '4rem 1rem', borderBottom: '3px solid #1d4ed8', marginBottom: '2rem' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 60, marginBottom: 32 }} />
           <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>ملف شواهد معايير التقويم والاعتماد المدرسي</p>
@@ -146,7 +145,6 @@ export default function PrintPage() {
           </div>
         </div>
 
-        {/* المجالات */}
         {domains.map((domain, dIdx) => (
           <div key={domain.id} className={dIdx > 0 ? 'page-break' : ''}>
             <div style={{ background: '#1d4ed8', color: '#fff', padding: '16px 20px', borderRadius: 10, marginBottom: 20 }}>
@@ -189,10 +187,16 @@ export default function PrintPage() {
                               <img src={ev.file_url} alt={ev.title} style={{ width: '100%', maxHeight: 500, objectFit: 'contain', padding: 10, boxSizing: 'border-box' }} />
                             )}
                             {ev.evidence_type === 'pdf' && ev.file_url && (
-                              <div style={{ padding: '14px', textAlign: 'center' }}>
-                                <a href={ev.file_url} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: '#1d4ed8', textDecoration: 'underline' }}>
-                                  📄 عرض ملف PDF: {ev.file_name}
-                                </a>
+                              <div style={{ padding: 10 }}>
+                                <iframe
+                                  className="pdf-frame"
+                                  src={ev.file_url}
+                                  style={{ width: '100%', height: 700, border: '1px solid #e5e7eb', borderRadius: 6 }}
+                                  title={ev.title}
+                                />
+                                <p style={{ fontSize: 11, color: '#9ca3af', margin: '6px 0 0', textAlign: 'center' }}>
+                                  {ev.file_name} — لو لم يظهر الملف، <a href={ev.file_url} target="_blank" rel="noreferrer" style={{ color: '#1d4ed8' }}>اضغط هنا لفتحه</a>
+                                </p>
                               </div>
                             )}
                             {ev.evidence_type === 'text' && (
@@ -209,7 +213,6 @@ export default function PrintPage() {
           </div>
         ))}
 
-        {/* خاتمة */}
         <div style={{ textAlign: 'center', padding: '2rem', borderTop: '2px solid #e5e7eb', marginTop: 32 }}>
           <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>
             تم إنشاء هذا التقرير عبر منصة شواهدي · shawahede.com
