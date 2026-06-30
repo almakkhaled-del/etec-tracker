@@ -12,6 +12,7 @@ type Evidence = {
   file_url: string
   file_name: string
   evidence_date: string
+  pdf_pages: string[] | null
 }
 
 type Indicator = {
@@ -105,7 +106,6 @@ export default function PrintPage() {
           .page-break { page-break-before: always; }
           body { background: #fff !important; }
           .report-container { box-shadow: none !important; margin: 0 !important; }
-          .pdf-frame { height: 600px !important; }
         }
         .report-container { max-width: 800px; margin: 0 auto; background: #fff; }
       `}</style>
@@ -183,22 +183,35 @@ export default function PrintPage() {
                             {ev.description && (
                               <p style={{ fontSize: 12, color: '#6b7280', padding: '8px 14px 0', margin: 0 }}>{ev.description}</p>
                             )}
+
+                            {/* صورة عادية */}
                             {ev.evidence_type === 'image' && ev.file_url && (
                               <img src={ev.file_url} alt={ev.title} style={{ width: '100%', maxHeight: 500, objectFit: 'contain', padding: 10, boxSizing: 'border-box' }} />
                             )}
-                            {ev.evidence_type === 'pdf' && ev.file_url && (
-                              <div style={{ padding: 10 }}>
-                                <iframe
-                                  className="pdf-frame"
-                                  src={ev.file_url}
-                                  style={{ width: '100%', height: 700, border: '1px solid #e5e7eb', borderRadius: 6 }}
-                                  title={ev.title}
-                                />
-                                <p style={{ fontSize: 11, color: '#9ca3af', margin: '6px 0 0', textAlign: 'center' }}>
-                                  {ev.file_name} — لو لم يظهر الملف، <a href={ev.file_url} target="_blank" rel="noreferrer" style={{ color: '#1d4ed8' }}>اضغط هنا لفتحه</a>
-                                </p>
+
+                            {/* PDF محوّل لصور — يعرض كل الصفحات */}
+                            {ev.evidence_type === 'pdf' && ev.pdf_pages && ev.pdf_pages.length > 0 && (
+                              <div style={{ display: 'grid', gap: 8, padding: 10 }}>
+                                {ev.pdf_pages.map((pageUrl, pIdx) => (
+                                  <div key={pIdx} className="page-break">
+                                    <p style={{ fontSize: 10, color: '#9ca3af', textAlign: 'center', margin: '0 0 4px' }}>
+                                      صفحة {pIdx + 1} من {ev.pdf_pages!.length}
+                                    </p>
+                                    <img src={pageUrl} alt={`${ev.title} - صفحة ${pIdx + 1}`} style={{ width: '100%', border: '1px solid #e5e7eb', borderRadius: 6 }} />
+                                  </div>
+                                ))}
                               </div>
                             )}
+
+                            {/* PDF لم يُحوّل (نسخة قديمة) — رابط فقط */}
+                            {ev.evidence_type === 'pdf' && (!ev.pdf_pages || ev.pdf_pages.length === 0) && ev.file_url && (
+                              <div style={{ padding: '14px', textAlign: 'center' }}>
+                                <a href={ev.file_url} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: '#1d4ed8', textDecoration: 'underline' }}>
+                                  📄 عرض ملف PDF: {ev.file_name}
+                                </a>
+                              </div>
+                            )}
+
                             {ev.evidence_type === 'text' && (
                               <p style={{ fontSize: 12, color: '#374151', padding: '14px', margin: 0 }}>{ev.description || 'لا يوجد وصف إضافي'}</p>
                             )}

@@ -13,6 +13,7 @@ type Evidence = {
   file_url: string
   file_name: string
   evidence_date: string
+  pdf_pages: string[] | null
   created_at: string
 }
 
@@ -25,11 +26,26 @@ export default function IndicatorPage() {
   const [evidences, setEvidences] = useState<Evidence[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState('')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [date, setDate] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [pdfJsReady, setPdfJsReady] = useState(false)
+
+  // تحميل مكتبة pdf.js من CDN
+  useEffect(() => {
+    if ((window as any).pdfjsLib) { setPdfJsReady(true); return }
+    const script = document.createElement('script')
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
+    script.onload = () => {
+      (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+      setPdfJsReady(true)
+    }
+    document.body.appendChild(script)
+  }, [])
 
   async function loadEvidences(schoolId: string) {
     const { data: evs } = await supabase
@@ -65,28 +81,81 @@ export default function IndicatorPage() {
     if (school) loadEvidences(school.id)
   }, [school, id])
 
+  // تحويل PDF إلى مصفوفة من صور (Blob)
+  async function convertPdfToImages(pdfFile: File): Promise<Blob[]> {
+    const pdfjsLib = (window as any).pdfjsLib
+    const arrayBuffer = await pdfFile.arrayBuffer()
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+    const images: Blob[] = []
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      setUploadStatus(`جاري تحويل صفحة ${pageNum} من ${pdf.numPages}...`)
+      const page = await pdf.getPage(pageNum)
+      const viewport = page.getViewport({ scale: 1.5 })
+      const canvas = document.createElement('canvas')
+      const context = canvas.getContext('2d')!
+      canvas.width = viewport.width
+      canvas.height = viewport.height
+      await page.render({ canvasContext: context, viewport }).promise
+
+      const blob: Blob = await new Promise(resolve => {
+        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85)
+      })
+      images.push(blob)
+    }
+    return images
+  }
+
   async function uploadEvidence() {
     if (!title) { alert('أدخل عنوان الشاهد'); return }
     if (!school) return
     setUploading(true)
+    setUploadStatus('جاري التحضير...')
     try {
       let file_url = ''
       let file_name = ''
       let evidence_type = 'text'
+      let pdf_pages: string[] | null = null
 
       if (file) {
-        const ext = file.name.split('.').pop()
-        const path = `${school.id}/${id}/${Date.now()}.${ext}`
-        const { error: uploadError } = await supabase.storage
-          .from('school-evidences').upload(path, file)
-        if (uploadError) throw uploadError
-        const { data: urlData } = supabase.storage
-          .from('school-evidences').getPublicUrl(path)
-        file_url = urlData.publicUrl
-        file_name = file.name
-        evidence_type = file.type.startsWith('image/') ? 'image' : 'pdf'
+        const isPdf = file.type === 'application/pdf'
+
+        if (isPdf && pdfJsReady) {
+          // تحويل PDF إلى صور ورفعها كلها
+          const images = await convertPdfToImages(file)
+          const uploadedUrls: string[] = []
+
+          for (let i = 0; i < images.length; i++) {
+            setUploadStatus(`رفع صفحة ${i + 1} من ${images.length}...`)
+            const path = `${school.id}/${id}/${Date.now()}_page${i + 1}.jpg`
+            const { error: upErr } = await supabase.storage
+              .from('school-evidences').upload(path, images[i])
+            if (upErr) throw upErr
+            const { data: urlData } = supabase.storage
+              .from('school-evidences').getPublicUrl(path)
+            uploadedUrls.push(urlData.publicUrl)
+          }
+
+          pdf_pages = uploadedUrls
+          file_url = uploadedUrls[0] // أول صفحة كمعاينة
+          file_name = file.name
+          evidence_type = 'pdf'
+        } else {
+          // رفع عادي (صورة أو PDF بدون تحويل لو فشلت المكتبة)
+          const ext = file.name.split('.').pop()
+          const path = `${school.id}/${id}/${Date.now()}.${ext}`
+          const { error: uploadError } = await supabase.storage
+            .from('school-evidences').upload(path, file)
+          if (uploadError) throw uploadError
+          const { data: urlData } = supabase.storage
+            .from('school-evidences').getPublicUrl(path)
+          file_url = urlData.publicUrl
+          file_name = file.name
+          evidence_type = file.type.startsWith('image/') ? 'image' : 'pdf'
+        }
       }
 
+      setUploadStatus('جاري الحفظ...')
       await supabase.from('evidences').insert({
         school_id: school.id,
         indicator_id: Number(id),
@@ -95,6 +164,7 @@ export default function IndicatorPage() {
         evidence_type,
         file_url,
         file_name,
+        pdf_pages,
         evidence_date: date || null,
       })
 
@@ -108,6 +178,7 @@ export default function IndicatorPage() {
       alert('حدث خطأ: ' + e.message)
     }
     setUploading(false)
+    setUploadStatus('')
   }
 
   async function deleteEvidence(evId: string) {
@@ -163,6 +234,9 @@ export default function IndicatorPage() {
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 13, fontWeight: 500, margin: 0, color: '#111827' }}>{ev.title}</p>
                 {ev.description && <p style={{ fontSize: 12, color: '#6b7280', margin: '2px 0 0' }}>{ev.description}</p>}
+                {ev.pdf_pages && ev.pdf_pages.length > 0 && (
+                  <p style={{ fontSize: 11, color: '#16a34a', margin: '2px 0 0' }}>✓ تم تحويل {ev.pdf_pages.length} صفحة لصور</p>
+                )}
                 {ev.evidence_date && <p style={{ fontSize: 11, color: '#9ca3af', margin: '2px 0 0' }}>{ev.evidence_date}</p>}
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
@@ -201,8 +275,13 @@ export default function IndicatorPage() {
               {file ? `✅ ${file.name}` : '📎 اضغط لرفع ملف (صورة أو PDF)'}
             </p>
           </div>
-          <input ref={fileRef} type="file" accept="image/*,.pdf,.doc,.docx" style={{ display: 'none' }}
+          <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
             onChange={e => setFile(e.target.files?.[0] || null)} />
+
+          {uploadStatus && (
+            <p style={{ fontSize: 12, color: '#1d4ed8', textAlign: 'center', marginBottom: 10 }}>{uploadStatus}</p>
+          )}
+
           <button onClick={uploadEvidence} disabled={uploading}
             style={{ width: '100%', padding: '12px', background: uploading ? '#9ca3af' : '#2563eb', color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
             {uploading ? 'جاري الرفع...' : 'رفع الشاهد ✓'}
