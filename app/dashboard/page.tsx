@@ -22,7 +22,7 @@ export default function Dashboard() {
   const { school, loading: schoolLoading } = useSchool()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState({ total: 38, completed: 0, evidences: 0 })
+  const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
 
   useEffect(() => {
     if (!school) return
@@ -65,7 +65,7 @@ export default function Dashboard() {
         setDomains(enriched)
         const totalCompleted = enriched.reduce((s, d) => s + (d.completed || 0), 0)
         const totalEv = enriched.reduce((s, d) => s + (d.total_evidences || 0), 0)
-        setStats({ total: 38, completed: totalCompleted, evidences: totalEv })
+        setStats({ total: 0, completed: totalCompleted, evidences: totalEv })
       }
       setLoading(false)
     }
