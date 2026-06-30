@@ -71,7 +71,7 @@ export default function Landing() {
       </section>
 
       {/* ============ النص الرئيسي (تحت الهيرو) ============ */}
-      <section style={{ padding: '0 1.5rem 4rem', maxWidth: 760, margin: '0 auto', textAlign: 'center', marginTop: '-2rem', position: 'relative', zIndex: 2 }}>
+      <section style={{ padding: '4rem 1.5rem 4rem', maxWidth: 760, margin: '0 auto', textAlign: 'right', position: 'relative', zIndex: 2 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           background: 'rgba(217,164,65,0.14)', border: '1px solid rgba(194,138,31,0.35)',
@@ -91,11 +91,11 @@ export default function Landing() {
           }}>وكن جاهزاً لزيارة التقويم</span>
         </h1>
 
-        <p className="body-font" style={{ fontSize: 17, color: '#5A5648', lineHeight: 1.9, marginBottom: 36, maxWidth: 540, margin: '0 auto 36px' }}>
+        <p className="body-font" style={{ fontSize: 17, color: '#5A5648', lineHeight: 1.9, marginBottom: 36, maxWidth: 540 }}>
           شواهدي تساعد مدارس التعليم العام على توثيق وتنظيم شواهد معايير الاعتماد المدرسي — مجال بمجال، مؤشراً بمؤشر، حتى تستقبل لجنة التقويم بثقة كاملة.
         </p>
 
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'flex-start' }}>
           <Link href="/register" className="cta-gold" style={{
             padding: '15px 38px', fontSize: 16, fontWeight: 700,
             background: 'linear-gradient(135deg, #D9A441, #C28A1F)', color: '#0B1F3A',
