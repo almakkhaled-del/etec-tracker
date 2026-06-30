@@ -103,7 +103,7 @@ export default function PrintPage() {
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          .page-break { page-break-before: always; }
+          .page-break { page-break-before: always; break-before: page; }
           body { background: #fff !important; }
           .report-container { box-shadow: none !important; margin: 0 !important; }
         }
@@ -119,7 +119,8 @@ export default function PrintPage() {
 
       <div className="report-container" style={{ padding: '2rem', boxShadow: '0 0 20px rgba(0,0,0,0.1)', margin: '20px auto' }}>
 
-        <div style={{ textAlign: 'center', padding: '4rem 1rem', borderBottom: '3px solid #1d4ed8', marginBottom: '2rem' }}>
+        {/* صفحة الغلاف */}
+        <div style={{ textAlign: 'center', padding: '4rem 1rem', borderBottom: '3px solid #1d4ed8' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 60, marginBottom: 32 }} />
           <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>ملف شواهد معايير التقويم والاعتماد المدرسي</p>
           <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginBottom: 16 }}>{school?.name}</h1>
@@ -145,33 +146,33 @@ export default function PrintPage() {
           </div>
         </div>
 
-        {domains.map((domain, dIdx) => (
-          <div key={domain.id} className={dIdx > 0 ? 'page-break' : ''}>
-            <div style={{ background: '#1d4ed8', color: '#fff', padding: '16px 20px', borderRadius: 10, marginBottom: 20 }}>
-              <p style={{ fontSize: 11, opacity: 0.8, margin: '0 0 4px' }}>المجال {dIdx + 1}</p>
-              <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{domain.name_ar}</h2>
-            </div>
-
+        {domains.map((domain) => (
+          <div key={domain.id}>
             {domain.standards.map(standard => (
-              <div key={standard.id} style={{ marginBottom: 24 }}>
-                <div style={{ borderRight: '4px solid #1d4ed8', paddingRight: 12, marginBottom: 16 }}>
-                  <p style={{ fontSize: 11, color: '#1d4ed8', fontWeight: 700, margin: '0 0 2px' }}>معيار {standard.code}</p>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: 0 }}>{standard.name_ar}</h3>
+              <div key={standard.id}>
+
+                {/* صفحة غلاف فرعية للمعيار */}
+                <div className="page-break" style={{ minHeight: '70vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '2rem' }}>
+                  <p style={{ fontSize: 13, color: '#9ca3af', marginBottom: 4 }}>{domain.name_ar}</p>
+                  <p style={{ fontSize: 12, color: '#1d4ed8', fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>معيار {standard.code}</p>
+                  <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', maxWidth: 500, lineHeight: 1.5 }}>{standard.name_ar}</h2>
+                  <div style={{ width: 60, height: 3, background: '#1d4ed8', borderRadius: 2, marginTop: 24 }} />
+                  <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 16 }}>{standard.indicators.length} مؤشراً</p>
                 </div>
 
                 {standard.indicators.map(indicator => (
-                  <div key={indicator.id} style={{ marginBottom: 20, paddingRight: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
-                      <span style={{ fontSize: 10, background: '#f3f4f6', color: '#6b7280', padding: '2px 8px', borderRadius: 6, flexShrink: 0, marginTop: 2 }}>{indicator.code}</span>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#374151', margin: 0, lineHeight: 1.6 }}>{indicator.name_ar}</p>
+                  <div key={indicator.id} className="page-break" style={{ paddingTop: 8 }}>
+                    <div style={{ background: '#1d4ed8', color: '#fff', padding: '16px 20px', borderRadius: 10, marginBottom: 20 }}>
+                      <p style={{ fontSize: 11, opacity: 0.8, margin: '0 0 4px' }}>{domain.name_ar} · معيار {standard.code} · مؤشر {indicator.code}</p>
+                      <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, lineHeight: 1.6 }}>{indicator.name_ar}</h3>
                     </div>
 
                     {indicator.evidences.length === 0 ? (
-                      <p style={{ fontSize: 12, color: '#dc2626', background: '#fef2f2', padding: '8px 12px', borderRadius: 8, margin: '0 0 0 16px' }}>
+                      <p style={{ fontSize: 13, color: '#dc2626', background: '#fef2f2', padding: '12px 16px', borderRadius: 8 }}>
                         ⚠️ لا توجد شواهد مرفوعة لهذا المؤشر
                       </p>
                     ) : (
-                      <div style={{ display: 'grid', gap: 12, marginRight: 16 }}>
+                      <div style={{ display: 'grid', gap: 12 }}>
                         {indicator.evidences.map((ev, evIdx) => (
                           <div key={ev.id} style={{ border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden', breakInside: 'avoid' }}>
                             <div style={{ background: '#f9fafb', padding: '8px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -184,16 +185,14 @@ export default function PrintPage() {
                               <p style={{ fontSize: 12, color: '#6b7280', padding: '8px 14px 0', margin: 0 }}>{ev.description}</p>
                             )}
 
-                            {/* صورة عادية */}
                             {ev.evidence_type === 'image' && ev.file_url && (
                               <img src={ev.file_url} alt={ev.title} style={{ width: '100%', maxHeight: 500, objectFit: 'contain', padding: 10, boxSizing: 'border-box' }} />
                             )}
 
-                            {/* PDF محوّل لصور — يعرض كل الصفحات */}
                             {ev.evidence_type === 'pdf' && ev.pdf_pages && ev.pdf_pages.length > 0 && (
                               <div style={{ display: 'grid', gap: 8, padding: 10 }}>
                                 {ev.pdf_pages.map((pageUrl, pIdx) => (
-                                  <div key={pIdx} className="page-break">
+                                  <div key={pIdx}>
                                     <p style={{ fontSize: 10, color: '#9ca3af', textAlign: 'center', margin: '0 0 4px' }}>
                                       صفحة {pIdx + 1} من {ev.pdf_pages!.length}
                                     </p>
@@ -203,7 +202,6 @@ export default function PrintPage() {
                               </div>
                             )}
 
-                            {/* PDF لم يُحوّل (نسخة قديمة) — رابط فقط */}
                             {ev.evidence_type === 'pdf' && (!ev.pdf_pages || ev.pdf_pages.length === 0) && ev.file_url && (
                               <div style={{ padding: '14px', textAlign: 'center' }}>
                                 <a href={ev.file_url} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: '#1d4ed8', textDecoration: 'underline' }}>
@@ -226,9 +224,10 @@ export default function PrintPage() {
           </div>
         ))}
 
-        <div style={{ textAlign: 'center', padding: '2rem', borderTop: '2px solid #e5e7eb', marginTop: 32 }}>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>
-            تم إنشاء هذا التقرير عبر منصة شواهدي · shawahede.com
+        <div className="page-break" style={{ textAlign: 'center', padding: '4rem 1rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '50vh' }}>
+          <img src="/logo.png" alt="شواهدي" style={{ height: 40, margin: '0 auto 16px' }} />
+          <p style={{ fontSize: 13, color: '#9ca3af', margin: 0 }}>
+            نهاية التقرير · تم إنشاؤه عبر منصة شواهدي · shawahede.com
           </p>
         </div>
 
