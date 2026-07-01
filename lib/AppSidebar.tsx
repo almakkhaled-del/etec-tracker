@@ -118,7 +118,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
 
         <Link href="/print" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
-          textDecoration: 'none', marginBottom: 4,
+          textDecoration: 'none', marginBottom: 2,
           background: pathname === '/print' ? 'rgba(232,194,117,0.14)' : 'transparent',
           color: pathname === '/print' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
@@ -126,10 +126,10 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span style={{ fontSize: 14, fontWeight: 500 }}>التقرير الكامل</span>
         </Link>
 
-        <a href="https://wa.me/966XXXXXXXXX?text=السلام عليكم، أحتاج مساعدة في منصة شواهدي"
+        <a href="https://wa.me/00966555826838?text=السلام عليكم، أحتاج مساعدة في منصة شواهدي"
           target="_blank" rel="noreferrer" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
-          textDecoration: 'none', marginBottom: 4, color: '#4ade80'
+          textDecoration: 'none', marginBottom: 2, color: '#4ade80'
         }}>
           <span style={{ fontSize: 16 }}>💬</span>
           <span style={{ fontSize: 14, fontWeight: 500 }}>الدعم الفني</span>

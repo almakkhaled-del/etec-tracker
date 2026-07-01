@@ -17,19 +17,20 @@ const DOMAIN_ICONS: Record<string, string> = {
   '1': '🏫', '2': '📚', '3': '📊', '4': '🏢'
 }
 
-type Indicator = { id: number; code: string; name_ar: string; order_num: number; evidence_count: number }
-type Standard = { id: number; code: string; name_ar: string; order_num: number; indicators: Indicator[]; completed: number }
-type Domain = { id: number; code: string; name_ar: string; order_num: number; standards: Standard[]; total_indicators: number; completed: number }
+type Domain = {
+  id: number; code: string; name_ar: string; order_num: number
+  total_indicators: number; completed: number; total_evidences: number
+}
 
-function CircleProgress({ percent, color, size = 72 }: { percent: number; color: string; size?: number }) {
-  const stroke = 6; const r = (size - stroke) / 2; const circ = 2 * Math.PI * r
+function CircleProgress({ percent, color, size = 80 }: { percent: number; color: string; size?: number }) {
+  const stroke = 7; const r = (size - stroke) / 2; const circ = 2 * Math.PI * r
   const offset = circ - (percent / 100) * circ
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
       <circle cx={size/2} cy={size/2} r={r} stroke="#EDEAE0" strokeWidth={stroke} fill="none" />
       <circle cx={size/2} cy={size/2} r={r} stroke={color} strokeWidth={stroke} fill="none"
         strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 0.5s ease' }} />
+        style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
     </svg>
   )
 }
@@ -38,35 +39,37 @@ export default function Dashboard() {
   const { school, loading: schoolLoading } = useSchool()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeDomain, setActiveDomain] = useState<number | null>(null)
-  const [activeStandard, setActiveStandard] = useState<number | null>(null)
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
 
   useEffect(() => {
     if (!school) return
     async function load() {
       const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
-      const { data: standardsData } = await supabase.from('standards').select('*').order('order_num')
-      const { data: indicatorsData } = await supabase.from('indicators').select('*').order('order_num')
-      const { data: evidencesData } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
+      const { data: standards } = await supabase.from('standards').select('id, domain_id')
+      const { data: indicators } = await supabase.from('indicators').select('id, standard_id')
+      const { data: evidences } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
 
-      if (domainsData && standardsData && indicatorsData) {
+      if (domainsData && standards && indicators) {
         const evByInd: Record<number, number> = {}
-        evidencesData?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
-        const built: Domain[] = domainsData.map(d => {
-          const stds: Standard[] = standardsData.filter(s => s.domain_id === d.id).map(s => {
-            const inds: Indicator[] = indicatorsData.filter(i => i.standard_id === s.id).map(i => ({ ...i, evidence_count: evByInd[i.id] || 0 }))
-            return { ...s, indicators: inds, completed: inds.filter(i => i.evidence_count > 0).length }
-          })
-          const total_indicators = stds.reduce((s, st) => s + st.indicators.length, 0)
-          const completed = stds.reduce((s, st) => s + st.completed, 0)
-          return { ...d, standards: stds, total_indicators, completed }
+        evidences?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
+        const stdByDomain: Record<number, number[]> = {}
+        standards.forEach(s => { if (!stdByDomain[s.domain_id]) stdByDomain[s.domain_id] = []; stdByDomain[s.domain_id].push(s.id) })
+        const indByStd: Record<number, number[]> = {}
+        indicators.forEach(i => { if (!indByStd[i.standard_id]) indByStd[i.standard_id] = []; indByStd[i.standard_id].push(i.id) })
+
+        const enriched = domainsData.map(d => {
+          const stdIds = stdByDomain[d.id] || []
+          const indIds = stdIds.flatMap(sid => indByStd[sid] || [])
+          const completed = indIds.filter(id => (evByInd[id] || 0) > 0).length
+          const totalEv = indIds.reduce((sum, id) => sum + (evByInd[id] || 0), 0)
+          return { ...d, total_indicators: indIds.length, completed, total_evidences: totalEv }
         })
-        setDomains(built)
+
+        setDomains(enriched)
         setStats({
-          total: built.reduce((s, d) => s + d.total_indicators, 0),
-          completed: built.reduce((s, d) => s + d.completed, 0),
-          evidences: Object.values(evByInd).reduce((s, v) => s + v, 0)
+          total: enriched.reduce((s, d) => s + d.total_indicators, 0),
+          completed: enriched.reduce((s, d) => s + d.completed, 0),
+          evidences: enriched.reduce((s, d) => s + d.total_evidences, 0),
         })
       }
       setLoading(false)
@@ -90,26 +93,31 @@ export default function Dashboard() {
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>{`
         .body-font { font-family: 'IBM Plex Sans Arabic','Tajawal',sans-serif; }
-        .domain-card { cursor: pointer; transition: all 0.2s; }
-        .domain-card:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(11,31,58,0.10); }
-        .std-row { cursor: pointer; transition: filter 0.15s; }
-        .std-row:hover { filter: brightness(0.97); }
-        .ind-row:hover { filter: brightness(0.96); }
+        .domain-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,31,58,0.12) !important; }
+        .domain-card { transition: all 0.2s; }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Header */}
-          <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50 }}>
+          <header style={{
+            background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
+            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
+            justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50
+          }}>
             <div>
               <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>مرحباً، {principalFirstName} 👋</p>
-              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>{school?.name} — 1448هـ - 1449هـ</p>
+              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
+                {school?.name} — 1448هـ - 1449هـ
+              </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               {isTrial && trialDaysLeft !== null && (
-                <span className="body-font" style={{ fontSize: 12, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F', padding: '6px 14px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)' }}>
+                <span className="body-font" style={{
+                  fontSize: 12, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F',
+                  padding: '6px 14px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)'
+                }}>
                   {trialDaysLeft} أيام متبقية من التجربة
                 </span>
               )}
@@ -119,153 +127,101 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <main style={{ padding: '24px 28px', maxWidth: 960, margin: '0 auto' }}>
+          <main style={{ padding: '28px', maxWidth: 1000, margin: '0 auto' }}>
 
             {/* 4 كروت إحصائيات */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
-              <div style={{ background: NAVY, borderRadius: 16, padding: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+              <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
                 <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال الكلية</p>
-                <p style={{ fontSize: 30, fontWeight: 800, color: '#fff', margin: '0 0 8px' }}>{loading ? '—' : `${completion}%`}</p>
+                <p style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: '0 0 10px' }}>{loading ? '—' : `${completion}%`}</p>
                 <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.12)', borderRadius: 99 }}>
                   <div style={{ width: `${completion || 2}%`, height: '100%', background: GOLD_LIGHT, borderRadius: 99, transition: 'width 0.6s' }} />
                 </div>
                 <p className="body-font" style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: '6px 0 0' }}>الحد الأدنى: شاهد لكل مؤشر</p>
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '20px' }}>
+              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '22px 20px' }}>
                 <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>إجمالي المؤشرات</p>
-                <p style={{ fontSize: 30, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
+                <p style={{ fontSize: 32, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '20px' }}>
+              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '22px 20px' }}>
                 <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>مؤشرات مكتملة</p>
-                <p style={{ fontSize: 30, fontWeight: 800, color: '#16a34a', margin: '0 0 4px' }}>{loading ? '—' : stats.completed}</p>
+                <p style={{ fontSize: 32, fontWeight: 800, color: '#16a34a', margin: '0 0 4px' }}>{loading ? '—' : stats.completed}</p>
                 {!loading && <p className="body-font" style={{ fontSize: 11, color: '#DC2626', margin: 0 }}>متبقي {stats.total - stats.completed}</p>}
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '20px' }}>
+              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '22px 20px' }}>
                 <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>إجمالي الشواهد</p>
-                <p style={{ fontSize: 30, fontWeight: 800, color: GOLD, margin: 0 }}>{loading ? '—' : stats.evidences}</p>
+                <p style={{ fontSize: 32, fontWeight: 800, color: GOLD, margin: 0 }}>{loading ? '—' : stats.evidences}</p>
               </div>
             </div>
 
-            {/* المجالات شبكة 2×2 */}
-            <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 14 }}>المجالات الأربعة</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
+            {/* 4 كروت المجالات */}
+            <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
               {loading ? [1,2,3,4].map(i => (
-                <div key={i} style={{ background: '#fff', borderRadius: 16, height: 100, opacity: 0.4 }} />
+                <div key={i} style={{ background: '#fff', borderRadius: 18, height: 130, opacity: 0.4 }} />
               )) : domains.map(domain => {
                 const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
                 const color = DOMAIN_COLORS[domain.code] || NAVY
-                const isActive = activeDomain === domain.id
-
                 return (
-                  <div key={domain.id}>
-                    {/* كرت المجال */}
-                    <div className="domain-card" onClick={() => { setActiveDomain(prev => prev === domain.id ? null : domain.id); setActiveStandard(null) }} style={{
-                      background: isActive ? color : '#fff',
-                      borderRadius: 16,
-                      border: `2px solid ${isActive ? color : 'rgba(11,31,58,0.07)'}`,
-                      padding: '18px 20px',
-                      display: 'flex', alignItems: 'center', gap: 16,
-                    }}>
-                      <div style={{ position: 'relative', flexShrink: 0 }}>
-                        <CircleProgress percent={pct} color={isActive ? 'rgba(255,255,255,0.9)' : color} size={72} />
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={{ fontSize: 14, fontWeight: 800, color: isActive ? '#fff' : NAVY }}>{pct}%</span>
-                        </div>
+                  <Link key={domain.id} href={`/domain/${domain.id}`} className="domain-card" style={{
+                    textDecoration: 'none', color: 'inherit',
+                    background: '#fff', borderRadius: 18,
+                    border: '1.5px solid rgba(11,31,58,0.07)',
+                    padding: '22px 24px',
+                    display: 'flex', alignItems: 'center', gap: 20,
+                    boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
+                  }}>
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                      <CircleProgress percent={pct} color={color} size={80} />
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: NAVY }}>{pct}%</span>
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                          <span style={{ fontSize: 18 }}>{DOMAIN_ICONS[domain.code]}</span>
-                          <p style={{ fontSize: 14, fontWeight: 700, color: isActive ? '#fff' : NAVY, margin: 0 }}>{domain.name_ar}</p>
-                        </div>
-                        <p className="body-font" style={{ fontSize: 12, color: isActive ? 'rgba(255,255,255,0.75)' : '#8A8270', margin: 0 }}>
-                          {domain.completed} من {domain.total_indicators} مؤشراً مكتمل
-                        </p>
-                      </div>
-                      <span style={{ fontSize: 16, color: isActive ? '#fff' : '#C0BCA8', transition: 'transform 0.25s', transform: isActive ? 'rotate(90deg)' : 'none', flexShrink: 0 }}>←</span>
                     </div>
-
-                    {/* المعايير منسدلة */}
-                    {isActive && (
-                      <div style={{ marginTop: 6, borderRadius: 14, overflow: 'hidden', border: `1px solid ${color}33` }}>
-                        {domain.standards.map((standard, sIdx) => {
-                          const stdPct = standard.indicators.length ? Math.round((standard.completed / standard.indicators.length) * 100) : 0
-                          const isActiveS = activeStandard === standard.id
-
-                          return (
-                            <div key={standard.id}>
-                              {/* صف المعيار - رمادي فاتح مع border يمين بلون المجال */}
-                              <div className="std-row" onClick={() => setActiveStandard(prev => prev === standard.id ? null : standard.id)} style={{
-                                display: 'flex', alignItems: 'center', gap: 12,
-                                padding: '12px 16px 12px 20px',
-                                background: isActiveS ? `${color}14` : '#F5F4F1',
-                                borderBottom: '1px solid rgba(11,31,58,0.06)',
-                                borderRight: `4px solid ${color}`,
-                              }}>
-                                <div style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: stdPct === 100 ? '#16a34a' : stdPct > 0 ? color : '#D1D5DB' }} />
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <p style={{ fontSize: 13, fontWeight: 600, color: NAVY, margin: '0 0 1px', lineHeight: 1.4 }}>{standard.name_ar}</p>
-                                  <span className="body-font" style={{ fontSize: 11, color: '#6B7280' }}>
-                                    {standard.code} · {standard.completed}/{standard.indicators.length} مكتمل · {stdPct}%
-                                  </span>
-                                </div>
-                                <span style={{ fontSize: 12, color: isActiveS ? color : '#C0BCA8', transition: 'transform 0.2s', flexShrink: 0, transform: isActiveS ? 'rotate(90deg)' : 'none' }}>←</span>
-                              </div>
-
-                              {/* المؤشرات - أبيض/ألوان مع زحزحة أكثر */}
-                              {isActiveS && standard.indicators.map((ind, iIdx) => {
-                                const hasEv = ind.evidence_count > 0
-                                return (
-                                  <Link key={ind.id} href={`/indicator/${ind.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                    <div className="ind-row" style={{
-                                      display: 'flex', alignItems: 'center', gap: 10,
-                                      padding: '10px 16px 10px 40px',
-                                      background: hasEv ? '#F0FDF4' : '#FFF8F8',
-                                      borderBottom: iIdx < standard.indicators.length - 1 ? '1px solid rgba(11,31,58,0.04)' : 'none',
-                                      borderRight: `4px solid ${hasEv ? '#86EFAC' : '#FCA5A5'}`,
-                                    }}>
-                                      <span style={{ fontSize: 12, flexShrink: 0 }}>{hasEv ? '✅' : '⭕'}</span>
-                                      <div style={{ flex: 1, minWidth: 0 }}>
-                                        <p className="body-font" style={{ fontSize: 12, color: '#374151', margin: '0 0 1px', lineHeight: 1.5 }}>{ind.name_ar}</p>
-                                        <span className="body-font" style={{ fontSize: 10, color: '#9CA3AF' }}>{ind.code}</span>
-                                      </div>
-                                      <span className="body-font" style={{
-                                        fontSize: 11, fontWeight: 600, flexShrink: 0,
-                                        padding: '3px 10px', borderRadius: 20,
-                                        background: hasEv ? '#DCFCE7' : '#FEE2E2',
-                                        color: hasEv ? '#16a34a' : '#DC2626'
-                                      }}>
-                                        {hasEv ? `${ind.evidence_count} شواهد` : 'فارغ'}
-                                      </span>
-                                      <span style={{ fontSize: 11, color: '#C0BCA8', flexShrink: 0 }}>←</span>
-                                    </div>
-                                  </Link>
-                                )
-                              })}
-                            </div>
-                          )
-                        })}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ fontSize: 22 }}>{DOMAIN_ICONS[domain.code]}</span>
+                        <p style={{ fontWeight: 700, fontSize: 15, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
                       </div>
-                    )}
-                  </div>
+                      <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 4px' }}>
+                        {domain.completed} من {domain.total_indicators} مؤشراً مكتمل
+                      </p>
+                      <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
+                        {domain.total_evidences} شاهد مرفوع
+                      </p>
+                    </div>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                      background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      <span style={{ fontSize: 16, color }}>←</span>
+                    </div>
+                  </Link>
                 )
               })}
             </div>
 
             {/* أزرار سريعة */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 20 }}>
-              <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #A6730F)`, borderRadius: 14, padding: '16px 22px', textDecoration: 'none' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <Link href="/print" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: `linear-gradient(135deg, ${GOLD}, #A6730F)`,
+                borderRadius: 16, padding: '18px 24px', textDecoration: 'none'
+              }}>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>🖨️ التقرير الكامل</p>
-                  <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0 }}>اطبع ملف شواهد مدرستك</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>🖨️ التقرير الكامل</p>
+                  <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0 }}>اطبع ملف شواهد مدرستك كاملاً</p>
                 </div>
-                <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+                <span style={{ fontSize: 20, color: '#fff' }}>←</span>
               </Link>
-              <Link href="/forms" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: NAVY, borderRadius: 14, padding: '16px 22px', textDecoration: 'none' }}>
+              <Link href="/forms" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: NAVY, borderRadius: 16, padding: '18px 24px', textDecoration: 'none'
+              }}>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>📋 النماذج الجاهزة</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>📋 النماذج الجاهزة</p>
                   <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>29 نموذجاً جاهزاً للتحميل</p>
                 </div>
-                <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+                <span style={{ fontSize: 20, color: '#fff' }}>←</span>
               </Link>
             </div>
 
