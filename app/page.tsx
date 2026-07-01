@@ -64,6 +64,16 @@ export default function Landing() {
         @media (max-width: 860px) {
           .hero-split { grid-template-columns: 1fr; }
         }
+
+        .hero-title { font-size: 38px; line-height: 1.7; }
+        @media (max-width: 640px) {
+          .hero-title { font-size: 30px; line-height: 1.65; }
+        }
+
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        @media (max-width: 860px) {
+          .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+        }
       `}</style>
 
       {/* ============ NAV (مبسّط - شعار فقط) ============ */}
@@ -111,9 +121,10 @@ export default function Landing() {
               متوافق مع معايير هيئة تقويم التعليم والتدريب
             </div>
 
-            <h1 style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.35, color: '#0B1F3A', marginBottom: 22 }}>
-              لا تبحث عن الشاهد المناسب<br />
+            <h1 className="hero-title" style={{ fontWeight: 900, color: '#0B1F3A', marginBottom: 22 }}>
+              <span style={{ display: 'block', marginBottom: 6 }}>لا تبحث عن الشاهد المناسب</span>
               <span style={{
+                display: 'block',
                 background: 'linear-gradient(135deg, #C28A1F, #A6730F)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>شواهدي يرشدك إليه، وينشئه لك</span>
@@ -329,7 +340,7 @@ export default function Landing() {
             <h2 style={{ fontSize: 28, fontWeight: 800, color: NAVY, marginBottom: 44 }}>اختر الباقة المناسبة لمدرستك</h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="pricing-grid">
 
             {/* الباقة المجانية */}
             <div style={{
