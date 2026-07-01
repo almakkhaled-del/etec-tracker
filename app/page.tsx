@@ -60,9 +60,12 @@ export default function Landing() {
         .login-input:focus { border-color: #C28A1F !important; outline: none; }
         .login-btn:hover { background: #0a1830 !important; }
 
-        .hero-split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: start; }
+        .hero-split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
         @media (max-width: 860px) {
-          .hero-split { grid-template-columns: 1fr; }
+          .hero-split { grid-template-columns: 1fr; gap: 32px; }
+        }
+        @media (min-width: 1200px) {
+          .hero-split { gap: 100px; }
         }
 
         .hero-title { font-size: 38px; line-height: 1.7; }
@@ -106,7 +109,7 @@ export default function Landing() {
       </section>
 
       {/* ============ نص + مربع دخول جنب بعض ============ */}
-      <section style={{ padding: '3.5rem 1.5rem 4rem', maxWidth: 1180, margin: '0 auto', position: 'relative', zIndex: 2 }}>
+      <section style={{ padding: '5.5rem 2rem 4rem', maxWidth: 1400, margin: '0 auto', position: 'relative', zIndex: 2 }}>
         <div className="hero-split">
 
           {/* النص - يمين */}
@@ -371,13 +374,6 @@ export default function Landing() {
               padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column',
               position: 'relative', boxShadow: '0 16px 44px rgba(194,138,31,0.14)'
             }}>
-              <span style={{
-                position: 'absolute', top: -13, right: '50%', transform: 'translateX(50%)',
-                background: GOLD, color: '#fff', fontSize: 11, fontWeight: 700,
-                padding: '4px 16px', borderRadius: 20
-              }}>
-                الأكثر طلباً
-              </span>
               <p style={{ fontSize: 13, fontWeight: 700, color: GOLD, marginBottom: 10 }}>⭐ الأساسية</p>
               <p style={{ fontSize: 40, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>؟</p>
               <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 24 }}>السعر قيد التقييم</p>
