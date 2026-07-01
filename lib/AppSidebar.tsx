@@ -106,6 +106,16 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           أخرى
         </p>
 
+        <Link href="/forms" className="sidebar-link" style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
+          textDecoration: 'none', marginBottom: 2,
+          background: pathname === '/forms' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          color: pathname === '/forms' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
+        }}>
+          <span style={{ fontSize: 16 }}>📋</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>النماذج الجاهزة</span>
+        </Link>
+
         <Link href="/print" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 4,
@@ -115,6 +125,15 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span style={{ fontSize: 16 }}>🖨️</span>
           <span style={{ fontSize: 14, fontWeight: 500 }}>التقرير الكامل</span>
         </Link>
+
+        <a href="https://wa.me/966XXXXXXXXX?text=السلام عليكم، أحتاج مساعدة في منصة شواهدي"
+          target="_blank" rel="noreferrer" className="sidebar-link" style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
+          textDecoration: 'none', marginBottom: 4, color: '#4ade80'
+        }}>
+          <span style={{ fontSize: 16 }}>💬</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>الدعم الفني</span>
+        </a>
       </nav>
 
       <div style={{ padding: '0 14px' }}>
