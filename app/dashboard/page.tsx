@@ -4,69 +4,84 @@ import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const NAVY = '#0B1F3A'
+const GOLD = '#C28A1F'
 const GOLD_LIGHT = '#E8C275'
 const CREAM = '#FBF8F2'
 
-const DOMAIN_ICONS: Record<string, string> = { '1': '🏫', '2': '📚', '3': '📊', '4': '🏢' }
-const DOMAIN_COLORS: Record<string, string> = { '1': '#1d4ed8', '2': '#16a34a', '3': '#C28A1F', '4': '#7c3aed' }
-
-type Domain = {
-  id: number; code: string; name_ar: string; order_num: number;
-  total_indicators?: number; completed?: number; total_evidences?: number
+const DOMAIN_COLORS: Record<string, string> = {
+  '1': '#1d4ed8',
+  '2': '#16a34a',
+  '3': '#C28A1F',
+  '4': '#7c3aed'
+}
+const DOMAIN_ICONS: Record<string, string> = {
+  '1': '🏫', '2': '📚', '3': '📊', '4': '🏢'
 }
 
-function CircleProgress({ percent, color, size = 92 }: { percent: number; color: string; size?: number }) {
-  const stroke = 8
-  const r = (size - stroke) / 2
-  const circumference = 2 * Math.PI * r
-  const offset = circumference - (percent / 100) * circumference
-  return (
-    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size / 2} cy={size / 2} r={r} stroke="#EDEAE0" strokeWidth={stroke} fill="none" />
-      <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none"
-        strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
-    </svg>
-  )
+type Indicator = {
+  id: number; code: string; name_ar: string; order_num: number
+  evidence_count: number
+}
+type Standard = {
+  id: number; code: string; name_ar: string; order_num: number
+  indicators: Indicator[]
+  completed: number
+}
+type Domain = {
+  id: number; code: string; name_ar: string; order_num: number
+  standards: Standard[]
+  total_indicators: number
+  completed: number
 }
 
 export default function Dashboard() {
+  const router = useRouter()
   const { school, loading: schoolLoading } = useSchool()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
+  const [openDomains, setOpenDomains] = useState<Record<number, boolean>>({})
+  const [openStandards, setOpenStandards] = useState<Record<number, boolean>>({})
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
 
   useEffect(() => {
     if (!school) return
     async function load() {
       const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
-      const { data: standards } = await supabase.from('standards').select('id, domain_id')
-      const { data: indicators } = await supabase.from('indicators').select('id, standard_id')
-      const { data: evidences } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
+      const { data: standardsData } = await supabase.from('standards').select('*').order('order_num')
+      const { data: indicatorsData } = await supabase.from('indicators').select('*').order('order_num')
+      const { data: evidencesData } = await supabase
+        .from('evidences').select('id, indicator_id').eq('school_id', school!.id)
 
-      if (domainsData && standards && indicators) {
-        const evByIndicator: Record<number, number> = {}
-        evidences?.forEach(e => { evByIndicator[e.indicator_id] = (evByIndicator[e.indicator_id] || 0) + 1 })
-        const stdByDomain: Record<number, number[]> = {}
-        standards.forEach(s => { if (!stdByDomain[s.domain_id]) stdByDomain[s.domain_id] = []; stdByDomain[s.domain_id].push(s.id) })
-        const indByStd: Record<number, number[]> = {}
-        indicators.forEach(i => { if (!indByStd[i.standard_id]) indByStd[i.standard_id] = []; indByStd[i.standard_id].push(i.id) })
+      if (domainsData && standardsData && indicatorsData) {
+        const evByInd: Record<number, number> = {}
+        evidencesData?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
 
-        const enriched = domainsData.map(d => {
-          const stdIds = stdByDomain[d.id] || []
-          const indIds = stdIds.flatMap(sid => indByStd[sid] || [])
-          const completed = indIds.filter(id => (evByIndicator[id] || 0) > 0).length
-          const totalEv = indIds.reduce((sum, id) => sum + (evByIndicator[id] || 0), 0)
-          return { ...d, total_indicators: indIds.length, completed, total_evidences: totalEv }
+        const built: Domain[] = domainsData.map(d => {
+          const stds: Standard[] = standardsData
+            .filter(s => s.domain_id === d.id)
+            .map(s => {
+              const inds: Indicator[] = indicatorsData
+                .filter(i => i.standard_id === s.id)
+                .map(i => ({ ...i, evidence_count: evByInd[i.id] || 0 }))
+              const completed = inds.filter(i => i.evidence_count > 0).length
+              return { ...s, indicators: inds, completed }
+            })
+          const total_indicators = stds.reduce((sum, s) => sum + s.indicators.length, 0)
+          const completed = stds.reduce((sum, s) => sum + s.completed, 0)
+          return { ...d, standards: stds, total_indicators, completed }
         })
 
-        setDomains(enriched)
-        const totalCompleted = enriched.reduce((s, d) => s + (d.completed || 0), 0)
-        const totalEv = enriched.reduce((s, d) => s + (d.total_evidences || 0), 0)
-        const totalIndicators = enriched.reduce((s, d) => s + (d.total_indicators || 0), 0)
+        setDomains(built)
+        const totalCompleted = built.reduce((s, d) => s + d.completed, 0)
+        const totalIndicators = built.reduce((s, d) => s + d.total_indicators, 0)
+        const totalEv = Object.values(evByInd).reduce((s, v) => s + v, 0)
         setStats({ total: totalIndicators, completed: totalCompleted, evidences: totalEv })
+
+        // افتح المجال الأول تلقائياً
+        if (built.length > 0) setOpenDomains({ [built[0].id]: true })
       }
       setLoading(false)
     }
@@ -74,9 +89,16 @@ export default function Dashboard() {
   }, [school])
 
   const completion = stats.total ? Math.round((stats.completed / stats.total) * 100) : 0
-  const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
-  const isTrial = school?.subscription_status === 'trial'
   const principalFirstName = school?.principal_name?.split(' ')[0] || 'مدير المدرسة'
+  const isTrial = school?.subscription_status === 'trial'
+  const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
+
+  function toggleDomain(id: number) {
+    setOpenDomains(prev => ({ ...prev, [id]: !prev[id] }))
+  }
+  function toggleStandard(id: number) {
+    setOpenStandards(prev => ({ ...prev, [id]: !prev[id] }))
+  }
 
   if (schoolLoading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
@@ -89,22 +111,29 @@ export default function Dashboard() {
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>{`
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
-        .domain-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(11,31,58,0.08); }
+        .domain-row:hover { background: rgba(11,31,58,0.03) !important; }
+        .std-row:hover { background: rgba(11,31,58,0.04) !important; }
+        .ind-row:hover { background: rgba(11,31,58,0.04) !important; }
+        .ind-link { text-decoration: none; color: inherit; }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
 
         <div style={{ flex: 1, minWidth: 0 }}>
+
+          {/* Header */}
           <header style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
-            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            position: 'sticky', top: 0, zIndex: 50
+            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
+            justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
-              <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>مرحباً، {principalFirstName} 👋</p>
+              <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
+                مرحباً، {principalFirstName} 👋
+              </p>
               <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                {school?.name} — معايير التقويم والاعتماد المدرسي 1446هـ
+                {school?.name} — 1448هـ - 1449هـ
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -126,86 +155,186 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <main style={{ padding: '32px 28px', maxWidth: 1100, margin: '0 auto' }}>
+          <main style={{ padding: '24px 28px', maxWidth: 900, margin: '0 auto' }}>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
-              <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
-                <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: '0 0 8px' }}>نسبة الاكتمال الكلية</p>
-                <p style={{ fontSize: 34, fontWeight: 800, color: '#fff', margin: 0 }}>{loading ? '—' : `${completion}%`}</p>
-                <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.12)', borderRadius: 99, marginTop: 14 }}>
+            {/* إحصائيات مختصرة */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+              <div style={{ background: NAVY, borderRadius: 14, padding: '18px 18px' }}>
+                <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال</p>
+                <p style={{ fontSize: 28, fontWeight: 800, color: '#fff', margin: '0 0 4px' }}>{loading ? '—' : `${completion}%`}</p>
+                <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.12)', borderRadius: 99 }}>
                   <div style={{ width: `${completion || 2}%`, height: '100%', background: GOLD_LIGHT, borderRadius: 99, transition: 'width 0.6s' }} />
                 </div>
+                <p className="body-font" style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: '6px 0 0' }}>
+                  الحد الأدنى: شاهد لكل مؤشر
+                </p>
               </div>
-              {[
-                { label: 'إجمالي المؤشرات', value: stats.total, color: '#1d4ed8' },
-                { label: 'مؤشرات مكتملة', value: stats.completed, color: '#16a34a' },
-                { label: 'إجمالي الشواهد', value: stats.evidences, color: '#C28A1F' },
-              ].map(s => (
-                <div key={s.label} style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '22px 20px' }}>
-                  <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 8px' }}>{s.label}</p>
-                  <p style={{ fontSize: 30, fontWeight: 800, color: s.color, margin: 0 }}>{loading ? '—' : s.value}</p>
-                </div>
-              ))}
+              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 14, padding: '18px 18px' }}>
+                <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>إجمالي المؤشرات</p>
+                <p style={{ fontSize: 28, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
+              </div>
+              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 14, padding: '18px 18px' }}>
+                <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>مؤشرات مكتملة</p>
+                <p style={{ fontSize: 28, fontWeight: 800, color: '#16a34a', margin: '0 0 4px' }}>{loading ? '—' : stats.completed}</p>
+                {!loading && <p className="body-font" style={{ fontSize: 11, color: '#DC2626', margin: 0 }}>متبقي {stats.total - stats.completed}</p>}
+              </div>
+              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 14, padding: '18px 18px' }}>
+                <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>إجمالي الشواهد</p>
+                <p style={{ fontSize: 28, fontWeight: 800, color: '#C28A1F', margin: 0 }}>{loading ? '—' : stats.evidences}</p>
+              </div>
             </div>
 
-            <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 28 }}>
-              {loading ? [1,2,3,4].map(i => (
-                <div key={i} style={{ background: '#fff', borderRadius: 16, padding: 24, height: 140, opacity: 0.4 }} />
-              )) : domains.map(domain => {
-                const pct = domain.total_indicators ? Math.round(((domain.completed || 0) / domain.total_indicators) * 100) : 0
-                const color = DOMAIN_COLORS[domain.code] || '#6b7280'
+            {/* الشجرة */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid rgba(11,31,58,0.07)', overflow: 'hidden' }}>
+
+              {loading ? (
+                <div style={{ padding: '3rem', textAlign: 'center' }}>
+                  <p className="body-font" style={{ color: '#8A8270' }}>جاري تحميل البيانات...</p>
+                </div>
+              ) : domains.map((domain, dIdx) => {
+                const domainPct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
+                const domainColor = DOMAIN_COLORS[domain.code] || NAVY
+                const isOpenD = !!openDomains[domain.id]
+
                 return (
-                  <Link key={domain.id} href={`/domain/${domain.id}`} className="domain-card" style={{
-                    textDecoration: 'none', color: 'inherit', background: '#fff', borderRadius: 16,
-                    border: '1px solid rgba(11,31,58,0.07)', padding: '22px 24px',
-                    display: 'flex', alignItems: 'center', gap: 20, transition: 'all 0.2s'
-                  }}>
-                    <div style={{ position: 'relative', flexShrink: 0 }}>
-                      <CircleProgress percent={pct} color={color} />
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 18, fontWeight: 800, color: NAVY }}>{pct}%</span>
+                  <div key={domain.id} style={{ borderBottom: dIdx < domains.length - 1 ? '1px solid rgba(11,31,58,0.06)' : 'none' }}>
+
+                    {/* صف المجال */}
+                    <div className="domain-row" onClick={() => toggleDomain(domain.id)} style={{
+                      display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px',
+                      cursor: 'pointer', transition: 'background 0.15s',
+                      background: isOpenD ? `${domainColor}08` : 'transparent'
+                    }}>
+                      <span style={{ fontSize: 22, flexShrink: 0 }}>{DOMAIN_ICONS[domain.code]}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{domain.name_ar}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 80, height: 4, background: '#EDEAE0', borderRadius: 99 }}>
+                            <div style={{ width: `${domainPct || 2}%`, height: '100%', background: domainColor, borderRadius: 99, transition: 'width 0.4s' }} />
+                          </div>
+                          <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>
+                            {domain.completed}/{domain.total_indicators} مؤشراً
+                          </span>
+                        </div>
                       </div>
+                      <span style={{
+                        fontSize: 13, fontWeight: 700, color: domainColor,
+                        background: `${domainColor}12`, padding: '4px 12px', borderRadius: 20
+                      }}>
+                        {domainPct}%
+                      </span>
+                      <span style={{ fontSize: 14, color: '#C0BCA8', transition: 'transform 0.2s', transform: isOpenD ? 'rotate(90deg)' : 'none' }}>
+                        ←
+                      </span>
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                        <span style={{ fontSize: 18 }}>{DOMAIN_ICONS[domain.code]}</span>
-                        <p style={{ fontWeight: 700, fontSize: 15, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
-                      </div>
-                      <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                        {domain.completed} من {domain.total_indicators} مؤشراً مكتمل
-                      </p>
-                      <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '2px 0 0' }}>
-                        {domain.total_evidences} شاهد مرفوع
-                      </p>
-                    </div>
-                  </Link>
+
+                    {/* معايير المجال */}
+                    {isOpenD && domain.standards.map((standard, sIdx) => {
+                      const stdPct = standard.indicators.length ? Math.round((standard.completed / standard.indicators.length) * 100) : 0
+                      const isOpenS = !!openStandards[standard.id]
+
+                      return (
+                        <div key={standard.id} style={{ borderTop: '1px solid rgba(11,31,58,0.04)' }}>
+
+                          {/* صف المعيار */}
+                          <div className="std-row" onClick={() => toggleStandard(standard.id)} style={{
+                            display: 'flex', alignItems: 'center', gap: 12,
+                            padding: '13px 20px 13px 40px',
+                            cursor: 'pointer', transition: 'background 0.15s',
+                            background: isOpenS ? 'rgba(11,31,58,0.03)' : 'rgba(11,31,58,0.01)'
+                          }}>
+                            <div style={{
+                              width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                              background: domainColor, opacity: 0.6
+                            }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: '#374151', margin: '0 0 2px' }}>
+                                {standard.name_ar}
+                              </p>
+                              <span className="body-font" style={{ fontSize: 11, color: '#9CA3AF' }}>
+                                معيار {standard.code} · {standard.completed}/{standard.indicators.length} مؤشرات مكتملة
+                              </span>
+                            </div>
+                            <span className="body-font" style={{ fontSize: 11, color: stdPct === 100 ? '#16a34a' : '#8A8270', fontWeight: 600 }}>
+                              {stdPct}%
+                            </span>
+                            <span style={{ fontSize: 12, color: '#C0BCA8', transition: 'transform 0.2s', transform: isOpenS ? 'rotate(90deg)' : 'none' }}>
+                              ←
+                            </span>
+                          </div>
+
+                          {/* مؤشرات المعيار */}
+                          {isOpenS && standard.indicators.map((indicator) => {
+                            const hasEv = indicator.evidence_count > 0
+                            return (
+                              <Link key={indicator.id} href={`/indicator/${indicator.id}`} className="ind-link">
+                                <div className="ind-row" style={{
+                                  display: 'flex', alignItems: 'center', gap: 12,
+                                  padding: '11px 20px 11px 60px',
+                                  borderTop: '1px solid rgba(11,31,58,0.03)',
+                                  transition: 'background 0.15s',
+                                  background: 'rgba(11,31,58,0.005)'
+                                }}>
+                                  <span style={{ fontSize: 14, flexShrink: 0 }}>
+                                    {hasEv ? '✅' : '⭕'}
+                                  </span>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <p className="body-font" style={{
+                                      fontSize: 13, color: '#374151', margin: '0 0 2px',
+                                      lineHeight: 1.5
+                                    }}>
+                                      {indicator.name_ar}
+                                    </p>
+                                    <span className="body-font" style={{ fontSize: 11, color: '#9CA3AF' }}>
+                                      {indicator.code}
+                                    </span>
+                                  </div>
+                                  <span className="body-font" style={{
+                                    fontSize: 11, fontWeight: 600, flexShrink: 0, padding: '3px 10px', borderRadius: 20,
+                                    background: hasEv ? '#F0FDF4' : '#FEF2F2',
+                                    color: hasEv ? '#16a34a' : '#DC2626'
+                                  }}>
+                                    {hasEv ? `${indicator.evidence_count} شواهد` : 'فارغ'}
+                                  </span>
+                                  <span style={{ fontSize: 12, color: '#C0BCA8', flexShrink: 0 }}>←</span>
+                                </div>
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      )
+                    })}
+                  </div>
                 )
               })}
             </div>
 
-            <Link href="/print" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              background: 'linear-gradient(135deg, #C28A1F, #A6730F)', borderRadius: 16,
-              padding: '22px 28px', textDecoration: 'none', marginBottom: 20
-            }}>
-              <div>
-                <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 4px' }}>التقرير الكامل جاهز للطباعة</p>
-                <p className="body-font" style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
-                  اطبع ملف شواهد مدرستك كاملاً ومرتباً حسب المجالات والمعايير
-                </p>
-              </div>
-              <span style={{ fontSize: 22, color: '#fff' }}>←</span>
-            </Link>
+            {/* أزرار سريعة */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 20 }}>
+              <Link href="/print" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: 'linear-gradient(135deg, #C28A1F, #A6730F)', borderRadius: 14,
+                padding: '18px 22px', textDecoration: 'none'
+              }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>🖨️ التقرير الكامل</p>
+                  <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0 }}>اطبع ملف شواهد مدرستك</p>
+                </div>
+                <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+              </Link>
+              <Link href="/forms" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: NAVY, borderRadius: 14,
+                padding: '18px 22px', textDecoration: 'none'
+              }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>📋 النماذج الجاهزة</p>
+                  <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>29 نموذجاً جاهزاً للتحميل</p>
+                </div>
+                <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+              </Link>
+            </div>
 
-            {!loading && stats.completed < stats.total && (
-              <div style={{ background: '#fff', border: '1px solid rgba(220,38,38,0.15)', borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 18 }}>⚠️</span>
-                <p className="body-font" style={{ fontSize: 13, color: '#991B1B', margin: 0 }}>
-                  {stats.total - stats.completed} مؤشراً بدون شواهد — أضف شاهداً لكل منها لرفع تصنيفك
-                </p>
-              </div>
-            )}
           </main>
         </div>
       </div>
