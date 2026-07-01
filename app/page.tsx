@@ -1,6 +1,49 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+
+const NAVY = '#0B1F3A'
+const GOLD = '#C28A1F'
+const GOLD_LIGHT = '#E8C275'
 
 export default function Landing() {
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [loginError, setLoginError] = useState('')
+
+  async function handleLogin() {
+    setLoginError('')
+    if (!email || !password) { setLoginError('يرجى تعبئة البريد الإلكتروني وكلمة المرور'); return }
+    setLoginLoading(true)
+    try {
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError) throw authError
+
+      const { data: user } = await supabase.auth.getUser()
+      const { data: schoolUser } = await supabase
+        .from('school_users').select('school_id').eq('auth_id', user.user?.id).single()
+
+      if (schoolUser) {
+        const { data: school } = await supabase
+          .from('schools').select('subscription_status, subscription_end').eq('id', schoolUser.school_id).single()
+        if (school) {
+          const isExpired = new Date(school.subscription_end) < new Date()
+          if (isExpired || school.subscription_status === 'expired') {
+            router.push('/expired'); return
+          }
+        }
+      }
+      router.push('/dashboard')
+    } catch (e: any) {
+      setLoginError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+    }
+    setLoginLoading(false)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#FBF8F2', fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: '#0B1F3A' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -10,58 +53,40 @@ export default function Landing() {
           0%   { transform: scale(1.02) translate(0, 0); }
           100% { transform: scale(1.08) translate(-1%, -0.5%); }
         }
-        .hero-bg {
-          animation: kenburns 24s ease-in-out infinite alternate;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .hero-bg { animation: none; }
-        }
+        .hero-bg { animation: kenburns 24s ease-in-out infinite alternate; }
+        @media (prefers-reduced-motion: reduce) { .hero-bg { animation: none; } }
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
-        .nav-link:hover { opacity: 0.75; }
-        .cta-primary:hover { background: #0a1830 !important; }
         .cta-gold:hover { filter: brightness(1.08); }
+        .login-input:focus { border-color: #C28A1F !important; outline: none; }
+        .login-btn:hover { background: #0a1830 !important; }
+
+        .hero-split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: start; }
+        @media (max-width: 860px) {
+          .hero-split { grid-template-columns: 1fr; }
+        }
       `}</style>
 
-      {/* ============ NAV ============ */}
+      {/* ============ NAV (مبسّط - شعار فقط) ============ */}
       <nav style={{
-        background: 'rgba(251,248,242,0.92)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(11,31,58,0.08)',
-        padding: '0 28px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: 76,
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
+        background: 'rgba(251,248,242,0.92)', backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        height: 76, position: 'sticky', top: 0, zIndex: 100,
       }}>
         <img src="/logo.png" alt="شواهدي" style={{ height: 58, objectFit: 'contain' }} />
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/login" className="nav-link" style={{
-            padding: '9px 20px', fontSize: 14, fontWeight: 600, color: '#0B1F3A',
-            textDecoration: 'none', transition: 'opacity 0.2s'
-          }}>
-            تسجيل الدخول
-          </Link>
-          <Link href="/register" className="cta-gold" style={{
-            padding: '10px 24px', fontSize: 14, fontWeight: 700, borderRadius: 8,
-            background: 'linear-gradient(135deg, #D9A441, #C28A1F)', color: '#0B1F3A',
-            textDecoration: 'none', transition: 'filter 0.2s', whiteSpace: 'nowrap'
-          }}>
-            حساب تجريبي لمدة 7 أيام
-          </Link>
-        </div>
+        <a href="#login-box" style={{
+          padding: '9px 22px', fontSize: 13, fontWeight: 700, color: '#fff',
+          textDecoration: 'none', background: NAVY, borderRadius: 8
+        }}>
+          الدخول ↓
+        </a>
       </nav>
 
-      {/* ============ HERO (صورة كاملة بدون نص فوقها) ============ */}
+      {/* ============ HERO (صافي بدون نص) ============ */}
       <section style={{ position: 'relative', overflow: 'hidden', height: '56vh', minHeight: 380, maxHeight: 560 }}>
         <div className="hero-bg" style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'url(/hero.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 35%',
-          zIndex: 0,
+          position: 'absolute', inset: 0, backgroundImage: 'url(/hero.png)',
+          backgroundSize: 'cover', backgroundPosition: 'center 35%', zIndex: 0,
         }} />
         <div style={{
           position: 'absolute', inset: 0,
@@ -70,54 +95,150 @@ export default function Landing() {
         }} />
       </section>
 
-      {/* ============ النص الرئيسي (تحت الهيرو) ============ */}
-      <section style={{ padding: '4rem 1.5rem 4rem', maxWidth: 1180, margin: '0 auto', position: 'relative', zIndex: 2 }}>
-        <div style={{ maxWidth: 560, marginRight: '8%', marginLeft: 'auto', textAlign: 'right' }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'rgba(217,164,65,0.14)', border: '1px solid rgba(194,138,31,0.35)',
-          color: '#A6730F', fontSize: 12, fontWeight: 600, padding: '6px 16px',
-          borderRadius: 30, marginBottom: 26, letterSpacing: 0.3
-        }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C28A1F', display: 'inline-block' }} />
-          متوافق مع معايير هيئة تقويم التعليم والتدريب
-        </div>
+      {/* ============ نص + مربع دخول جنب بعض ============ */}
+      <section style={{ padding: '0 1.5rem 4rem', maxWidth: 1180, margin: '0 auto', marginTop: '-2rem', position: 'relative', zIndex: 2 }}>
+        <div className="hero-split">
 
-        <h1 style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.35, color: '#0B1F3A', marginBottom: 22 }}>
-          نظّم شواهد مدرستك<br />
-          <span style={{
-            background: 'linear-gradient(135deg, #C28A1F, #A6730F)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}>وكن جاهزاً لزيارة التقويم</span>
-        </h1>
+          {/* النص - يمين */}
+          <div style={{ textAlign: 'right' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: 'rgba(217,164,65,0.14)', border: '1px solid rgba(194,138,31,0.35)',
+              color: '#A6730F', fontSize: 12, fontWeight: 600, padding: '6px 16px',
+              borderRadius: 30, marginBottom: 26, letterSpacing: 0.3
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C28A1F', display: 'inline-block' }} />
+              متوافق مع معايير هيئة تقويم التعليم والتدريب
+            </div>
 
-        <p className="body-font" style={{ fontSize: 17, color: '#5A5648', lineHeight: 1.9, marginBottom: 36, maxWidth: 540 }}>
-          شواهدي تساعد مدارس التعليم العام على توثيق وتنظيم شواهد معايير الاعتماد المدرسي — مجال بمجال، مؤشراً بمؤشر، حتى تستقبل لجنة التقويم بثقة كاملة.
-        </p>
+            <h1 style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.35, color: '#0B1F3A', marginBottom: 22 }}>
+              لا تبحث عن الشاهد المناسب<br />
+              <span style={{
+                background: 'linear-gradient(135deg, #C28A1F, #A6730F)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              }}>شواهدي يرشدك إليه، وينشئه لك</span>
+            </h1>
 
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-          <Link href="/register" className="cta-gold" style={{
-            padding: '15px 38px', fontSize: 16, fontWeight: 700,
-            background: 'linear-gradient(135deg, #D9A441, #C28A1F)', color: '#0B1F3A',
-            borderRadius: 10, textDecoration: 'none',
-            boxShadow: '0 8px 24px rgba(194,138,31,0.28)', transition: 'filter 0.2s'
+            <p className="body-font" style={{ fontSize: 16, color: '#5A5648', lineHeight: 1.9, marginBottom: 30, maxWidth: 540 }}>
+              شواهدي منصة تساعد مدارس التعليم العام على <strong>إنشاء</strong> شواهد معايير الاعتماد المدرسي، تنظيمها، وطباعتها — مجال بمجال، مؤشراً بمؤشر، حتى تستقبل لجنة التقويم بثقة كاملة طوال العام.
+            </p>
+
+            <Link href="#login-box" className="cta-gold" style={{
+              display: 'inline-block', padding: '15px 38px', fontSize: 16, fontWeight: 700,
+              background: 'linear-gradient(135deg, #D9A441, #C28A1F)', color: '#0B1F3A',
+              borderRadius: 10, textDecoration: 'none',
+              boxShadow: '0 8px 24px rgba(194,138,31,0.28)', transition: 'filter 0.2s'
+            }}>
+              سجّل مدرستك الآن ←
+            </Link>
+          </div>
+
+          {/* مربع الدخول - يسار */}
+          <div id="login-box" style={{
+            background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
+            border: '1px solid rgba(11,31,58,0.07)', boxShadow: '0 16px 44px rgba(11,31,58,0.10)',
+            scrollMarginTop: 100
           }}>
-            سجّل مدرستك الآن ←
-          </Link>
-          <Link href="/login" style={{
-            padding: '15px 38px', fontSize: 16, fontWeight: 600,
-            border: '1.5px solid rgba(11,31,58,0.2)', borderRadius: 10,
-            textDecoration: 'none', color: '#0B1F3A'
-          }}>
-            تسجيل الدخول
-          </Link>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: NAVY, marginBottom: 6, textAlign: 'center' }}>تسجيل الدخول</h2>
+            <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 22, textAlign: 'center' }}>
+              أدخل بيانات مدرستك للمتابعة
+            </p>
+
+            <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
+              البريد الإلكتروني
+            </label>
+            <input
+              type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="example@school.edu.sa" className="login-input"
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              style={{
+                width: '100%', padding: '12px 16px', border: '1px solid rgba(11,31,58,0.15)',
+                borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+                boxSizing: 'border-box', marginBottom: 16, background: '#FBF8F2', color: NAVY
+              }}
+            />
+
+            <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
+              كلمة المرور
+            </label>
+            <input
+              type="password" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••" className="login-input"
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              style={{
+                width: '100%', padding: '12px 16px', border: '1px solid rgba(11,31,58,0.15)',
+                borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+                boxSizing: 'border-box', marginBottom: 20, background: '#FBF8F2', color: NAVY
+              }}
+            />
+
+            {loginError && (
+              <div style={{
+                background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10,
+                padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#DC2626',
+                fontFamily: 'IBM Plex Sans Arabic, sans-serif'
+              }}>
+                {loginError}
+              </div>
+            )}
+
+            <button onClick={handleLogin} disabled={loginLoading} className="login-btn" style={{
+              width: '100%', padding: '13px', fontSize: 15, fontWeight: 700,
+              background: loginLoading ? '#9ca3af' : NAVY, color: '#fff',
+              border: 'none', borderRadius: 10, cursor: loginLoading ? 'not-allowed' : 'pointer',
+              fontFamily: 'Tajawal, sans-serif', marginBottom: 16, transition: 'background 0.2s'
+            }}>
+              {loginLoading ? 'جاري الدخول...' : 'دخول ←'}
+            </button>
+
+            <p style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              ليس لديك حساب؟{' '}
+              <Link href="/register" style={{ color: GOLD, textDecoration: 'none', fontWeight: 700 }}>
+                سجّل مدرستك مجاناً
+              </Link>
+            </p>
+          </div>
+
         </div>
+      </section>
+
+      {/* ============ نبذة عن شواهدي ============ */}
+      <section style={{ background: '#fff', borderTop: '1px solid rgba(11,31,58,0.08)', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '5rem 1.5rem' }}>
+        <div style={{ maxWidth: 820, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
+            <h2 style={{ fontSize: 30, fontWeight: 800, color: NAVY }}>وش هو شواهدي بالضبط؟</h2>
+          </div>
+
+          <div style={{ display: 'grid', gap: 20, marginBottom: 40 }}>
+            <p className="body-font" style={{ fontSize: 16, color: '#374151', lineHeight: 2 }}>
+              شواهدي منصة سعودية مبنية خصيصاً لمدارس التعليم العام (حكومية، أهلية، وعالمية) لمساعدتها على تنظيم <strong>شواهد معايير الاعتماد المدرسي</strong> وفق إطار هيئة تقويم التعليم والتدريب <strong>(إتقان)</strong> — بمعاييره الأربعة و47 مؤشراً.
+            </p>
+            <p className="body-font" style={{ fontSize: 16, color: '#374151', lineHeight: 2 }}>
+              المشكلة اللي تعيشها أغلب المدارس اليوم: الشواهد مبعثرة بين ملفات ورقية، صور غير مصنفة، ومجلدات متفرقة — والتجهيز الحقيقي يبدأ متأخراً، قبل الزيارة بأيام قليلة، مما يضغط على الإدارة ويقلل من جودة ما يُقدَّم للجنة.
+            </p>
+            <p className="body-font" style={{ fontSize: 16, color: '#374151', lineHeight: 2 }}>
+              شواهدي يقلب هذي المعادلة: بدل ما تبحث عن الشاهد المناسب وتتساءل "وش أرفع هنا؟"، تدخل على كل مؤشر وتلقى إرشاداً واضحاً لما هو مطلوب، ترفع صورة أو ملف PDF مباشرة، والنظام يحوّله ويرتبه تلقائياً. وفي أي وقت تحتاج، تطبع تقريراً كاملاً منظماً حسب المجالات والمعايير جاهزاً للجنة التقويم.
+            </p>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(135deg, #0B1F3A, #14284a)', borderRadius: 20,
+            padding: '2.4rem 2rem', textAlign: 'center'
+          }}>
+            <p style={{ fontSize: 13, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>
+              الفرق الجوهري
+            </p>
+            <p style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.7, maxWidth: 600, margin: '0 auto' }}>
+              شواهدي ما يبيعك مساحة تخزين فقط —<br />
+              <span style={{ color: GOLD_LIGHT }}>هو يساعدك تصنع الشاهد الصحيح، وتحفظه في مكانه</span>
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ============ المجالات ============ */}
-      <section style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', borderTop: '1px solid rgba(11,31,58,0.08)', padding: '3rem 1.5rem' }}>
+      <section style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '3rem 1.5rem' }}>
         <p className="body-font" style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', marginBottom: 22, fontWeight: 600, letterSpacing: 1 }}>
           يغطي المجالات الأربعة لمعايير إتقان — 47 مؤشراً
         </p>
@@ -133,7 +254,7 @@ export default function Landing() {
               border: '1px solid rgba(11,31,58,0.06)'
             }}>
               <p style={{ fontSize: 32, margin: '0 0 10px' }}>{d.emoji}</p>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#0B1F3A', margin: '0 0 4px' }}>{d.label}</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{d.label}</p>
               <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: 0 }}>{d.sub}</p>
             </div>
           ))}
@@ -143,14 +264,14 @@ export default function Landing() {
       {/* ============ المشكلة ============ */}
       <section style={{ padding: '5rem 1.5rem', maxWidth: 760, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <p style={{ fontSize: 12, color: '#C28A1F', fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>المشكلة</p>
-          <h2 style={{ fontSize: 30, fontWeight: 800, color: '#0B1F3A', marginBottom: 10 }}>ما تواجهه المدارس اليوم</h2>
+          <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>المشكلة</p>
+          <h2 style={{ fontSize: 30, fontWeight: 800, color: NAVY, marginBottom: 10 }}>ما تواجهه المدارس اليوم</h2>
           <p className="body-font" style={{ fontSize: 15, color: '#5A5648' }}>معايير التقويم نظام جديد — وكثير من المدارس تبدأ من الصفر في كل زيارة</p>
         </div>
         <div style={{ display: 'grid', gap: 14 }}>
           {[
             { icon: '📂', title: 'الشواهد مبعثرة أو مفقودة', desc: 'الملفات الورقية تضيع، والصور غير مصنفة، والمدير لا يعرف ما اكتمل وما ينقصه قبيل الزيارة.' },
-            { icon: '🤷', title: 'النظام جديد وغير مفهوم بالكامل', desc: 'كثير من المدارس تقدم شواهد خاطئة أو غير كافية لأنها لا تعرف ما المطلوب بالضبط لكل مؤشر.' },
+            { icon: '🤷', title: 'وش أرفع هنا بالضبط؟', desc: 'كثير من المدارس تحتار وتقدم شواهد غير كافية لأنها لا تعرف ما المطلوب بالضبط لكل مؤشر.' },
             { icon: '⏰', title: 'التجهيز يأتي متأخراً', desc: 'المدارس تبدأ التجهيز قبل الزيارة بأيام قليلة، مما يضغط على الإدارة ويقلل جودة الشواهد المقدمة.' },
           ].map(p => (
             <div key={p.title} style={{
@@ -159,7 +280,7 @@ export default function Landing() {
             }}>
               <span style={{ fontSize: 30, flexShrink: 0 }}>{p.icon}</span>
               <div>
-                <p style={{ fontWeight: 700, fontSize: 16, color: '#0B1F3A', margin: '0 0 6px' }}>{p.title}</p>
+                <p style={{ fontWeight: 700, fontSize: 16, color: NAVY, margin: '0 0 6px' }}>{p.title}</p>
                 <p className="body-font" style={{ fontSize: 14, color: '#5A5648', margin: 0, lineHeight: 1.8 }}>{p.desc}</p>
               </div>
             </div>
@@ -168,18 +289,18 @@ export default function Landing() {
       </section>
 
       {/* ============ الحل ============ */}
-      <section style={{ background: '#0B1F3A', padding: '5rem 1.5rem' }}>
+      <section style={{ background: NAVY, padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <p style={{ fontSize: 12, color: '#E8C275', fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>الحل</p>
-            <h2 style={{ fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 10 }}>شواهدي تحل المشكلة</h2>
-            <p className="body-font" style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)' }}>منصة متكاملة تقود مدير المدرسة خطوة بخطوة طوال العام</p>
+            <p style={{ fontSize: 12, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>الحل</p>
+            <h2 style={{ fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 10 }}>شواهدي يرشدك خطوة بخطوة</h2>
+            <p className="body-font" style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)' }}>منصة متكاملة تقود مدير المدرسة طوال العام، لا قبل الزيارة فقط</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
             {[
               { icon: '📋', title: 'لوحة اكتمال فورية', desc: 'تعرف في ثوانٍ أي المجالات مكتملة وأيها يحتاج شواهد إضافية.' },
-              { icon: '📤', title: 'رفع شواهد بسهولة', desc: 'ارفع صوراً وملفات PDF مباشرة تحت كل مؤشر من 47 مؤشراً.' },
-              { icon: '📝', title: 'نماذج جاهزة', desc: 'محاضر لجان وخطط — تعبّئها وتطلع PDF احترافي باسم مدرستك.' },
+              { icon: '💡', title: 'إرشاد لكل مؤشر', desc: 'كل مؤشر يوضح لك بالضبط أي نوع من الشواهد يناسبه.' },
+              { icon: '📤', title: 'رفع شواهد بسهولة', desc: 'ارفع صوراً وملفات PDF مباشرة، والنظام يرتبها ويحولها تلقائياً.' },
               { icon: '🖨️', title: 'تقرير كامل بضغطة', desc: 'اطبع ملف شواهد مدرستك كاملاً ومرتباً جاهزاً لأي زيارة.' },
             ].map(f => (
               <div key={f.title} style={{
@@ -195,36 +316,34 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ============ التسعير ============ */}
+      {/* ============ التسعير - إخفاء السعر ============ */}
       <section style={{ padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
           <div style={{
             display: 'inline-block', background: 'rgba(217,164,65,0.12)', color: '#A6730F',
             fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 20, marginBottom: 20
           }}>
-            عرض تأسيسي محدود — بداية العام الدراسي
+            الإطلاق الرسمي — بداية العام الدراسي 1448هـ
           </div>
           <div style={{
             background: '#fff', border: '2px solid #E8C275', borderRadius: 22,
             padding: '2.8rem 2.2rem', boxShadow: '0 16px 48px rgba(11,31,58,0.10)'
           }}>
-            <p style={{ fontSize: 12, color: '#8A8270', fontWeight: 700, letterSpacing: 1, marginBottom: 4, textDecoration: 'line-through' }}>999 ريال / سنة</p>
-            <p style={{ fontSize: 54, fontWeight: 900, color: '#0B1F3A', margin: '0 0 4px', lineHeight: 1 }}>699</p>
-            <p className="body-font" style={{ fontSize: 17, color: '#5A5648', marginBottom: 24 }}>ريال سعودي / سنة</p>
+            <p style={{ fontSize: 68, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>؟</p>
+            <p className="body-font" style={{ fontSize: 16, color: '#5A5648', marginBottom: 24 }}>السعر قيد التقييم النهائي</p>
             <div style={{ textAlign: 'right', marginBottom: 28 }}>
               {['وصول كامل لجميع المجالات والمؤشرات', 'تخزين غير محدود للشواهد', 'نماذج جاهزة قابلة للتخصيص', 'تقارير PDF احترافية', 'دعم فني مستمر'].map(f => (
-                <p key={f} className="body-font" style={{ fontSize: 14, color: '#0B1F3A', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ color: '#C28A1F', fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
+                <p key={f} className="body-font" style={{ fontSize: 14, color: NAVY, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ color: GOLD, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
                 </p>
               ))}
             </div>
-            <Link href="/register" className="cta-primary" style={{
-              display: 'block', padding: '15px', fontSize: 17, fontWeight: 700,
-              background: '#0B1F3A', color: '#fff', borderRadius: 11,
-              textDecoration: 'none', transition: 'background 0.2s'
+            <a href="#login-box" style={{
+              display: 'block', padding: '15px', fontSize: 16, fontWeight: 700,
+              background: NAVY, color: '#fff', borderRadius: 11, textDecoration: 'none'
             }}>
-              سجّل مدرستك الآن ←
-            </Link>
+              سجّل اهتمامك الآن ←
+            </a>
           </div>
         </div>
       </section>
