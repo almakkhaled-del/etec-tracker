@@ -95,15 +95,32 @@ export default function Dashboard() {
         .body-font { font-family: 'IBM Plex Sans Arabic','Tajawal',sans-serif; }
         .domain-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,31,58,0.12) !important; }
         .domain-card { transition: all 0.2s; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+        .domains-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .main-content { padding: 28px; max-width: 1000px; margin: 0 auto; }
+        .header-bar { padding: 0 28px; }
+
+        @media (max-width: 768px) {
+          .stats-grid { grid-template-columns: repeat(2, 1fr); }
+          .domains-grid { grid-template-columns: 1fr; }
+          .actions-grid { grid-template-columns: 1fr; }
+          .main-content { padding: 16px; }
+          .header-bar { padding: 0 16px; flex-wrap: wrap; height: auto !important; min-height: 72px; }
+        }
+        @media (max-width: 420px) {
+          .stats-grid { grid-template-columns: 1fr; }
+        }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          <header style={{
+          <header className="header-bar" style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
-            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
+            height: 80, display: 'flex', alignItems: 'center',
             justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
@@ -118,19 +135,19 @@ export default function Dashboard() {
                   fontSize: 12, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F',
                   padding: '6px 14px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)'
                 }}>
-                  {trialDaysLeft} أيام متبقية من التجربة
+                  {trialDaysLeft} أيام متبقية
                 </span>
               )}
-              <div style={{ width: 40, height: 40, borderRadius: '50%', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', color: GOLD_LIGHT, fontSize: 15, fontWeight: 700 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', color: GOLD_LIGHT, fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
                 {school?.principal_name?.[0] || 'م'}
               </div>
             </div>
           </header>
 
-          <main style={{ padding: '28px', maxWidth: 1000, margin: '0 auto' }}>
+          <main className="main-content">
 
-            {/* 4 كروت إحصائيات */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+            {/* كروت إحصائيات */}
+            <div className="stats-grid">
               <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
                 <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال الكلية</p>
                 <p style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: '0 0 10px' }}>{loading ? '—' : `${completion}%`}</p>
@@ -154,9 +171,9 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* 4 كروت المجالات */}
+            {/* كروت المجالات */}
             <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
+            <div className="domains-grid">
               {loading ? [1,2,3,4].map(i => (
                 <div key={i} style={{ background: '#fff', borderRadius: 18, height: 130, opacity: 0.4 }} />
               )) : domains.map(domain => {
@@ -169,7 +186,8 @@ export default function Dashboard() {
                     border: '1.5px solid rgba(11,31,58,0.07)',
                     padding: '22px 24px',
                     display: 'flex', alignItems: 'center', gap: 20,
-                    boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
+                    boxShadow: '0 2px 8px rgba(11,31,58,0.05)',
+                    minWidth: 0
                   }}>
                     <div style={{ position: 'relative', flexShrink: 0 }}>
                       <CircleProgress percent={pct} color={color} size={80} />
@@ -179,7 +197,7 @@ export default function Dashboard() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <span style={{ fontSize: 22 }}>{DOMAIN_ICONS[domain.code]}</span>
+                        <span style={{ fontSize: 22, flexShrink: 0 }}>{DOMAIN_ICONS[domain.code]}</span>
                         <p style={{ fontWeight: 700, fontSize: 15, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
                       </div>
                       <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 4px' }}>
@@ -201,7 +219,7 @@ export default function Dashboard() {
             </div>
 
             {/* أزرار سريعة */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="actions-grid">
               <Link href="/print" style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 background: `linear-gradient(135deg, ${GOLD}, #A6730F)`,
@@ -211,7 +229,7 @@ export default function Dashboard() {
                   <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>🖨️ التقرير الكامل</p>
                   <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0 }}>اطبع ملف شواهد مدرستك كاملاً</p>
                 </div>
-                <span style={{ fontSize: 20, color: '#fff' }}>←</span>
+                <span style={{ fontSize: 20, color: '#fff', flexShrink: 0 }}>←</span>
               </Link>
               <Link href="/forms" style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -221,7 +239,7 @@ export default function Dashboard() {
                   <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>📋 النماذج الجاهزة</p>
                   <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>29 نموذجاً جاهزاً للتحميل</p>
                 </div>
-                <span style={{ fontSize: 20, color: '#fff' }}>←</span>
+                <span style={{ fontSize: 20, color: '#fff', flexShrink: 0 }}>←</span>
               </Link>
             </div>
 

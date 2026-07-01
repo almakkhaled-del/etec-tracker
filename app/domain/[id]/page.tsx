@@ -57,9 +57,9 @@ export default function DomainPage() {
 
   const color = domain ? (DOMAIN_COLORS[domain.code] || NAVY) : NAVY
   const icon = domain ? (DOMAIN_ICONS[domain.code] || '📋') : '📋'
-  const totalInd = standards.reduce((s, st) => s + st.indicators.length, 0)
-  const completedInd = standards.reduce((s, st) => s + st.completed, 0)
-  const domainPct = totalInd ? Math.round((completedInd / totalInd) * 100) : 0
+  const totalInd = loading ? null : standards.reduce((s, st) => s + st.indicators.length, 0)
+  const completedInd = loading ? null : standards.reduce((s, st) => s + st.completed, 0)
+  const domainPct = loading ? null : (totalInd ? Math.round((completedInd! / totalInd) * 100) : 0)
 
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
@@ -77,14 +77,13 @@ export default function DomainPage() {
 
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Header - المجال في الزاوية */}
+          {/* Header */}
           <header style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
             justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              {/* المجال في الزاوية - صغير */}
               <Link href="/dashboard" style={{
                 display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none',
                 background: `${color}12`, border: `1.5px solid ${color}30`,
@@ -92,10 +91,16 @@ export default function DomainPage() {
               }}>
                 <span style={{ fontSize: 18 }}>{icon}</span>
                 <div>
-                  <p style={{ fontSize: 11, color: color, fontWeight: 700, margin: 0 }}>{domain?.code && `المجال ${domain.code}`}</p>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: 0 }}>{domain?.name_ar}</p>
+                  <p style={{ fontSize: 11, color: color, fontWeight: 700, margin: 0 }}>
+                    {domain?.code && `المجال ${domain.code}`}
+                  </p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: 0 }}>
+                    {loading ? '...' : domain?.name_ar}
+                  </p>
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 800, color, marginRight: 4 }}>{domainPct}%</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color, marginRight: 4 }}>
+                  {loading ? '...' : `${domainPct}%`}
+                </span>
               </Link>
 
               <div style={{ width: 1, height: 32, background: 'rgba(11,31,58,0.1)' }} />
@@ -103,7 +108,7 @@ export default function DomainPage() {
               <div>
                 <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 1px' }}>اختر معياراً</p>
                 <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                  {completedInd} من {totalInd} مؤشراً مكتملاً
+                  {loading ? 'جاري التحميل...' : `${completedInd} من ${totalInd} مؤشراً مكتملاً`}
                 </p>
               </div>
             </div>
@@ -116,8 +121,15 @@ export default function DomainPage() {
           <main style={{ padding: '28px', maxWidth: 900, margin: '0 auto' }}>
 
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>
-                <p className="body-font">جاري التحميل...</p>
+              <div style={{ display: 'grid', gap: 14 }}>
+                {[1,2,3,4].map(i => (
+                  <div key={i} style={{
+                    background: '#fff', borderRadius: 16, height: 90,
+                    border: '2px solid rgba(11,31,58,0.06)',
+                    opacity: 0.5, animation: 'pulse 1.5s infinite'
+                  }} />
+                ))}
+                <style>{`@keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:0.3} }`}</style>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: 14 }}>
@@ -136,7 +148,6 @@ export default function DomainPage() {
                         display: 'flex', alignItems: 'center', gap: 18,
                         boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
                       }}>
-                        {/* رقم المعيار */}
                         <div style={{
                           width: 44, height: 44, borderRadius: 12, flexShrink: 0,
                           background: isOpen ? color : `${color}14`,
@@ -175,14 +186,12 @@ export default function DomainPage() {
                         </div>
                       </div>
 
-                      {/* المؤشرات تتشعب تحت المعيار */}
+                      {/* المؤشرات */}
                       {isOpen && (
                         <div style={{
                           marginTop: 6, borderRadius: 14, overflow: 'hidden',
-                          border: `1.5px solid ${color}25`,
-                          background: '#fff'
+                          border: `1.5px solid ${color}25`, background: '#fff'
                         }}>
-                          {/* رأس المؤشرات */}
                           <div style={{
                             padding: '10px 20px', background: `${color}08`,
                             borderBottom: `1px solid ${color}15`,
