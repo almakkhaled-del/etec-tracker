@@ -96,7 +96,7 @@ export default function Landing() {
       </section>
 
       {/* ============ نص + مربع دخول جنب بعض ============ */}
-      <section style={{ padding: '0 1.5rem 4rem', maxWidth: 1180, margin: '0 auto', marginTop: '-2rem', position: 'relative', zIndex: 2 }}>
+      <section style={{ padding: '3.5rem 1.5rem 4rem', maxWidth: 1180, margin: '0 auto', position: 'relative', zIndex: 2 }}>
         <div className="hero-split">
 
           {/* النص - يمين */}
@@ -316,34 +316,99 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ============ التسعير - إخفاء السعر ============ */}
+      {/* ============ الباقات الثلاث ============ */}
       <section style={{ padding: '5rem 1.5rem' }}>
-        <div style={{ maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{
-            display: 'inline-block', background: 'rgba(217,164,65,0.12)', color: '#A6730F',
-            fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 20, marginBottom: 20
-          }}>
-            الإطلاق الرسمي — بداية العام الدراسي 1448هـ
-          </div>
-          <div style={{
-            background: '#fff', border: '2px solid #E8C275', borderRadius: 22,
-            padding: '2.8rem 2.2rem', boxShadow: '0 16px 48px rgba(11,31,58,0.10)'
-          }}>
-            <p style={{ fontSize: 68, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>؟</p>
-            <p className="body-font" style={{ fontSize: 16, color: '#5A5648', marginBottom: 24 }}>السعر قيد التقييم النهائي</p>
-            <div style={{ textAlign: 'right', marginBottom: 28 }}>
-              {['وصول كامل لجميع المجالات والمؤشرات', 'تخزين غير محدود للشواهد', 'نماذج جاهزة قابلة للتخصيص', 'تقارير PDF احترافية', 'دعم فني مستمر'].map(f => (
-                <p key={f} className="body-font" style={{ fontSize: 14, color: NAVY, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ color: GOLD, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
-                </p>
-              ))}
-            </div>
-            <a href="#login-box" style={{
-              display: 'block', padding: '15px', fontSize: 16, fontWeight: 700,
-              background: NAVY, color: '#fff', borderRadius: 11, textDecoration: 'none'
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            <div style={{
+              display: 'inline-block', background: 'rgba(217,164,65,0.12)', color: '#A6730F',
+              fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 20, marginBottom: 20
             }}>
-              سجّل اهتمامك الآن ←
-            </a>
+              الإطلاق الرسمي — بداية العام الدراسي 1448هـ
+            </div>
+            <h2 style={{ fontSize: 28, fontWeight: 800, color: NAVY, marginBottom: 44 }}>اختر الباقة المناسبة لمدرستك</h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+
+            {/* الباقة المجانية */}
+            <div style={{
+              background: '#fff', border: '2px solid rgba(11,31,58,0.1)', borderRadius: 20,
+              padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column'
+            }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#8A8270', marginBottom: 10 }}>🆓 المجانية</p>
+              <p style={{ fontSize: 40, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>0</p>
+              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 24 }}>ريال / للأبد</p>
+              <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
+                {['مجال واحد من أصل 4', 'حجم رفع حتى 50 ميجابايت', 'رفع صور وملفات PDF', 'تقرير طباعة أساسي'].map(f => (
+                  <p key={f} className="body-font" style={{ fontSize: 13, color: NAVY, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: '#8A8270', fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
+                  </p>
+                ))}
+              </div>
+              <a href="/register" style={{
+                display: 'block', textAlign: 'center', padding: '13px', fontSize: 14, fontWeight: 700,
+                background: 'rgba(11,31,58,0.06)', color: NAVY, borderRadius: 10, textDecoration: 'none'
+              }}>
+                ابدأ مجاناً ←
+              </a>
+            </div>
+
+            {/* الباقة الأساسية */}
+            <div style={{
+              background: '#fff', border: `2.5px solid ${GOLD}`, borderRadius: 20,
+              padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column',
+              position: 'relative', boxShadow: '0 16px 44px rgba(194,138,31,0.14)'
+            }}>
+              <span style={{
+                position: 'absolute', top: -13, right: '50%', transform: 'translateX(50%)',
+                background: GOLD, color: '#fff', fontSize: 11, fontWeight: 700,
+                padding: '4px 16px', borderRadius: 20
+              }}>
+                الأكثر طلباً
+              </span>
+              <p style={{ fontSize: 13, fontWeight: 700, color: GOLD, marginBottom: 10 }}>⭐ الأساسية</p>
+              <p style={{ fontSize: 40, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>؟</p>
+              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 24 }}>السعر قيد التقييم</p>
+              <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
+                {['جميع المجالات الأربعة', 'تخزين حتى 500 ميجابايت', 'مكتبة نماذج متعددة', 'تقارير PDF احترافية', 'دعم فني مستمر'].map(f => (
+                  <p key={f} className="body-font" style={{ fontSize: 13, color: NAVY, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: GOLD, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
+                  </p>
+                ))}
+              </div>
+              <a href="#login-box" style={{
+                display: 'block', textAlign: 'center', padding: '13px', fontSize: 14, fontWeight: 700,
+                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, borderRadius: 10, textDecoration: 'none'
+              }}>
+                سجّل اهتمامك ←
+              </a>
+            </div>
+
+            {/* الباقة المتقدمة */}
+            <div style={{
+              background: NAVY, borderRadius: 20,
+              padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column'
+            }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: GOLD_LIGHT, marginBottom: 10 }}>👑 المتقدمة</p>
+              <p style={{ fontSize: 40, fontWeight: 900, color: '#fff', margin: '0 0 4px', lineHeight: 1 }}>؟</p>
+              <p className="body-font" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>السعر قيد التقييم</p>
+              <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
+                {['جميع المجالات الأربعة', 'رفع ملفات غير محدود', 'توليد نماذج جاهزة تلقائياً', 'تقارير PDF احترافية', 'دعم فني ذو أولوية'].map(f => (
+                  <p key={f} className="body-font" style={{ fontSize: 13, color: '#fff', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: GOLD_LIGHT, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
+                  </p>
+                ))}
+              </div>
+              <a href="#login-box" style={{
+                display: 'block', textAlign: 'center', padding: '13px', fontSize: 14, fontWeight: 700,
+                background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: 10, textDecoration: 'none',
+                border: `1px solid ${GOLD_LIGHT}40`
+              }}>
+                سجّل اهتمامك ←
+              </a>
+            </div>
+
           </div>
         </div>
       </section>
