@@ -20,6 +20,7 @@ export default function PrintPage() {
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
+  const [showEmptyOnly, setShowEmptyOnly] = useState<'all' | 'completed'>('all')
 
   useEffect(() => {
     if (!school) return
@@ -62,6 +63,19 @@ export default function PrintPage() {
 
   const today = new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })
 
+  // فلترة المؤشرات حسب الخيار المختار
+  const filteredDomains = domains.map(d => ({
+    ...d,
+    standards: d.standards
+      .map(s => ({
+        ...s,
+        indicators: showEmptyOnly === 'completed'
+          ? s.indicators.filter(i => i.evidences.length > 0)
+          : s.indicators
+      }))
+      .filter(s => s.indicators.length > 0) // نخفي المعيار كلياً لو ما بقي فيه مؤشرات بعد الفلترة
+  })).filter(d => d.standards.length > 0)
+
   return (
     <div style={{ fontFamily: 'Tajawal, sans-serif', direction: 'rtl', background: '#EDEAE0' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -75,16 +89,50 @@ export default function PrintPage() {
         }
         .report-container { max-width: 800px; margin: 0 auto; background: #fff; }
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
+        .filter-btn { transition: all 0.15s; cursor: pointer; }
       `}</style>
 
-      <div className="no-print" style={{ position: 'sticky', top: 0, background: NAVY, padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 100 }}>
-        <Link href="/dashboard" style={{ color: '#fff', textDecoration: 'none', fontSize: 14 }}>← رجوع للرئيسية</Link>
-        <button onClick={() => window.print()} style={{
-          background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none',
-          padding: '10px 28px', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif'
-        }}>
-          🖨️ طباعة التقرير
-        </button>
+      <div className="no-print" style={{ position: 'sticky', top: 0, background: NAVY, padding: '14px 24px', zIndex: 100 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <Link href="/dashboard" style={{ color: '#fff', textDecoration: 'none', fontSize: 14 }}>← رجوع للرئيسية</Link>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* مفتاح التبديل */}
+            <div style={{
+              display: 'flex', background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: 3
+            }}>
+              <button
+                onClick={() => setShowEmptyOnly('all')}
+                className="filter-btn body-font"
+                style={{
+                  padding: '7px 16px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600,
+                  background: showEmptyOnly === 'all' ? '#fff' : 'transparent',
+                  color: showEmptyOnly === 'all' ? NAVY : 'rgba(255,255,255,0.7)',
+                }}
+              >
+                عرض الكل ({stats.total})
+              </button>
+              <button
+                onClick={() => setShowEmptyOnly('completed')}
+                className="filter-btn body-font"
+                style={{
+                  padding: '7px 16px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600,
+                  background: showEmptyOnly === 'completed' ? '#fff' : 'transparent',
+                  color: showEmptyOnly === 'completed' ? NAVY : 'rgba(255,255,255,0.7)',
+                }}
+              >
+                المكتمل فقط ({stats.completed})
+              </button>
+            </div>
+
+            <button onClick={() => window.print()} style={{
+              background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none',
+              padding: '10px 28px', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif'
+            }}>
+              🖨️ طباعة التقرير
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="report-container" style={{ padding: '2rem', boxShadow: '0 0 24px rgba(11,31,58,0.10)', margin: '20px auto' }}>
@@ -98,6 +146,12 @@ export default function PrintPage() {
             {school?.region && <span>المنطقة: {school.region}</span>}
           </div>
           <p className="body-font" style={{ fontSize: 13, color: '#A8A296' }}>تاريخ الطباعة: {today}</p>
+
+          {showEmptyOnly === 'completed' && (
+            <p className="body-font no-print" style={{ fontSize: 12, color: GOLD, marginTop: 10, fontWeight: 600 }}>
+              📌 هذا التقرير يعرض المؤشرات المكتملة فقط
+            </p>
+          )}
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 32 }}>
             <div style={{ background: '#EFF6FF', borderRadius: 10, padding: '12px 24px', textAlign: 'center' }}>
@@ -115,7 +169,7 @@ export default function PrintPage() {
           </div>
         </div>
 
-        {domains.map((domain) => (
+        {filteredDomains.map((domain) => (
           <div key={domain.id}>
             {domain.standards.map(standard => (
               <div key={standard.id}>
