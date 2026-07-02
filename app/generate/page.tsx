@@ -38,7 +38,6 @@ export default function GenerateOperationalPlan() {
         ...prev,
         school_name: school.name || '',
         principal_name: school.principal_name || '',
-        email: school.email || '',
       }))
     }
   })
