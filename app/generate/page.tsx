@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
@@ -8,6 +8,30 @@ const NAVY = '#0B1F3A'
 const GOLD = '#C28A1F'
 const GOLD_LIGHT = '#E8C275'
 const CREAM = '#FBF8F2'
+
+function Field({ label, fieldKey, value, onChange, placeholder, type = 'text', required = false }: {
+  label: string; fieldKey: string; value: string; onChange: (key: string, val: string) => void; placeholder?: string; type?: string; required?: boolean
+}) {
+  const inputStyle = {
+    width: '100%' as const, padding: '12px 14px', border: '1.5px solid rgba(11,31,58,0.12)',
+    borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+    boxSizing: 'border-box' as const, background: '#FAFAF7', color: '#0B1F3A', direction: 'rtl' as const
+  }
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#0B1F3A', marginBottom: 6, fontFamily: 'Tajawal, sans-serif' }}>
+        {label} {required && <span style={{ color: '#DC2626' }}>*</span>}
+      </label>
+      {type === 'textarea' ? (
+        <textarea value={value} onChange={e => onChange(fieldKey, e.target.value)} placeholder={placeholder}
+          style={{ ...inputStyle, minHeight: 80, resize: 'vertical' as const, lineHeight: 1.8 }} />
+      ) : (
+        <input type="text" value={value} onChange={e => onChange(fieldKey, e.target.value)} placeholder={placeholder}
+          style={inputStyle} />
+      )}
+    </div>
+  )
+}
 
 export default function GenerateOperationalPlan() {
   const { school } = useSchool()
@@ -32,7 +56,7 @@ export default function GenerateOperationalPlan() {
   })
 
   // تعبئة تلقائية من بيانات المدرسة المسجلة
-  useState(() => {
+  useEffect(() => {
     if (school) {
       setForm(prev => ({
         ...prev,
@@ -40,7 +64,7 @@ export default function GenerateOperationalPlan() {
         principal_name: school.principal_name || '',
       }))
     }
-  })
+  }, [school])
 
   function update(key: string, value: string) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -89,37 +113,7 @@ export default function GenerateOperationalPlan() {
     setGenerating(false)
   }
 
-  const Field = ({ label, fieldKey, placeholder, type = 'text', required = false }: {
-    label: string; fieldKey: string; placeholder?: string; type?: string; required?: boolean
-  }) => (
-    <div style={{ marginBottom: 18 }}>
-      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6, fontFamily: 'Tajawal, sans-serif' }}>
-        {label} {required && <span style={{ color: '#DC2626' }}>*</span>}
-      </label>
-      {type === 'textarea' ? (
-        <textarea
-          value={(form as any)[fieldKey]} onChange={e => update(fieldKey, e.target.value)}
-          placeholder={placeholder}
-          style={{
-            width: '100%', padding: '12px 14px', border: '1.5px solid rgba(11,31,58,0.12)',
-            borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-            boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, minHeight: 80, resize: 'vertical',
-            direction: 'rtl', lineHeight: 1.8
-          }}
-        />
-      ) : (
-        <input
-          type="text" value={(form as any)[fieldKey]} onChange={e => update(fieldKey, e.target.value)}
-          placeholder={placeholder}
-          style={{
-            width: '100%', padding: '12px 14px', border: '1.5px solid rgba(11,31,58,0.12)',
-            borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-            boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl'
-          }}
-        />
-      )}
-    </div>
-  )
+
 
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
@@ -187,22 +181,22 @@ export default function GenerateOperationalPlan() {
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: 0 }}>بيانات المدرسة</h3>
                 </div>
 
-                <Field label="اسم المدرسة" fieldKey="school_name" placeholder="مثال: ابتدائية مجمع محمد بن أحمد الرشيد" required />
+                <Field label="اسم المدرسة" fieldKey="school_name" value={form.school_name} onChange={update} placeholder="مثال: ابتدائية مجمع محمد بن أحمد الرشيد" required />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <Field label="عدد المعلمين" fieldKey="teachers_count" placeholder="مثال: 25" />
-                  <Field label="عدد الوكلاء" fieldKey="deputies_count" placeholder="مثال: 3" />
+                  <Field label="عدد المعلمين" fieldKey="teachers_count" value={form.teachers_count} onChange={update} placeholder="مثال: 25" />
+                  <Field label="عدد الوكلاء" fieldKey="deputies_count" value={form.deputies_count} onChange={update} placeholder="مثال: 3" />
                 </div>
 
-                <Field label="اسم منسق الخطة" fieldKey="coordinator_name" placeholder="الاسم الكامل" />
-                <Field label="اسم مدير المدرسة" fieldKey="principal_name" placeholder="الاسم الكامل" required />
+                <Field label="اسم منسق الخطة" fieldKey="coordinator_name" value={form.coordinator_name} onChange={update} placeholder="الاسم الكامل" />
+                <Field label="اسم مدير المدرسة" fieldKey="principal_name" value={form.principal_name} onChange={update} placeholder="الاسم الكامل" required />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <Field label="هاتف العمل" fieldKey="work_phone" placeholder="01xxxxxxx" />
-                  <Field label="هاتف الجوال" fieldKey="mobile" placeholder="05xxxxxxxx" />
+                  <Field label="هاتف العمل" fieldKey="work_phone" value={form.work_phone} onChange={update} placeholder="01xxxxxxx" />
+                  <Field label="هاتف الجوال" fieldKey="mobile" value={form.mobile} onChange={update} placeholder="05xxxxxxxx" />
                 </div>
 
-                <Field label="البريد الإلكتروني" fieldKey="email" placeholder="school@email.com" />
+                <Field label="البريد الإلكتروني" fieldKey="email" value={form.email} onChange={update} placeholder="school@email.com" />
               </div>
 
               {/* القسم 2: الرؤية والرسالة */}
@@ -215,8 +209,8 @@ export default function GenerateOperationalPlan() {
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: 0 }}>الرؤية والرسالة</h3>
                 </div>
 
-                <Field label="رؤية المدرسة" fieldKey="vision" placeholder="مثال: بيئة تعليمية محفزة تُعد جيلاً واعياً ومنتمياً لوطنه" type="textarea" />
-                <Field label="رسالة المدرسة" fieldKey="mission" placeholder="مثال: تقديم تعليم نوعي يعزز مهارات المتعلمين ويحقق الشراكة المجتمعية" type="textarea" />
+                <Field label="رؤية المدرسة" fieldKey="vision" value={form.vision} onChange={update} placeholder="مثال: بيئة تعليمية محفزة تُعد جيلاً واعياً ومنتمياً لوطنه" type="textarea" />
+                <Field label="رسالة المدرسة" fieldKey="mission" value={form.mission} onChange={update} placeholder="مثال: تقديم تعليم نوعي يعزز مهارات المتعلمين ويحقق الشراكة المجتمعية" type="textarea" />
               </div>
 
               {/* القسم 3: تحليل الواقع SWOT */}
@@ -230,10 +224,10 @@ export default function GenerateOperationalPlan() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <Field label="نقاط القوة" fieldKey="strengths" placeholder="مثال: كادر تعليمي متميز، بيئة مدرسية محفزة" type="textarea" />
-                  <Field label="نقاط الضعف" fieldKey="weaknesses" placeholder="مثال: نقص في الوسائل التعليمية الحديثة" type="textarea" />
-                  <Field label="الفرص" fieldKey="opportunities" placeholder="مثال: دعم إدارة التعليم، شراكات مجتمعية فعالة" type="textarea" />
-                  <Field label="التهديدات" fieldKey="threats" placeholder="مثال: كثرة التكليفات، تسرب بعض المعلمين" type="textarea" />
+                  <Field label="نقاط القوة" fieldKey="strengths" value={form.strengths} onChange={update} placeholder="مثال: كادر تعليمي متميز، بيئة مدرسية محفزة" type="textarea" />
+                  <Field label="نقاط الضعف" fieldKey="weaknesses" value={form.weaknesses} onChange={update} placeholder="مثال: نقص في الوسائل التعليمية الحديثة" type="textarea" />
+                  <Field label="الفرص" fieldKey="opportunities" value={form.opportunities} onChange={update} placeholder="مثال: دعم إدارة التعليم، شراكات مجتمعية فعالة" type="textarea" />
+                  <Field label="التهديدات" fieldKey="threats" value={form.threats} onChange={update} placeholder="مثال: كثرة التكليفات، تسرب بعض المعلمين" type="textarea" />
                 </div>
               </div>
 
