@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
+    "@types/file-saver": "^2.0.7",
     "docxtemplater": "^3.69.0",
     "file-saver": "^2.0.5",
     "next": "16.2.9",
