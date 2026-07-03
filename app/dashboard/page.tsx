@@ -21,16 +21,7 @@ type Domain = {
   id: number; code: string; name_ar: string; order_num: number
   total_indicators: number; completed: number; total_evidences: number
 }
-type Standard = {
-  id: number; code: string; name_ar: string
-  completed: number; total: number
-}
-type Indicator = {
-  id: number; code: string; name_ar: string
-  evidence_count: number; status: 'empty' | 'started' | 'good' | 'excellent'
-}
-
-type View = 'domains' | 'standards' | 'indicators'
+type Standard = { id: number; code: string; name_ar: string; completed: number; total: number }
 
 function CircleProgress({ percent, color, size = 80 }: { percent: number; color: string; size?: number }) {
   const stroke = 7; const r = (size - stroke) / 2; const circ = 2 * Math.PI * r
@@ -51,13 +42,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
 
-  // navigation state
-  const [view, setView] = useState<View>('domains')
+  // حالة الانتقال
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null)
-  const [selectedStandard, setSelectedStandard] = useState<Standard | null>(null)
   const [standards, setStandards] = useState<Standard[]>([])
-  const [indicators, setIndicators] = useState<Indicator[]>([])
-  const [subLoading, setSubLoading] = useState(false)
+  const [loadingStd, setLoadingStd] = useState(false)
+  const [showStandards, setShowStandards] = useState(false)
   const [animKey, setAnimKey] = useState(0)
 
   const isTrial = school?.subscription_status === 'trial'
@@ -100,9 +89,10 @@ export default function Dashboard() {
     load()
   }, [school])
 
-  async function openDomain(domain: Domain) {
-    setSubLoading(true)
+  async function handleDomainClick(domain: Domain) {
+    setLoadingStd(true)
     setSelectedDomain(domain)
+    setShowStandards(false)
 
     const { data: stdsData } = await supabase.from('standards').select('*').eq('domain_id', domain.id).order('order_num')
     const { data: inds } = await supabase.from('indicators').select('id, standard_id')
@@ -113,44 +103,21 @@ export default function Dashboard() {
       evs?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
       const indByStd: Record<number, number[]> = {}
       inds.forEach(i => { if (!indByStd[i.standard_id]) indByStd[i.standard_id] = []; indByStd[i.standard_id].push(i.id) })
-
       setStandards(stdsData.map(s => {
         const indIds = indByStd[s.id] || []
         return { ...s, total: indIds.length, completed: indIds.filter(id => (evByInd[id] || 0) > 0).length }
       }))
     }
 
-    setSubLoading(false)
+    setLoadingStd(false)
     setAnimKey(k => k + 1)
-    setView('standards')
+    setShowStandards(true)
   }
 
-  async function openStandard(std: Standard) {
-    setSubLoading(true)
-    setSelectedStandard(std)
-
-    const { data: indsData } = await supabase.from('indicators').select('*').eq('standard_id', std.id).order('order_num')
-    const { data: evs } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
-
-    if (indsData) {
-      const evByInd: Record<number, number> = {}
-      evs?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
-
-      setIndicators(indsData.map(i => {
-        const count = evByInd[i.id] || 0
-        const status = count === 0 ? 'empty' : count < 3 ? 'started' : count < 5 ? 'good' : 'excellent'
-        return { ...i, evidence_count: count, status }
-      }))
-    }
-
-    setSubLoading(false)
+  function handleBack() {
     setAnimKey(k => k + 1)
-    setView('indicators')
-  }
-
-  function goBack() {
-    if (view === 'indicators') { setAnimKey(k => k + 1); setView('standards') }
-    else if (view === 'standards') { setAnimKey(k => k + 1); setView('domains'); setSelectedDomain(null) }
+    setShowStandards(false)
+    setSelectedDomain(null)
   }
 
   const color = selectedDomain ? (DOMAIN_COLORS[selectedDomain.code] || NAVY) : NAVY
@@ -173,8 +140,8 @@ export default function Dashboard() {
         }
         .domain-card { transition: all 0.22s ease; cursor: pointer; }
         .domain-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,31,58,0.12) !important; }
-        .row-card { transition: all 0.18s ease; }
-        .row-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(11,31,58,0.10) !important; }
+        .std-card { transition: all 0.18s ease; cursor: pointer; }
+        .std-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(11,31,58,0.10) !important; }
         .back-btn:hover { background: rgba(11,31,58,0.10) !important; }
       `}</style>
 
@@ -182,15 +149,14 @@ export default function Dashboard() {
         <AppSidebar activeDomainId={selectedDomain?.id} />
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Header */}
           <header style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
             justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              {view !== 'domains' && (
-                <button onClick={goBack} className="back-btn" style={{
+              {showStandards && (
+                <button onClick={handleBack} className="back-btn" style={{
                   background: 'rgba(11,31,58,0.06)', border: 'none', borderRadius: 10,
                   padding: '8px 16px', fontSize: 13, color: NAVY, cursor: 'pointer',
                   fontFamily: 'Tajawal, sans-serif', fontWeight: 600, transition: 'background 0.2s'
@@ -198,14 +164,12 @@ export default function Dashboard() {
               )}
               <div>
                 <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
-                  {view === 'domains' && `مرحباً، ${principalFirstName} 👋`}
-                  {view === 'standards' && selectedDomain?.name_ar}
-                  {view === 'indicators' && selectedStandard?.name_ar}
+                  {showStandards ? selectedDomain?.name_ar : `مرحباً، ${principalFirstName} 👋`}
                 </p>
                 <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                  {view === 'domains' && `${school?.name} — 1448هـ`}
-                  {view === 'standards' && `${selectedDomain?.completed} من ${selectedDomain?.total_indicators} مؤشراً مكتمل`}
-                  {view === 'indicators' && `${selectedStandard?.completed} من ${selectedStandard?.total} مؤشراً مكتمل`}
+                  {showStandards
+                    ? `${selectedDomain?.completed} من ${selectedDomain?.total_indicators} مؤشراً مكتمل`
+                    : `${school?.name} — 1448هـ`}
                 </p>
               </div>
             </div>
@@ -224,8 +188,8 @@ export default function Dashboard() {
 
           <main style={{ padding: '28px', maxWidth: 1000, margin: '0 auto' }}>
 
-            {/* إحصائيات — تظهر في الدومينز فقط */}
-            {view === 'domains' && (
+            {/* إحصائيات — تظهر في الداشبورد فقط */}
+            {!showStandards && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
                 <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
                   <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال الكلية</p>
@@ -250,11 +214,10 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* المحتوى الرئيسي */}
             <div key={animKey} className="fade-in">
 
               {/* المجالات */}
-              {view === 'domains' && (
+              {!showStandards && (
                 <>
                   <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
@@ -264,7 +227,7 @@ export default function Dashboard() {
                       const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
                       const c = DOMAIN_COLORS[domain.code] || NAVY
                       return (
-                        <div key={domain.id} onClick={() => openDomain(domain)} className="domain-card" style={{
+                        <div key={domain.id} onClick={() => handleDomainClick(domain)} className="domain-card" style={{
                           background: '#fff', borderRadius: 18,
                           border: '1.5px solid rgba(11,31,58,0.07)',
                           padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 20,
@@ -315,8 +278,8 @@ export default function Dashboard() {
               )}
 
               {/* المعايير */}
-              {view === 'standards' && (
-                subLoading ? (
+              {showStandards && (
+                loadingStd ? (
                   <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>
                     <p>جاري التحميل...</p>
                   </div>
@@ -325,65 +288,26 @@ export default function Dashboard() {
                     {standards.map(std => {
                       const pct = std.total ? Math.round((std.completed / std.total) * 100) : 0
                       return (
-                        <div key={std.id} onClick={() => openStandard(std)} className="row-card" style={{
-                          background: '#fff', borderRadius: 16, border: '1.5px solid rgba(11,31,58,0.07)',
-                          padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 16,
-                          cursor: 'pointer', boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
-                        }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color }}>
-                            {std.code}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 8px', lineHeight: 1.5 }}>{std.name_ar}</p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                              <div style={{ width: 100, height: 5, background: '#EDEAE0', borderRadius: 99 }}>
-                                <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : color, borderRadius: 99, transition: 'width 0.4s' }} />
-                              </div>
-                              <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>{std.completed}/{std.total} مكتمل</span>
-                            </div>
-                          </div>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: pct === 100 ? '#16a34a' : color, flexShrink: 0 }}>{pct}%</span>
-                          <span style={{ fontSize: 16, color: '#C0BCA8' }}>←</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )
-              )}
-
-              {/* المؤشرات */}
-              {view === 'indicators' && (
-                subLoading ? (
-                  <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>
-                    <p>جاري التحميل...</p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gap: 10 }}>
-                    {indicators.map((ind, idx) => {
-                      const hasEv = ind.evidence_count > 0
-                      return (
-                        <Link key={ind.id} href={`/indicator/${ind.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                          <div className="row-card" style={{
-                            background: hasEv ? '#F8FFF9' : '#fff',
-                            borderRadius: 14, border: '1px solid rgba(11,31,58,0.07)',
-                            borderRight: `4px solid ${hasEv ? '#86EFAC' : '#FCA5A5'}`,
-                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14,
-                            boxShadow: '0 2px 6px rgba(11,31,58,0.04)'
+                        <Link key={std.id} href={`/standard/${std.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                          <div className="std-card" style={{
+                            background: '#fff', borderRadius: 16, border: '1.5px solid rgba(11,31,58,0.07)',
+                            padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 16,
+                            boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
                           }}>
-                            <span style={{ fontSize: 18, flexShrink: 0 }}>{hasEv ? '✅' : '⭕'}</span>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <p className="body-font" style={{ fontSize: 13, color: NAVY, margin: '0 0 3px', lineHeight: 1.6 }}>{ind.name_ar}</p>
-                              <span className="body-font" style={{ fontSize: 11, color: '#9CA3AF' }}>{ind.code}</span>
+                            <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color }}>
+                              {std.code}
                             </div>
-                            <span className="body-font" style={{
-                              fontSize: 12, fontWeight: 600, flexShrink: 0,
-                              padding: '4px 12px', borderRadius: 20,
-                              background: hasEv ? '#DCFCE7' : '#FEE2E2',
-                              color: hasEv ? '#15803d' : '#DC2626'
-                            }}>
-                              {hasEv ? `${ind.evidence_count} شواهد` : 'فارغ'}
-                            </span>
-                            <span style={{ fontSize: 14, color: '#C0BCA8', flexShrink: 0 }}>←</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 8px', lineHeight: 1.5 }}>{std.name_ar}</p>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <div style={{ width: 100, height: 5, background: '#EDEAE0', borderRadius: 99 }}>
+                                  <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : color, borderRadius: 99, transition: 'width 0.4s' }} />
+                                </div>
+                                <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>{std.completed}/{std.total} مكتمل</span>
+                              </div>
+                            </div>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: pct === 100 ? '#16a34a' : color, flexShrink: 0 }}>{pct}%</span>
+                            <span style={{ fontSize: 16, color: '#C0BCA8' }}>←</span>
                           </div>
                         </Link>
                       )
