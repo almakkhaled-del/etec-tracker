@@ -1,262 +1,122 @@
-"use client";
+'use client'
+import { useState } from 'react'
+import {
+  Field, SectionHeader, GenerateButton, SuccessBox, ErrorBox, Card, NAVY,
+} from './SharedFormUI'
 
-import { useState } from "react";
-import Docxtemplater from "docxtemplater";
-import PizZip from "pizzip";
-import { saveAs } from "file-saver";
-
-// ============================================================
-// نوع البيانات لعضو اللجنة (اسم + وظيفة فقط - الصفة ثابتة بالقالب)
-// ============================================================
-type Member = { name: string; job: string };
+type Member = { name: string; job: string }
 
 const ROLE_LABELS = [
-  "رئيس اللجنة",
-  "عضو",
-  "عضو",
-  "عضو",
-  "مقررة اللجنة",
-  "عضو",
-  "عضو",
-  "عضو",
-];
+  'رئيس اللجنة', 'عضو', 'عضو', 'عضو', 'مقررة اللجنة', 'عضو', 'عضو', 'عضو',
+]
 
 interface CommitteeDecisionFormProps {
-  // تُمرَّر من بيانات المدرسة المسجّلة في النظام (ثابتة، غير قابلة للتعديل من هذا الفورم)
-  schoolPrincipalName: string;
-  onGenerated?: (fileName: string) => void;
+  schoolPrincipalName: string
+  onGenerated?: (fileName: string) => void
 }
 
-export default function CommitteeDecisionForm({
-  schoolPrincipalName,
-  onGenerated,
-}: CommitteeDecisionFormProps) {
-  const [committeeName, setCommitteeName] = useState("");
-  const [day, setDay] = useState("");
-  const [date, setDate] = useState("");
-  const [duration, setDuration] = useState("");
-  const [academicYear, setAcademicYear] = useState("1448هـ");
+export default function CommitteeDecisionForm({ schoolPrincipalName, onGenerated }: CommitteeDecisionFormProps) {
+  const [committeeName, setCommitteeName] = useState('')
+  const [day, setDay] = useState('')
+  const [date, setDate] = useState('')
+  const [duration, setDuration] = useState('')
+  const [academicYear, setAcademicYear] = useState('1448هـ')
+  const [members, setMembers] = useState<Member[]>(Array.from({ length: 8 }, () => ({ name: '', job: '' })))
+  const [sem1, setSem1] = useState(['', '', ''])
+  const [sem2, setSem2] = useState(['', '', ''])
+  const [generating, setGenerating] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [fileName, setFileName] = useState('')
 
-  const [members, setMembers] = useState<Member[]>(
-    Array.from({ length: 8 }, () => ({ name: "", job: "" }))
-  );
-
-  const [sem1, setSem1] = useState(["", "", ""]);
-  const [sem2, setSem2] = useState(["", "", ""]);
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  function updateMember(index: number, field: keyof Member, value: string) {
-    setMembers((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
+  function updateMember(i: number, field: keyof Member, value: string) {
+    setMembers(prev => { const next = [...prev]; next[i] = { ...next[i], [field]: value }; return next })
   }
 
   async function handleGenerate() {
-    setError(null);
+    setError(null); setDone(false)
+    if (!committeeName.trim()) { setError('لازم تكتب اسم اللجنة'); return }
+    if (!members.some(m => m.name.trim())) { setError('لازم تضيف عضو واحد على الأقل'); return }
 
-    if (!committeeName.trim()) {
-      setError("لازم تكتب اسم اللجنة");
-      return;
-    }
-    const filledMembers = members.filter((m) => m.name.trim());
-    if (filledMembers.length === 0) {
-      setError("لازم تضيف عضو واحد على الأقل");
-      return;
-    }
-
-    setLoading(true);
+    setGenerating(true)
     try {
-      // 1) جلب القالب من مسار الملفات الثابتة (public/templates/)
-      const res = await fetch("/templates/committee-decision-template.docx");
-      if (!res.ok) throw new Error("تعذر تحميل القالب");
-      const arrayBuffer = await res.arrayBuffer();
+      const [Docxtemplater, PizZip, { saveAs }] = await Promise.all([
+        import('docxtemplater').then(m => m.default),
+        import('pizzip').then(m => m.default),
+        import('file-saver'),
+      ])
+      const response = await fetch('/templates/committee-decision-template.docx')
+      const arrayBuffer = await response.arrayBuffer()
+      const zip = new PizZip(arrayBuffer)
+      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, delimiters: { start: '{{', end: '}}' } })
 
-      const zip = new PizZip(arrayBuffer);
-      const doc = new Docxtemplater(zip, {
-        paragraphLoop: true,
-        linebreaks: true,
-      });
-
-      // 2) بناء بيانات الأعضاء (فراغ للحقول غير المعبّأة)
-      const memberData: Record<string, string> = {};
+      const memberData: Record<string, string> = {}
       members.forEach((m, i) => {
-        const n = i + 1;
-        memberData[`member${n}_name`] = m.name || "";
-        memberData[`member${n}_job`] = m.job || "";
-      });
+        memberData[`member${i + 1}_name`] = m.name
+        memberData[`member${i + 1}_job`] = m.job
+      })
 
       doc.render({
-        committee_name: committeeName,
-        day,
-        date,
-        duration,
-        academic_year: academicYear,
+        committee_name: committeeName, day, date, duration, academic_year: academicYear,
         principal_name: schoolPrincipalName,
-        sem1_meeting1: sem1[0],
-        sem1_meeting2: sem1[1],
-        sem1_meeting3: sem1[2],
-        sem2_meeting1: sem2[0],
-        sem2_meeting2: sem2[1],
-        sem2_meeting3: sem2[2],
+        sem1_meeting1: sem1[0], sem1_meeting2: sem1[1], sem1_meeting3: sem1[2],
+        sem2_meeting1: sem2[0], sem2_meeting2: sem2[1], sem2_meeting3: sem2[2],
         ...memberData,
-      });
+      })
 
-      const blob = doc.getZip().generate({
-        type: "blob",
-        mimeType:
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      });
-
-      const fileName = `قرار تشكيل ${committeeName}.docx`;
-      saveAs(blob, fileName);
-      onGenerated?.(fileName);
-    } catch (e: any) {
-      console.error(e);
-      setError("صار خطأ أثناء توليد الملف، حاول مرة ثانية");
-    } finally {
-      setLoading(false);
+      const output = doc.getZip().generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      const f = `قرار تشكيل ${committeeName}.docx`
+      saveAs(output, f)
+      setFileName(f); setDone(true); onGenerated?.(f)
+    } catch (e) {
+      console.error(e)
+      setError('حدث خطأ أثناء التوليد. يرجى المحاولة مرة أخرى.')
     }
+    setGenerating(false)
   }
 
   return (
-    <div dir="rtl" className="max-w-3xl mx-auto space-y-6 p-4">
-      <h2 className="text-xl font-bold">قرار تشكيل لجنة</h2>
+    <Card>
+      <SectionHeader icon="📋" title="بيانات القرار" />
+      <Field label="اسم اللجنة *" value={committeeName} onChange={setCommitteeName} placeholder="مثال: لجنة التميز المدرسي" />
 
-      {/* بيانات القرار الأساسية */}
-      <section className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium mb-1">اسم اللجنة</label>
-          <input
-            className="w-full border rounded-lg p-2"
-            placeholder="مثال: لجنة التميز المدرسي"
-            value={committeeName}
-            onChange={(e) => setCommitteeName(e.target.value)}
-          />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <Field label="اليوم" value={day} onChange={setDay} />
+        <Field label="التاريخ" value={date} onChange={setDate} placeholder="1448/01/01هـ" />
+        <Field label="مدة اللجنة" value={duration} onChange={setDuration} placeholder="عام دراسي كامل" />
+        <Field label="العام الدراسي" value={academicYear} onChange={setAcademicYear} />
+      </div>
+
+      <SectionHeader icon="👥" title="أعضاء اللجنة" />
+      {members.map((m, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <span style={{ fontSize: 11, color: '#8A8270', width: 90, flexShrink: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ROLE_LABELS[i]}</span>
+          <input type="text" value={m.name} onChange={e => updateMember(i, 'name', e.target.value)} placeholder="اسم العضو"
+            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
+          <input type="text" value={m.job} onChange={e => updateMember(i, 'job', e.target.value)} placeholder="الوظيفة"
+            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
         </div>
+      ))}
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">اليوم</label>
-            <input
-              className="w-full border rounded-lg p-2"
-              value={day}
-              onChange={(e) => setDay(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">التاريخ</label>
-            <input
-              className="w-full border rounded-lg p-2"
-              placeholder="1448/01/01هـ"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              مدة اللجنة
-            </label>
-            <input
-              className="w-full border rounded-lg p-2"
-              placeholder="عام دراسي كامل"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              العام الدراسي
-            </label>
-            <input
-              className="w-full border rounded-lg p-2"
-              value={academicYear}
-              onChange={(e) => setAcademicYear(e.target.value)}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* أعضاء اللجنة */}
-      <section className="space-y-2">
-        <h3 className="font-semibold">أعضاء اللجنة</h3>
-        <p className="text-xs text-gray-500">
-          الصفة في اللجنة ثابتة حسب النظام المعتمد (رئيس / أعضاء / مقررة)
-        </p>
-        {members.map((m, i) => (
-          <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-            <input
-              className="border rounded-lg p-2"
-              placeholder="اسم العضو"
-              value={m.name}
-              onChange={(e) => updateMember(i, "name", e.target.value)}
-            />
-            <input
-              className="border rounded-lg p-2"
-              placeholder="الوظيفة"
-              value={m.job}
-              onChange={(e) => updateMember(i, "job", e.target.value)}
-            />
-            <span className="text-xs text-gray-500 whitespace-nowrap">
-              {ROLE_LABELS[i]}
-            </span>
-          </div>
+      <SectionHeader icon="🗓️" title="مواعيد الاجتماعات (اختياري)" />
+      <p style={{ fontSize: 12, color: '#8A8270', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الفصل الدراسي الأول</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
+        {sem1.map((v, i) => (
+          <input key={i} value={v} onChange={e => { const n = [...sem1]; n[i] = e.target.value; setSem1(n) }} placeholder={`الاجتماع ${i + 1}`}
+            style={{ padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
         ))}
-      </section>
+      </div>
+      <p style={{ fontSize: 12, color: '#8A8270', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الفصل الدراسي الثاني</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+        {sem2.map((v, i) => (
+          <input key={i} value={v} onChange={e => { const n = [...sem2]; n[i] = e.target.value; setSem2(n) }} placeholder={`الاجتماع ${i + 1}`}
+            style={{ padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
+        ))}
+      </div>
 
-      {/* جدول اجتماعات اللجنة (اختياري) */}
-      <section className="space-y-3">
-        <h3 className="font-semibold">مواعيد الاجتماعات (اختياري)</h3>
-        <div>
-          <p className="text-sm mb-1">الفصل الدراسي الأول</p>
-          <div className="grid grid-cols-3 gap-2">
-            {sem1.map((v, i) => (
-              <input
-                key={i}
-                className="border rounded-lg p-2"
-                placeholder={`الاجتماع ${i + 1}`}
-                value={v}
-                onChange={(e) => {
-                  const next = [...sem1];
-                  next[i] = e.target.value;
-                  setSem1(next);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="text-sm mb-1">الفصل الدراسي الثاني</p>
-          <div className="grid grid-cols-3 gap-2">
-            {sem2.map((v, i) => (
-              <input
-                key={i}
-                className="border rounded-lg p-2"
-                placeholder={`الاجتماع ${i + 1}`}
-                value={v}
-                onChange={(e) => {
-                  const next = [...sem2];
-                  next[i] = e.target.value;
-                  setSem2(next);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-
-      <button
-        onClick={handleGenerate}
-        disabled={loading}
-        className="w-full bg-emerald-700 text-white rounded-lg p-3 font-semibold disabled:opacity-50"
-      >
-        {loading ? "جاري التوليد..." : "توليد ملف Word"}
-      </button>
-    </div>
-  );
+      {error && <ErrorBox message={error} />}
+      <GenerateButton generating={generating} onClick={handleGenerate} label="📄 توليد قرار التشكيل ←" />
+      {done && <SuccessBox fileName={fileName} />}
+    </Card>
+  )
 }

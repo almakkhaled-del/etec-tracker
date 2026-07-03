@@ -5,6 +5,7 @@
 // ============================================================
 
 export type TemplateId =
+  | "operational_plan"
   | "committee_decision"
   | "meeting_minutes"
   | "orientation_week_plan"
@@ -21,6 +22,13 @@ export interface TemplateMeta {
 }
 
 export const TEMPLATES: TemplateMeta[] = [
+  {
+    id: "operational_plan",
+    title: "الخطة التشغيلية",
+    description: "الخطة التشغيلية الكاملة: رؤية ورسالة، تحليل SWOT، 5 أهداف بـ19 برنامج",
+    templateFile: "/templates/template_operational_plan.docx",
+    status: "ready",
+  },
   {
     id: "committee_decision",
     title: "قرار تشكيل لجنة",

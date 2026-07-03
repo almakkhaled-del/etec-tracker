@@ -14,7 +14,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
   const pathname = usePathname()
   const router = useRouter()
   const [domains, setDomains] = useState<Domain[]>([])
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [schoolId, setSchoolId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -22,6 +22,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
       if (!user) return
       const { data: schoolUser } = await supabase.from('school_users').select('school_id').eq('auth_id', user.id).single()
       if (!schoolUser) return
+      setSchoolId(schoolUser.school_id)
 
       const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
       const { data: standards } = await supabase.from('standards').select('id, domain_id')
@@ -49,16 +50,21 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
     load()
   }, [])
 
-  // إغلاق القائمة عند تغيير الصفحة
-  useEffect(() => { setMobileOpen(false) }, [pathname])
-
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/login')
   }
 
-  const SidebarContent = (
-    <>
+  return (
+    <aside className="sidebar-desktop" style={{
+      width: 252, background: NAVY, flexShrink: 0, display: 'flex', flexDirection: 'column',
+      position: 'sticky', top: 0, height: '100vh', padding: '28px 0', overflowY: 'auto'
+    }}>
+      <style>{`
+        .sidebar-link:hover { background: rgba(255,255,255,0.06) !important; }
+        @media (max-width: 860px) { .sidebar-desktop { display: none !important; } }
+      `}</style>
+
       <div style={{ padding: '0 24px', marginBottom: 32 }}>
         <Link href="/dashboard">
           <img src="/logo.png" alt="شواهدي" style={{ height: 36, filter: 'brightness(0) invert(1)' }} />
@@ -110,6 +116,16 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span style={{ fontSize: 14, fontWeight: 500 }}>النماذج الجاهزة</span>
         </Link>
 
+        <Link href="/forms/generator" className="sidebar-link" style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
+          textDecoration: 'none', marginBottom: 2,
+          background: pathname === '/forms/generator' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          color: pathname === '/forms/generator' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
+        }}>
+          <span style={{ fontSize: 16 }}>🧾</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>مولّد النماذج</span>
+        </Link>
+
         <Link href="/print" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
@@ -140,65 +156,6 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span>تسجيل الخروج</span>
         </button>
       </div>
-    </>
-  )
-
-  return (
-    <>
-      <style>{`
-        .sidebar-link:hover { background: rgba(255,255,255,0.06) !important; }
-        @media (max-width: 860px) { .sidebar-desktop { display: none !important; } }
-        @media (min-width: 861px) { .mobile-fab, .mobile-drawer, .mobile-overlay { display: none !important; } }
-
-        .mobile-fab {
-          position: fixed; bottom: 22px; left: 22px; z-index: 200;
-          width: 54px; height: 54px; border-radius: 50%;
-          background: #0B1F3A; border: none; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 6px 20px rgba(11,31,58,0.35);
-        }
-        .mobile-overlay {
-          position: fixed; inset: 0; background: rgba(11,31,58,0.5);
-          z-index: 199; opacity: 0; pointer-events: none; transition: opacity 0.25s;
-        }
-        .mobile-overlay.open { opacity: 1; pointer-events: auto; }
-        .mobile-drawer {
-          position: fixed; top: 0; right: 0; height: 100vh; width: 260px;
-          background: #0B1F3A; z-index: 201;
-          transform: translateX(100%); transition: transform 0.28s ease;
-          display: flex; flex-direction: column; padding: 24px 0; overflow-y: auto;
-        }
-        .mobile-drawer.open { transform: translateX(0); }
-      `}</style>
-
-      {/* Desktop sidebar */}
-      <aside className="sidebar-desktop" style={{
-        width: 252, background: NAVY, flexShrink: 0, display: 'flex', flexDirection: 'column',
-        position: 'sticky', top: 0, height: '100vh', padding: '28px 0', overflowY: 'auto'
-      }}>
-        {SidebarContent}
-      </aside>
-
-      {/* زر عائم للجوال */}
-      <button className="mobile-fab" onClick={() => setMobileOpen(true)} aria-label="فتح القائمة">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M4 6h16M4 12h16M4 18h16" stroke="#E8C275" strokeWidth="2.2" strokeLinecap="round" />
-        </svg>
-      </button>
-
-      {/* الخلفية المعتمة */}
-      <div className={`mobile-overlay ${mobileOpen ? 'open' : ''}`} onClick={() => setMobileOpen(false)} />
-
-      {/* القائمة المنزلقة */}
-      <div className={`mobile-drawer ${mobileOpen ? 'open' : ''}`}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 20px 12px' }}>
-          <button onClick={() => setMobileOpen(false)} style={{
-            background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: 8,
-            width: 32, height: 32, color: '#fff', fontSize: 16, cursor: 'pointer'
-          }}>✕</button>
-        </div>
-        {SidebarContent}
-      </div>
-    </>
+    </aside>
   )
 }

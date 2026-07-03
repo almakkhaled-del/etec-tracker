@@ -21,9 +21,7 @@ export default function Page() {
             </div>
           </header>
 
-          <main style={{ padding: '24px 28px' }}>
-            <FormsGeneratorPage schoolPrincipalName={school?.principal_name || ''} />
-          </main>
+          <FormsGeneratorPage schoolName={school?.name || ''} schoolPrincipalName={school?.principal_name || ''} />
 
         </div>
       </div>

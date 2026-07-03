@@ -1,86 +1,69 @@
-"use client";
+'use client'
+import { useState } from 'react'
+import { TEMPLATES, TemplateId } from './templates.config'
+import { NAVY, GOLD, CREAM } from './SharedFormUI'
+import OperationalPlanForm from './OperationalPlanForm'
+import CommitteeDecisionForm from './CommitteeDecisionForm'
+import MeetingMinutesForm from './MeetingMinutesForm'
+import OrientationWeekForm from './OrientationWeekForm'
+import SchoolStatusReportForm from './SchoolStatusReportForm'
+import ImprovementPlanBuildForm from './ImprovementPlanBuildForm'
+import ImprovementPlanExecuteForm from './ImprovementPlanExecuteForm'
 
-import { useState } from "react";
-import { TEMPLATES, TemplateId } from "./templates.config";
-import CommitteeDecisionForm from "./CommitteeDecisionForm";
-import MeetingMinutesForm from "./MeetingMinutesForm";
-import OrientationWeekForm from "./OrientationWeekForm";
-import SchoolStatusReportForm from "./SchoolStatusReportForm";
-import ImprovementPlanBuildForm from "./ImprovementPlanBuildForm";
-import ImprovementPlanExecuteForm from "./ImprovementPlanExecuteForm";
+interface FormsGeneratorPageProps { schoolPrincipalName: string; schoolName?: string }
 
-interface FormsGeneratorPageProps {
-  // بيانات المدرسة الثابتة من النظام (اسم المدرسة/المدير) — لا تُعدَّل من هنا
-  schoolPrincipalName: string;
-}
-
-export default function FormsGeneratorPage({
-  schoolPrincipalName,
-}: FormsGeneratorPageProps) {
-  const [selected, setSelected] = useState<TemplateId | null>(null);
-
-  const selectedMeta = TEMPLATES.find((t) => t.id === selected);
+export default function FormsGeneratorPage({ schoolPrincipalName, schoolName }: FormsGeneratorPageProps) {
+  const [selected, setSelected] = useState<TemplateId | null>(null)
+  const selectedMeta = TEMPLATES.find(t => t.id === selected)
 
   return (
-    <div dir="rtl" className="max-w-4xl mx-auto p-4 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">مولّد النماذج</h1>
-        <p className="text-gray-500 text-sm mt-1">
+    <main style={{ padding: '24px 28px', maxWidth: 640, margin: '0 auto' }}>
+      <div style={{ marginBottom: 20 }}>
+        <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>مولّد النماذج</p>
+        <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
           اختر النموذج اللي تبي تولّده، وبعدها تظهر لك الحقول المطلوبة فقط
         </p>
       </div>
 
-      {/* شبكة اختيار النموذج */}
-      <div className="grid sm:grid-cols-2 gap-3">
-        {TEMPLATES.map((t) => (
-          <button
-            key={t.id}
-            disabled={t.status === "coming_soon"}
-            onClick={() => setSelected(t.id)}
-            className={`text-right border rounded-xl p-4 transition ${
-              selected === t.id
-                ? "border-emerald-600 ring-2 ring-emerald-200"
-                : "border-gray-200 hover:border-gray-300"
-            } ${t.status === "coming_soon" ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-semibold">{t.title}</span>
-              {t.status === "coming_soon" && (
-                <span className="text-xs bg-gray-100 text-gray-500 rounded-full px-2 py-0.5">
-                  قريباً
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-gray-500 mt-1">{t.description}</p>
-          </button>
-        ))}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+        {TEMPLATES.map(t => {
+          const isSelected = selected === t.id
+          const isDisabled = t.status === 'coming_soon'
+          return (
+            <button
+              key={t.id}
+              disabled={isDisabled}
+              onClick={() => setSelected(t.id)}
+              style={{
+                textAlign: 'right', border: `1.5px solid ${isSelected ? GOLD : 'rgba(11,31,58,0.1)'}`,
+                borderRadius: 14, padding: 14, background: isSelected ? 'rgba(194,138,31,0.06)' : '#fff',
+                cursor: isDisabled ? 'not-allowed' : 'pointer', opacity: isDisabled ? 0.5 : 1,
+                fontFamily: 'Tajawal, sans-serif', transition: 'all 0.2s'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{t.title}</span>
+                {isDisabled && (
+                  <span style={{ fontSize: 10, background: CREAM, color: '#8A8270', borderRadius: 20, padding: '2px 8px' }}>قريباً</span>
+                )}
+              </div>
+              <p style={{ fontSize: 11, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif', lineHeight: 1.6 }}>{t.description}</p>
+            </button>
+          )
+        })}
       </div>
 
-      {/* الفورم الديناميكي حسب الاختيار */}
-      {selectedMeta?.status === "ready" && (
-        <div className="border-t pt-6">
-          {selected === "committee_decision" && (
-            <CommitteeDecisionForm schoolPrincipalName={schoolPrincipalName} />
-          )}
-          {selected === "meeting_minutes" && (
-            <MeetingMinutesForm schoolPrincipalName={schoolPrincipalName} />
-          )}
-          {selected === "orientation_week_plan" && (
-            <OrientationWeekForm schoolPrincipalName={schoolPrincipalName} />
-          )}
-          {selected === "school_status_report" && (
-            <SchoolStatusReportForm schoolPrincipalName={schoolPrincipalName} />
-          )}
-          {selected === "improvement_plan_build" && (
-            <ImprovementPlanBuildForm schoolPrincipalName={schoolPrincipalName} />
-          )}
-          {selected === "improvement_plan_execute" && (
-            <ImprovementPlanExecuteForm
-              schoolPrincipalName={schoolPrincipalName}
-            />
-          )}
+      {selectedMeta?.status === 'ready' && (
+        <div>
+          {selected === 'operational_plan' && <OperationalPlanForm schoolName={schoolName} schoolPrincipalName={schoolPrincipalName} />}
+          {selected === 'committee_decision' && <CommitteeDecisionForm schoolPrincipalName={schoolPrincipalName} />}
+          {selected === 'meeting_minutes' && <MeetingMinutesForm schoolPrincipalName={schoolPrincipalName} />}
+          {selected === 'orientation_week_plan' && <OrientationWeekForm schoolPrincipalName={schoolPrincipalName} />}
+          {selected === 'school_status_report' && <SchoolStatusReportForm schoolPrincipalName={schoolPrincipalName} />}
+          {selected === 'improvement_plan_build' && <ImprovementPlanBuildForm schoolPrincipalName={schoolPrincipalName} />}
+          {selected === 'improvement_plan_execute' && <ImprovementPlanExecuteForm schoolPrincipalName={schoolPrincipalName} />}
         </div>
       )}
-    </div>
-  );
+    </main>
+  )
 }

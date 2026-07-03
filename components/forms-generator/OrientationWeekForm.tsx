@@ -1,116 +1,58 @@
-"use client";
+'use client'
+import { useState } from 'react'
+import { Field, SectionHeader, GenerateButton, SuccessBox, ErrorBox, Card } from './SharedFormUI'
 
-import { useState } from "react";
-import Docxtemplater from "docxtemplater";
-import PizZip from "pizzip";
-import { saveAs } from "file-saver";
+interface Props { schoolPrincipalName: string; onGenerated?: (fileName: string) => void }
 
-interface OrientationWeekFormProps {
-  schoolPrincipalName: string;
-  onGenerated?: (fileName: string) => void;
-}
-
-export default function OrientationWeekForm({
-  schoolPrincipalName,
-  onGenerated,
-}: OrientationWeekFormProps) {
-  // إعداد يُملأ تلقائياً من اسم المدير، قابل للتعديل لو معدّ الخطة شخص آخر (رائدة نشاط مثلاً)
-  const [preparedBy, setPreparedBy] = useState(schoolPrincipalName);
-  const [location, setLocation] = useState("");
-  const [period, setPeriod] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function OrientationWeekForm({ schoolPrincipalName, onGenerated }: Props) {
+  const [preparedBy, setPreparedBy] = useState(schoolPrincipalName)
+  const [location, setLocation] = useState('')
+  const [period, setPeriod] = useState('')
+  const [generating, setGenerating] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [fileName, setFileName] = useState('')
 
   async function handleGenerate() {
-    setError(null);
+    setError(null); setDone(false)
+    if (!preparedBy.trim() || !location.trim() || !period.trim()) { setError('لازم تعبّي كل الحقول الثلاثة'); return }
 
-    if (!preparedBy.trim() || !location.trim() || !period.trim()) {
-      setError("لازم تعبّي كل الحقول الثلاثة");
-      return;
-    }
-
-    setLoading(true);
+    setGenerating(true)
     try {
-      const res = await fetch("/templates/orientation-week-template.docx");
-      if (!res.ok) throw new Error("تعذر تحميل القالب");
-      const arrayBuffer = await res.arrayBuffer();
-
-      const zip = new PizZip(arrayBuffer);
-      const doc = new Docxtemplater(zip, {
-        paragraphLoop: true,
-        linebreaks: true,
-      });
-
-      doc.render({
-        prepared_by: preparedBy,
-        location,
-        period,
-      });
-
-      const blob = doc.getZip().generate({
-        type: "blob",
-        mimeType:
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      });
-
-      const fileName = `خطة الأسبوع التمهيدي.docx`;
-      saveAs(blob, fileName);
-      onGenerated?.(fileName);
-    } catch (e: any) {
-      console.error(e);
-      setError("صار خطأ أثناء توليد الملف، حاول مرة ثانية");
-    } finally {
-      setLoading(false);
+      const [Docxtemplater, PizZip, { saveAs }] = await Promise.all([
+        import('docxtemplater').then(m => m.default),
+        import('pizzip').then(m => m.default),
+        import('file-saver'),
+      ])
+      const response = await fetch('/templates/orientation-week-template.docx')
+      const arrayBuffer = await response.arrayBuffer()
+      const zip = new PizZip(arrayBuffer)
+      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, delimiters: { start: '{{', end: '}}' } })
+      doc.render({ prepared_by: preparedBy, location, period })
+      const output = doc.getZip().generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      const f = `خطة الأسبوع التمهيدي.docx`
+      saveAs(output, f)
+      setFileName(f); setDone(true); onGenerated?.(f)
+    } catch (e) {
+      console.error(e)
+      setError('حدث خطأ أثناء التوليد. يرجى المحاولة مرة أخرى.')
     }
+    setGenerating(false)
   }
 
   return (
-    <div dir="rtl" className="max-w-2xl mx-auto space-y-6 p-4">
-      <h2 className="text-xl font-bold">خطة الأسبوع التمهيدي</h2>
-      <p className="text-sm text-gray-500">
-        محتوى الخطة (برنامج الأيام الخمسة والجدول الزمني) معتمد وثابت — تحتاج
-        بس تعبّي 3 حقول
+    <Card>
+      <SectionHeader icon="🎒" title="خطة الأسبوع التمهيدي" />
+      <p style={{ fontSize: 12, color: '#8A8270', marginBottom: 16, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+        محتوى الخطة (برنامج الأيام الخمسة والجدول الزمني) معتمد وثابت — تحتاج بس تعبّي 3 حقول
       </p>
+      <Field label="إعداد" value={preparedBy} onChange={setPreparedBy} />
+      <Field label="المكان" value={location} onChange={setLocation} placeholder="مثال: مدرسة ... الابتدائية" />
+      <Field label="الفترة" value={period} onChange={setPeriod} placeholder="الأسبوع الأول من العام الدراسي 1448هـ" />
 
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium mb-1">إعداد</label>
-          <input
-            className="w-full border rounded-lg p-2"
-            value={preparedBy}
-            onChange={(e) => setPreparedBy(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">المكان</label>
-          <input
-            className="w-full border rounded-lg p-2"
-            placeholder="مثال: مدرسة ... الابتدائية"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">الفترة</label>
-          <input
-            className="w-full border rounded-lg p-2"
-            placeholder="مثال: الأسبوع الأول من العام الدراسي 1448هـ"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-
-      <button
-        onClick={handleGenerate}
-        disabled={loading}
-        className="w-full bg-emerald-700 text-white rounded-lg p-3 font-semibold disabled:opacity-50"
-      >
-        {loading ? "جاري التوليد..." : "توليد ملف Word"}
-      </button>
-    </div>
-  );
+      {error && <ErrorBox message={error} />}
+      <GenerateButton generating={generating} onClick={handleGenerate} label="📄 توليد خطة الأسبوع التمهيدي ←" />
+      {done && <SuccessBox fileName={fileName} />}
+    </Card>
+  )
 }
