@@ -37,19 +37,37 @@ function CircleProgress({ percent, color, size = 80 }: { percent: number; color:
   )
 }
 
+// Breadcrumb chip — يظهر في أعلى المحتوى ويمكن الضغط عليه للرجوع
+function BreadcrumbChip({ icon, label, color, onClick }: {
+  icon: string; label: string; color: string; onClick: () => void
+}) {
+  return (
+    <button onClick={onClick} style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      padding: '6px 12px 6px 10px',
+      background: `${color}12`, border: `1.5px solid ${color}30`,
+      borderRadius: 20, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif',
+      fontSize: 12, fontWeight: 700, color,
+      transition: 'all 0.2s', whiteSpace: 'nowrap'
+    }}>
+      <span style={{ fontSize: 14 }}>{icon}</span>
+      <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+      <span style={{ fontSize: 10, opacity: 0.6 }}>✕</span>
+    </button>
+  )
+}
+
 export default function Dashboard() {
   const { school, loading: schoolLoading } = useSchool()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
 
-  // المستوى الأول: المجالات
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null)
   const [standards, setStandards] = useState<Standard[]>([])
   const [loadingStd, setLoadingStd] = useState(false)
   const [showStandards, setShowStandards] = useState(false)
 
-  // المستوى الثاني: المعايير → المؤشرات
   const [selectedStandard, setSelectedStandard] = useState<Standard | null>(null)
   const [indicators, setIndicators] = useState<Indicator[]>([])
   const [loadingInd, setLoadingInd] = useState(false)
@@ -97,7 +115,6 @@ export default function Dashboard() {
     load()
   }, [school])
 
-  // الضغط على مجال → يعرض معاييره
   async function handleDomainClick(domain: Domain) {
     setLoadingStd(true)
     setSelectedDomain(domain)
@@ -125,7 +142,6 @@ export default function Dashboard() {
     setShowStandards(true)
   }
 
-  // الضغط على معيار → يعرض مؤشراته
   async function handleStandardClick(std: Standard) {
     setLoadingInd(true)
     setSelectedStandard(std)
@@ -145,14 +161,7 @@ export default function Dashboard() {
     setShowIndicators(true)
   }
 
-  // رجوع من المؤشرات إلى المعايير
-  function handleBackToStandards() {
-    setAnimKey(k => k + 1)
-    setShowIndicators(false)
-    setSelectedStandard(null)
-  }
-
-  // رجوع من المعايير إلى المجالات
+  // رجوع للمجالات — يضغط على chip المجال
   function handleBackToDomains() {
     setAnimKey(k => k + 1)
     setShowStandards(false)
@@ -161,20 +170,15 @@ export default function Dashboard() {
     setSelectedStandard(null)
   }
 
-  const color = selectedDomain ? (DOMAIN_COLORS[selectedDomain.code] || NAVY) : NAVY
+  // رجوع للمعايير — يضغط على chip المعيار
+  function handleBackToStandards() {
+    setAnimKey(k => k + 1)
+    setShowIndicators(false)
+    setSelectedStandard(null)
+  }
 
-  // عنوان الهيدر حسب المستوى
-  const headerTitle = showIndicators
-    ? selectedStandard?.name_ar
-    : showStandards
-    ? selectedDomain?.name_ar
-    : `مرحباً، ${principalFirstName} 👋`
-
-  const headerSubtitle = showIndicators
-    ? `${selectedStandard?.completed} من ${selectedStandard?.total} مؤشراً مكتمل`
-    : showStandards
-    ? `${selectedDomain?.completed} من ${selectedDomain?.total_indicators} مؤشراً مكتمل`
-    : `${school?.name} — 1448هـ`
+  const domainColor = selectedDomain ? (DOMAIN_COLORS[selectedDomain.code] || NAVY) : NAVY
+  const domainIcon = selectedDomain ? (DOMAIN_ICONS[selectedDomain.code] || '📋') : '📋'
 
   if (schoolLoading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
@@ -198,39 +202,28 @@ export default function Dashboard() {
         .std-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(11,31,58,0.10) !important; }
         .ind-row { transition: background 0.15s; }
         .ind-row:hover { background: rgba(11,31,58,0.03) !important; }
-        .back-btn:hover { background: rgba(11,31,58,0.10) !important; }
+        .breadcrumb-chip:hover { filter: brightness(0.92); }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar activeDomainId={selectedDomain?.id} />
         <div style={{ flex: 1, minWidth: 0 }}>
 
+          {/* Header */}
           <header style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
             justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              {/* زر رجوع للمؤشرات → المعايير */}
-              {showIndicators && (
-                <button onClick={handleBackToStandards} className="back-btn" style={{
-                  background: 'rgba(11,31,58,0.06)', border: 'none', borderRadius: 10,
-                  padding: '8px 16px', fontSize: 13, color: NAVY, cursor: 'pointer',
-                  fontFamily: 'Tajawal, sans-serif', fontWeight: 600, transition: 'background 0.2s'
-                }}>← رجوع</button>
-              )}
-              {/* زر رجوع للمعايير → المجالات */}
-              {showStandards && !showIndicators && (
-                <button onClick={handleBackToDomains} className="back-btn" style={{
-                  background: 'rgba(11,31,58,0.06)', border: 'none', borderRadius: 10,
-                  padding: '8px 16px', fontSize: 13, color: NAVY, cursor: 'pointer',
-                  fontFamily: 'Tajawal, sans-serif', fontWeight: 600, transition: 'background 0.2s'
-                }}>← رجوع</button>
-              )}
-              <div>
-                <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>{headerTitle}</p>
-                <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>{headerSubtitle}</p>
-              </div>
+            <div>
+              <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
+                {!showStandards ? `مرحباً، ${principalFirstName} 👋` : showIndicators ? 'المؤشرات' : 'المعايير'}
+              </p>
+              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
+                {!showStandards ? `${school?.name} — 1448هـ` : showIndicators
+                  ? `${selectedStandard?.completed} من ${selectedStandard?.total} مؤشراً مكتمل`
+                  : `${selectedDomain?.completed} من ${selectedDomain?.total_indicators} مؤشراً مكتمل`}
+              </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               {isTrial && trialDaysLeft !== null && (
@@ -247,8 +240,8 @@ export default function Dashboard() {
 
           <main style={{ padding: '28px', maxWidth: 1000, margin: '0 auto' }}>
 
-            {/* إحصائيات — تظهر في الداشبورد فقط */}
-            {!showStandards && !showIndicators && (
+            {/* إحصائيات */}
+            {!showStandards && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
                 <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
                   <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال الكلية</p>
@@ -273,10 +266,36 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* Breadcrumb — يظهر فقط لما يكون في مستوى 2 أو 3 */}
+            {showStandards && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20,
+                animation: 'fadeUp 0.3s cubic-bezier(0.4,0,0.2,1) both'
+              }}>
+                <BreadcrumbChip
+                  icon={domainIcon}
+                  label={selectedDomain?.name_ar || ''}
+                  color={domainColor}
+                  onClick={handleBackToDomains}
+                />
+                {showIndicators && selectedStandard && (
+                  <>
+                    <span style={{ color: '#C0BCA8', fontSize: 14 }}>←</span>
+                    <BreadcrumbChip
+                      icon="📋"
+                      label={selectedStandard.name_ar}
+                      color={domainColor}
+                      onClick={handleBackToStandards}
+                    />
+                  </>
+                )}
+              </div>
+            )}
+
             <div key={animKey} className="fade-in">
 
               {/* المستوى 1: المجالات */}
-              {!showStandards && !showIndicators && (
+              {!showStandards && (
                 <>
                   <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
@@ -352,19 +371,19 @@ export default function Dashboard() {
                           padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 16,
                           boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
                         }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: `${domainColor}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: domainColor }}>
                             {std.code}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 8px', lineHeight: 1.5 }}>{std.name_ar}</p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                               <div style={{ width: 100, height: 5, background: '#EDEAE0', borderRadius: 99 }}>
-                                <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : color, borderRadius: 99, transition: 'width 0.4s' }} />
+                                <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : domainColor, borderRadius: 99, transition: 'width 0.4s' }} />
                               </div>
                               <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>{std.completed}/{std.total} مكتمل</span>
                             </div>
                           </div>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: pct === 100 ? '#16a34a' : color, flexShrink: 0 }}>{pct}%</span>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: pct === 100 ? '#16a34a' : domainColor, flexShrink: 0 }}>{pct}%</span>
                           <span style={{ fontSize: 16, color: '#C0BCA8' }}>←</span>
                         </div>
                       )
