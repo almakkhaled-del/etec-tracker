@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ===== Dashboard Mobile ===== */
+.bottom-nav { display: none !important; }
+
+@media (max-width: 860px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .domains-grid { grid-template-columns: 1fr !important; }
+  .action-grid { grid-template-columns: 1fr !important; }
+  .main-content { padding: 16px !important; padding-bottom: 90px !important; }
+  .bottom-nav { display: flex !important; }
+}
