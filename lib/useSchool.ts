@@ -21,7 +21,7 @@ export function useSchool() {
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      if (!user) { setLoading(false); router.push('/login'); return }
 
       const { data: schoolUser } = await supabase
         .from('school_users')
@@ -29,7 +29,7 @@ export function useSchool() {
         .eq('auth_id', user.id)
         .single()
 
-      if (!schoolUser) { router.push('/login'); return }
+      if (!schoolUser) { setLoading(false); router.push('/login'); return }
 
       const { data: schoolData } = await supabase
         .from('schools')
@@ -37,10 +37,11 @@ export function useSchool() {
         .eq('id', schoolUser.school_id)
         .single()
 
-      if (!schoolData) { router.push('/login'); return }
+      if (!schoolData) { setLoading(false); router.push('/login'); return }
 
       const isExpired = new Date(schoolData.subscription_end) < new Date()
       if (isExpired || schoolData.subscription_status === 'expired') {
+        setLoading(false)
         router.push('/expired')
         return
       }
