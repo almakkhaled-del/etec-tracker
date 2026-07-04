@@ -18,13 +18,6 @@ export default function FormsGeneratorPage({ schoolPrincipalName, schoolName }: 
 
   return (
     <main style={{ padding: '24px 28px', maxWidth: 640, margin: '0 auto' }}>
-      <div style={{ marginBottom: 20 }}>
-        <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>مولّد النماذج</p>
-        <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-          اختر النموذج اللي تبي تولّده، وبعدها تظهر لك الحقول المطلوبة فقط
-        </p>
-      </div>
-
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
         {TEMPLATES.map(t => {
           const isSelected = selected === t.id
