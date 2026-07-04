@@ -74,7 +74,7 @@ export default function Dashboard() {
   const [showIndicators, setShowIndicators] = useState(false)
 
   const [animKey, setAnimKey] = useState(0)
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(true)
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 860)
@@ -492,5 +492,6 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
