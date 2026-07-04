@@ -252,7 +252,7 @@ export default function Dashboard() {
 
             {/* إحصائيات */}
             {!showStandards && (
-              <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+              <div className="stats-grid" style={{ display: 'grid', gap: 14, marginBottom: 28 }}>
                 <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
                   <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال الكلية</p>
                   <p style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: '0 0 10px' }}>{loading ? '—' : `${completion}%`}</p>
@@ -308,7 +308,7 @@ export default function Dashboard() {
               {!showStandards && (
                 <>
                   <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
-                  <div className="domains-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
+                  <div className="domains-grid" style={{ display: 'grid', gap: 16, marginBottom: 24 }}>
                     {loading ? [1,2,3,4].map(i => (
                       <div key={i} style={{ background: '#fff', borderRadius: 18, height: 130, opacity: 0.4 }} />
                     )) : domains.map(domain => {
@@ -346,7 +346,7 @@ export default function Dashboard() {
                       )
                     })}
                   </div>
-                  <div className="action-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                  <div className="action-grid" style={{ display: 'grid', gap: 14 }}>
                     <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #A6730F)`, borderRadius: 16, padding: '18px 24px', textDecoration: 'none' }}>
                       <div>
                         <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>🖨️ التقرير الكامل</p>
@@ -485,6 +485,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
