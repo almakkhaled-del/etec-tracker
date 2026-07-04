@@ -74,6 +74,14 @@ export default function Dashboard() {
   const [showIndicators, setShowIndicators] = useState(false)
 
   const [animKey, setAnimKey] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 860)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const isTrial = school?.subscription_status === 'trial'
   const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
@@ -247,11 +255,11 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <main className="main-pad" style={{ padding: '28px', maxWidth: 1000, margin: '0 auto' }}>
+          <main style={{ padding: isMobile ? '16px' : '28px', paddingBottom: isMobile ? 90 : undefined, maxWidth: 1000, margin: '0 auto' }}>
 
             {/* إحصائيات */}
             {!showStandards && (
-              <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
                 <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
                   <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال الكلية</p>
                   <p style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: '0 0 10px' }}>{loading ? '—' : `${completion}%`}</p>
@@ -307,7 +315,7 @@ export default function Dashboard() {
               {!showStandards && (
                 <>
                   <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
-                  <div className="domains-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
                     {loading ? [1,2,3,4].map(i => (
                       <div key={i} style={{ background: '#fff', borderRadius: 18, height: 130, opacity: 0.4 }} />
                     )) : domains.map(domain => {
@@ -345,7 +353,7 @@ export default function Dashboard() {
                       )
                     })}
                   </div>
-                  <div className="action-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
                     <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #A6730F)`, borderRadius: 16, padding: '18px 24px', textDecoration: 'none' }}>
                       <div>
                         <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>🖨️ التقرير الكامل</p>
@@ -458,10 +466,10 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Nav — جوال فقط */}
-      <nav className="bottom-nav" style={{
+      {isMobile && <nav style={{
         position: 'fixed', bottom: 0, right: 0, left: 0, zIndex: 100,
         background: '#fff', borderTop: '1px solid rgba(11,31,58,0.10)',
-        display: 'none', alignItems: 'center', justifyContent: 'space-around',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         padding: '10px 0 18px', gap: 0
       }}>
         {[
@@ -479,9 +487,10 @@ export default function Dashboard() {
             <span style={{ fontSize: 10, fontWeight: 600, color: NAVY, fontFamily: 'Tajawal, sans-serif' }}>{item.label}</span>
           </a>
         ))}
-      </nav>
+      </nav>}
 
     </div>
   )
 }
+
 
