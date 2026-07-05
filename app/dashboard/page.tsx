@@ -134,6 +134,8 @@ function DashboardInner() {
       if (target) {
         setAutoOpened(true)
         handleDomainClick(target)
+        // مسح الـ param من الـ URL حتى لا يُعاد الفتح عند التحديث
+        window.history.replaceState(null, '', '/dashboard')
       }
     }
   }, [domainParam, domains, autoOpened])
@@ -566,6 +568,7 @@ export default function Dashboard() {
     </Suspense>
   )
 }
+
 
 
 
