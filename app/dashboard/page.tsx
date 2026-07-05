@@ -324,6 +324,9 @@ export default function Dashboard() {
                             <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                               {domain.total_evidences} شاهد مرفوع
                             </p>
+                            <p style={{ fontSize: 9, color: '#A6730F', margin: '3px 0 0', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                              يمكنك رفع أكثر من شاهد لكل مؤشر
+                            </p>
                           </div>
                           <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: `${c}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <span style={{ fontSize: 14, color: c }}>←</span>
@@ -381,6 +384,9 @@ export default function Dashboard() {
                             <span style={{ fontSize: 11, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{std.completed}/{std.total} مكتمل</span>
                             <span style={{ fontSize: 13, fontWeight: 800, color: pct === 100 ? '#16a34a' : domainColor }}>{pct}%</span>
                           </div>
+                          <span style={{ fontSize: 9, color: '#A6730F', lineHeight: 1.4, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                            يمكنك رفع أكثر من شاهد لكل مؤشر
+                          </span>
                         </div>
                       )
                     })}
@@ -477,6 +483,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
