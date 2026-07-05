@@ -139,6 +139,11 @@ function DashboardInner() {
   }, [domainParam, domains])
 
   async function handleDomainClick(domain: Domain) {
+    // حماية: منع فتح مجال محجوب للحساب المجاني من أي مصدر
+    if (trialPlan && allowedDomainId != null && domain.id !== allowedDomainId) {
+      setShowUpgrade(true)
+      return
+    }
     setLoadingStd(true)
     setSelectedDomain(domain)
     setShowStandards(false)
@@ -637,6 +642,7 @@ export default function Dashboard() {
     </Suspense>
   )
 }
+
 
 
 
