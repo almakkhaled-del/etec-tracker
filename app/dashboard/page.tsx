@@ -41,12 +41,13 @@ function BreadcrumbChip({ icon, label, color, onClick }: {
   icon: string; label: string; color: string; onClick: () => void
 }) {
   return (
-    <button onClick={onClick} style={{
+    <button onClick={onClick} className="chip-slide" style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '6px 12px', background: `${color}12`,
+      padding: '7px 14px', background: `${color}12`,
       border: `1.5px solid ${color}30`, borderRadius: 20,
       cursor: 'pointer', fontFamily: 'Tajawal, sans-serif',
-      fontSize: 12, fontWeight: 700, color, whiteSpace: 'nowrap'
+      fontSize: 12, fontWeight: 700, color, whiteSpace: 'nowrap',
+      boxShadow: `0 2px 8px ${color}18`
     }}>
       <span style={{ fontSize: 14 }}>{icon}</span>
       <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
@@ -190,11 +191,14 @@ export default function Dashboard() {
         .body-font { font-family: 'IBM Plex Sans Arabic','Tajawal',sans-serif; }
         .fade-in { animation: fadeUp 0.35s cubic-bezier(0.4,0,0.2,1) both; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .chip-slide { animation: chipSlide 0.4s cubic-bezier(0.34,1.3,0.5,1) both; }
+        @keyframes chipSlide { from { opacity:0; transform:translateX(30px) scale(0.85); } to { opacity:1; transform:translateX(0) scale(1); } }
         .domain-card { transition: all 0.22s ease; cursor: pointer; }
         .domain-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,31,58,0.12) !important; }
         .std-card { transition: all 0.18s ease; cursor: pointer; }
-        .std-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(11,31,58,0.10) !important; }
-        .ind-row:hover { background: rgba(11,31,58,0.03) !important; }
+        .std-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(11,31,58,0.12) !important; }
+        .ind-card { transition: all 0.18s ease; cursor: pointer; }
+        .ind-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(11,31,58,0.12) !important; }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -347,35 +351,36 @@ export default function Dashboard() {
                 </>
               )}
 
-              {/* Level 2: Standards */}
+              {/* Level 2: Standards — كروت في شبكة أفقية */}
               {showStandards && !showIndicators && (
                 loadingStd ? (
                   <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>جاري التحميل...</div>
                 ) : (
-                  <div style={{ display: 'grid', gap: 10 }}>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: mob ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+                    gap: mob ? 12 : 16
+                  }}>
                     {standards.map(std => {
                       const pct = std.total ? Math.round((std.completed / std.total) * 100) : 0
                       return (
                         <div key={std.id} onClick={() => handleStandardClick(std)} className="std-card" style={{
-                          background: '#fff', borderRadius: 16, border: '1.5px solid rgba(11,31,58,0.07)',
-                          padding: mob ? '14px 16px' : '18px 22px',
-                          display: 'flex', alignItems: 'center', gap: 14,
-                          boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
+                          background: '#fff', borderRadius: 18, border: '1.5px solid rgba(11,31,58,0.07)',
+                          padding: mob ? '16px 14px' : '20px 18px',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                          gap: 10, boxShadow: '0 2px 10px rgba(11,31,58,0.05)', minHeight: mob ? 150 : 170
                         }}>
-                          <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: `${domainColor}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: domainColor }}>
+                          <div style={{ width: 46, height: 46, borderRadius: 13, flexShrink: 0, background: `${domainColor}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, color: domainColor }}>
                             {std.code}
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: mob ? 13 : 14, fontWeight: 700, color: NAVY, margin: '0 0 6px', lineHeight: 1.5 }}>{std.name_ar}</p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <div style={{ width: 80, height: 4, background: '#EDEAE0', borderRadius: 99 }}>
-                                <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : domainColor, borderRadius: 99 }} />
-                              </div>
-                              <span style={{ fontSize: 11, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{std.completed}/{std.total}</span>
-                            </div>
+                          <p style={{ fontSize: mob ? 12 : 13, fontWeight: 700, color: NAVY, margin: 0, lineHeight: 1.5, flex: 1 }}>{std.name_ar}</p>
+                          <div style={{ width: '100%', height: 5, background: '#EDEAE0', borderRadius: 99 }}>
+                            <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : domainColor, borderRadius: 99, transition: 'width 0.5s' }} />
                           </div>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: pct === 100 ? '#16a34a' : domainColor, flexShrink: 0 }}>{pct}%</span>
-                          <span style={{ fontSize: 14, color: '#C0BCA8' }}>←</span>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                            <span style={{ fontSize: 11, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{std.completed}/{std.total} مكتمل</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: pct === 100 ? '#16a34a' : domainColor }}>{pct}%</span>
+                          </div>
                         </div>
                       )
                     })}
@@ -383,37 +388,39 @@ export default function Dashboard() {
                 )
               )}
 
-              {/* Level 3: Indicators */}
+              {/* Level 3: Indicators — كروت في شبكة */}
               {showIndicators && (
                 loadingInd ? (
                   <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>جاري التحميل...</div>
                 ) : (
-                  <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: mob ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+                    gap: mob ? 12 : 16
+                  }}>
                     {indicators.map((ind, idx) => {
                       const hasEv = ind.evidence_count > 0
                       return (
                         <Link key={ind.id} href={`/indicator/${ind.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                          <div className="ind-row" style={{
-                            background: hasEv ? '#F8FFF9' : '#fff', borderRadius: 14,
-                            border: '1px solid rgba(11,31,58,0.07)',
-                            borderRight: `4px solid ${hasEv ? '#86EFAC' : '#FCA5A5'}`,
-                            padding: mob ? '13px 16px' : '16px 20px',
-                            display: 'flex', alignItems: 'center', gap: 12,
+                          <div className="ind-card" style={{
+                            background: hasEv ? '#F8FFF9' : '#fff', borderRadius: 18,
+                            border: '1.5px solid rgba(11,31,58,0.07)',
+                            borderTop: `4px solid ${hasEv ? '#86EFAC' : '#FCA5A5'}`,
+                            padding: mob ? '16px 12px' : '20px 16px',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                            gap: 8, minHeight: mob ? 140 : 160, boxShadow: '0 2px 10px rgba(11,31,58,0.05)'
                           }}>
                             <div style={{
-                              width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+                              width: 42, height: 42, borderRadius: 12, flexShrink: 0,
                               background: hasEv ? '#DCFCE7' : '#FEE2E2',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 14, fontWeight: 800, color: hasEv ? '#15803d' : '#DC2626'
+                              fontSize: 16, fontWeight: 800, color: hasEv ? '#15803d' : '#DC2626'
                             }}>
                               {hasEv ? '✓' : idx + 1}
                             </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <p style={{ fontSize: mob ? 12 : 13, color: '#1F2937', margin: '0 0 2px', lineHeight: 1.6, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ind.name_ar}</p>
-                              <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ind.code}</span>
-                            </div>
+                            <p style={{ fontSize: mob ? 11 : 12, color: '#1F2937', margin: 0, lineHeight: 1.5, flex: 1, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ind.name_ar}</p>
                             <span style={{
-                              fontSize: 11, fontWeight: 600, flexShrink: 0,
+                              fontSize: 10, fontWeight: 600,
                               padding: '3px 10px', borderRadius: 20,
                               background: hasEv ? '#DCFCE7' : '#FEE2E2',
                               color: hasEv ? '#15803d' : '#DC2626',
@@ -421,7 +428,6 @@ export default function Dashboard() {
                             }}>
                               {hasEv ? `${ind.evidence_count} شواهد` : 'فارغ'}
                             </span>
-                            <span style={{ fontSize: 13, color: '#C0BCA8', flexShrink: 0 }}>←</span>
                           </div>
                         </Link>
                       )
@@ -463,4 +469,5 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
