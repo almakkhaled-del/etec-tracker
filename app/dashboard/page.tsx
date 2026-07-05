@@ -37,22 +37,20 @@ function CircleProgress({ percent, color, size = 80 }: { percent: number; color:
   )
 }
 
-// Breadcrumb chip — يظهر في أعلى المحتوى ويمكن الضغط عليه للرجوع
 function BreadcrumbChip({ icon, label, color, onClick }: {
   icon: string; label: string; color: string; onClick: () => void
 }) {
   return (
     <button onClick={onClick} style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '6px 12px 6px 10px',
-      background: `${color}12`, border: `1.5px solid ${color}30`,
-      borderRadius: 20, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif',
-      fontSize: 12, fontWeight: 700, color,
-      transition: 'all 0.2s', whiteSpace: 'nowrap'
+      padding: '6px 12px', background: `${color}12`,
+      border: `1.5px solid ${color}30`, borderRadius: 20,
+      cursor: 'pointer', fontFamily: 'Tajawal, sans-serif',
+      fontSize: 12, fontWeight: 700, color, whiteSpace: 'nowrap'
     }}>
       <span style={{ fontSize: 14 }}>{icon}</span>
-      <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
-      <span style={{ fontSize: 10, opacity: 0.6 }}>✕</span>
+      <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+      <span style={{ fontSize: 10, opacity: 0.5 }}>✕</span>
     </button>
   )
 }
@@ -75,6 +73,17 @@ export default function Dashboard() {
 
   const [animKey, setAnimKey] = useState(0)
 
+  // mobile detection — mounted فقط بعد الـ hydration
+  const [mounted, setMounted] = useState(false)
+  const [W, setW] = useState(1200)
+  useEffect(() => {
+    setMounted(true)
+    setW(window.innerWidth)
+    const onResize = () => setW(window.innerWidth)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+  const mob = mounted && W <= 860
 
   const isTrial = school?.subscription_status === 'trial'
   const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
@@ -88,7 +97,6 @@ export default function Dashboard() {
       const { data: stds } = await supabase.from('standards').select('id, domain_id')
       const { data: inds } = await supabase.from('indicators').select('id, standard_id')
       const { data: evs } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
-
       if (domainsData && stds && inds) {
         const evByInd: Record<number, number> = {}
         evs?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
@@ -96,7 +104,6 @@ export default function Dashboard() {
         stds.forEach(s => { if (!stdByDomain[s.domain_id]) stdByDomain[s.domain_id] = []; stdByDomain[s.domain_id].push(s.id) })
         const indByStd: Record<number, number[]> = {}
         inds.forEach(i => { if (!indByStd[i.standard_id]) indByStd[i.standard_id] = []; indByStd[i.standard_id].push(i.id) })
-
         const enriched = domainsData.map(d => {
           const stdIds = stdByDomain[d.id] || []
           const indIds = stdIds.flatMap(sid => indByStd[sid] || [])
@@ -122,11 +129,9 @@ export default function Dashboard() {
     setShowStandards(false)
     setShowIndicators(false)
     setSelectedStandard(null)
-
     const { data: stdsData } = await supabase.from('standards').select('*').eq('domain_id', domain.id).order('order_num')
     const { data: inds } = await supabase.from('indicators').select('id, standard_id')
     const { data: evs } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
-
     if (stdsData && inds) {
       const evByInd: Record<number, number> = {}
       evs?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
@@ -137,7 +142,6 @@ export default function Dashboard() {
         return { ...s, total: indIds.length, completed: indIds.filter(id => (evByInd[id] || 0) > 0).length }
       }))
     }
-
     setLoadingStd(false)
     setAnimKey(k => k + 1)
     setShowStandards(true)
@@ -147,22 +151,18 @@ export default function Dashboard() {
     setLoadingInd(true)
     setSelectedStandard(std)
     setShowIndicators(false)
-
     const { data: indsData } = await supabase.from('indicators').select('*').eq('standard_id', std.id).order('order_num')
     const { data: evs } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
-
     if (indsData) {
       const evByInd: Record<number, number> = {}
       evs?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
       setIndicators(indsData.map(i => ({ ...i, evidence_count: evByInd[i.id] || 0 })))
     }
-
     setLoadingInd(false)
     setAnimKey(k => k + 1)
     setShowIndicators(true)
   }
 
-  // رجوع للمجالات — يضغط على chip المجال
   function handleBackToDomains() {
     setAnimKey(k => k + 1)
     setShowStandards(false)
@@ -171,7 +171,6 @@ export default function Dashboard() {
     setSelectedStandard(null)
   }
 
-  // رجوع للمعايير — يضغط على chip المعيار
   function handleBackToStandards() {
     setAnimKey(k => k + 1)
     setShowIndicators(false)
@@ -182,8 +181,8 @@ export default function Dashboard() {
   const domainIcon = selectedDomain ? (DOMAIN_ICONS[selectedDomain.code] || '📋') : '📋'
 
   if (schoolLoading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
-      <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: CREAM }}>
+      <p style={{ color: '#8A8270', fontFamily: 'Tajawal, sans-serif' }}>جاري التحميل...</p>
     </div>
   )
 
@@ -193,26 +192,12 @@ export default function Dashboard() {
       <style>{`
         .body-font { font-family: 'IBM Plex Sans Arabic','Tajawal',sans-serif; }
         .fade-in { animation: fadeUp 0.35s cubic-bezier(0.4,0,0.2,1) both; }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
         .domain-card { transition: all 0.22s ease; cursor: pointer; }
         .domain-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,31,58,0.12) !important; }
         .std-card { transition: all 0.18s ease; cursor: pointer; }
         .std-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(11,31,58,0.10) !important; }
-        .ind-row { transition: background 0.15s; }
         .ind-row:hover { background: rgba(11,31,58,0.03) !important; }
-        .breadcrumb-chip:hover { filter: brightness(0.92); }
-        /* Bottom nav مخفي على الديسكتوب */
-        .bottom-nav { display: none !important; }
-        @media (max-width: 860px) {
-          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .domains-grid { grid-template-columns: 1fr !important; }
-          .action-grid { grid-template-columns: 1fr !important; }
-          .main-content { padding: 16px !important; padding-bottom: 90px !important; }
-          .bottom-nav { display: flex !important; }
-        }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -220,83 +205,77 @@ export default function Dashboard() {
         <div style={{ flex: 1, minWidth: 0 }}>
 
           {/* Header */}
-          <header className="header-pad" style={{
+          <header style={{
             background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
-            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
-            justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50
+            padding: mob ? '0 16px' : '0 28px',
+            height: mob ? 64 : 80,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
-              <p style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
+              <p style={{ fontSize: mob ? 15 : 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
                 {!showStandards ? `مرحباً، ${principalFirstName} 👋` : showIndicators ? 'المؤشرات' : 'المعايير'}
               </p>
-              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                {!showStandards ? `${school?.name} — 1448هـ` : showIndicators
-                  ? `${selectedStandard?.completed} من ${selectedStandard?.total} مؤشراً مكتمل`
+              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                {!showStandards ? `${school?.name} — 1448هـ`
+                  : showIndicators ? `${selectedStandard?.completed} من ${selectedStandard?.total} مؤشراً مكتمل`
                   : `${selectedDomain?.completed} من ${selectedDomain?.total_indicators} مؤشراً مكتمل`}
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {isTrial && trialDaysLeft !== null && (
-                <span className="body-font" style={{
-                  fontSize: 12, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F',
-                  padding: '6px 14px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)'
+                <span style={{
+                  fontSize: 11, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F',
+                  padding: '5px 10px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)',
+                  fontFamily: 'IBM Plex Sans Arabic, sans-serif'
                 }}>{trialDaysLeft} أيام متبقية</span>
               )}
-              <div style={{ width: 40, height: 40, borderRadius: '50%', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', color: GOLD_LIGHT, fontSize: 15, fontWeight: 700 }}>
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', color: GOLD_LIGHT, fontSize: 14, fontWeight: 700 }}>
                 {school?.principal_name?.[0] || 'م'}
               </div>
             </div>
           </header>
 
-          <main className="main-content" style={{ padding: '28px', maxWidth: 1000, margin: '0 auto' }}>
+          <main style={{ padding: mob ? '14px' : '28px', paddingBottom: mob ? 90 : undefined, maxWidth: 1000, margin: '0 auto' }}>
 
-            {/* إحصائيات */}
+            {/* Stats */}
             {!showStandards && (
-              <div className="stats-grid" style={{ display: 'grid', gap: 14, marginBottom: 28 }}>
-                <div style={{ background: NAVY, borderRadius: 16, padding: '22px 20px' }}>
-                  <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>نسبة الاكتمال الكلية</p>
-                  <p style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: '0 0 10px' }}>{loading ? '—' : `${completion}%`}</p>
-                  <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.12)', borderRadius: 99 }}>
-                    <div style={{ width: `${completion || 2}%`, height: '100%', background: GOLD_LIGHT, borderRadius: 99, transition: 'width 0.6s' }} />
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: mob ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+                gap: mob ? 10 : 14, marginBottom: mob ? 16 : 28
+              }}>
+                <div style={{ background: NAVY, borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>نسبة الاكتمال</p>
+                  <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#fff', margin: '0 0 8px' }}>{loading ? '—' : `${completion}%`}</p>
+                  <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.12)', borderRadius: 99 }}>
+                    <div style={{ width: `${completion || 2}%`, height: '100%', background: GOLD_LIGHT, borderRadius: 99 }} />
                   </div>
                 </div>
-                <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '22px 20px' }}>
-                  <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>إجمالي المؤشرات</p>
-                  <p style={{ fontSize: 32, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
+                <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
+                  <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي المؤشرات</p>
+                  <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
                 </div>
-                <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '22px 20px' }}>
-                  <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>مؤشرات مكتملة</p>
-                  <p style={{ fontSize: 32, fontWeight: 800, color: '#16a34a', margin: '0 0 4px' }}>{loading ? '—' : stats.completed}</p>
-                  {!loading && <p className="body-font" style={{ fontSize: 11, color: '#DC2626', margin: 0 }}>متبقي {stats.total - stats.completed}</p>}
+                <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
+                  <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>مؤشرات مكتملة</p>
+                  <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#16a34a', margin: '0 0 3px' }}>{loading ? '—' : stats.completed}</p>
+                  {!loading && <p style={{ fontSize: 11, color: '#DC2626', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>متبقي {stats.total - stats.completed}</p>}
                 </div>
-                <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '22px 20px' }}>
-                  <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 6px' }}>إجمالي الشواهد</p>
-                  <p style={{ fontSize: 32, fontWeight: 800, color: GOLD, margin: 0 }}>{loading ? '—' : stats.evidences}</p>
+                <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
+                  <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي الشواهد</p>
+                  <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: GOLD, margin: 0 }}>{loading ? '—' : stats.evidences}</p>
                 </div>
               </div>
             )}
 
-            {/* Breadcrumb — يظهر فقط لما يكون في مستوى 2 أو 3 */}
+            {/* Breadcrumb */}
             {showStandards && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20,
-                animation: 'fadeUp 0.3s cubic-bezier(0.4,0,0.2,1) both'
-              }}>
-                <BreadcrumbChip
-                  icon={domainIcon}
-                  label={selectedDomain?.name_ar || ''}
-                  color={domainColor}
-                  onClick={handleBackToDomains}
-                />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                <BreadcrumbChip icon={domainIcon} label={selectedDomain?.name_ar || ''} color={domainColor} onClick={handleBackToDomains} />
                 {showIndicators && selectedStandard && (
                   <>
                     <span style={{ color: '#C0BCA8', fontSize: 14 }}>←</span>
-                    <BreadcrumbChip
-                      icon="📋"
-                      label={selectedStandard.name_ar}
-                      color={domainColor}
-                      onClick={handleBackToStandards}
-                    />
+                    <BreadcrumbChip icon="📋" label={selectedStandard.name_ar} color={domainColor} onClick={handleBackToStandards} />
                   </>
                 )}
               </div>
@@ -304,97 +283,102 @@ export default function Dashboard() {
 
             <div key={animKey} className="fade-in">
 
-              {/* المستوى 1: المجالات */}
+              {/* Level 1: Domains */}
               {!showStandards && (
                 <>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 16 }}>المجالات الأربعة</p>
-                  <div className="domains-grid" style={{ display: 'grid', gap: 16, marginBottom: 24 }}>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 14 }}>المجالات الأربعة</p>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: mob ? '1fr' : 'repeat(2, 1fr)',
+                    gap: mob ? 12 : 16, marginBottom: mob ? 14 : 24
+                  }}>
                     {loading ? [1,2,3,4].map(i => (
-                      <div key={i} style={{ background: '#fff', borderRadius: 18, height: 130, opacity: 0.4 }} />
+                      <div key={i} style={{ background: '#fff', borderRadius: 18, height: 120, opacity: 0.4 }} />
                     )) : domains.map(domain => {
                       const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
                       const c = DOMAIN_COLORS[domain.code] || NAVY
+                      const sz = mob ? 64 : 80
                       return (
                         <div key={domain.id} onClick={() => handleDomainClick(domain)} className="domain-card" style={{
                           background: '#fff', borderRadius: 18,
                           border: '1.5px solid rgba(11,31,58,0.07)',
-                          padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 20,
+                          padding: mob ? '16px 18px' : '22px 24px',
+                          display: 'flex', alignItems: 'center', gap: mob ? 14 : 20,
                           boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
                         }}>
                           <div style={{ position: 'relative', flexShrink: 0 }}>
-                            <CircleProgress percent={pct} color={c} size={80} />
+                            <CircleProgress percent={pct} color={c} size={sz} />
                             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <span style={{ fontSize: 16, fontWeight: 800, color: NAVY }}>{pct}%</span>
+                              <span style={{ fontSize: mob ? 13 : 16, fontWeight: 800, color: NAVY }}>{pct}%</span>
                             </div>
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                              <span style={{ fontSize: 22 }}>{DOMAIN_ICONS[domain.code]}</span>
-                              <p style={{ fontWeight: 700, fontSize: 15, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                              <span style={{ fontSize: mob ? 18 : 22 }}>{DOMAIN_ICONS[domain.code]}</span>
+                              <p style={{ fontWeight: 700, fontSize: mob ? 13 : 15, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
                             </div>
-                            <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 4px' }}>
+                            <p style={{ fontSize: 12, color: '#8A8270', margin: '0 0 2px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                               {domain.completed} من {domain.total_indicators} مؤشراً مكتمل
                             </p>
-                            <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
+                            <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                               {domain.total_evidences} شاهد مرفوع
                             </p>
                           </div>
-                          <div style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0, background: `${c}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ fontSize: 16, color: c }}>←</span>
+                          <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: `${c}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: 14, color: c }}>←</span>
                           </div>
                         </div>
                       )
                     })}
                   </div>
-                  <div className="action-grid" style={{ display: 'grid', gap: 14 }}>
-                    <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #A6730F)`, borderRadius: 16, padding: '18px 24px', textDecoration: 'none' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: mob ? '1fr' : '1fr 1fr', gap: mob ? 10 : 14 }}>
+                    <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #A6730F)`, borderRadius: 16, padding: mob ? '14px 18px' : '18px 24px', textDecoration: 'none' }}>
                       <div>
-                        <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>🖨️ التقرير الكامل</p>
-                        <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0 }}>اطبع ملف شواهد مدرستك كاملاً</p>
+                        <p style={{ fontSize: mob ? 13 : 15, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>🖨️ التقرير الكامل</p>
+                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>اطبع ملف شواهد مدرستك كاملاً</p>
                       </div>
-                      <span style={{ fontSize: 20, color: '#fff' }}>←</span>
+                      <span style={{ fontSize: 18, color: '#fff' }}>←</span>
                     </Link>
-                    <Link href="/forms" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: NAVY, borderRadius: 16, padding: '18px 24px', textDecoration: 'none' }}>
+                    <Link href="/forms" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: NAVY, borderRadius: 16, padding: mob ? '14px 18px' : '18px 24px', textDecoration: 'none' }}>
                       <div>
-                        <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 3px' }}>📋 النماذج الجاهزة</p>
-                        <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>29 نموذجاً جاهزاً للتحميل</p>
+                        <p style={{ fontSize: mob ? 13 : 15, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>📋 النماذج الجاهزة</p>
+                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>29 نموذجاً جاهزاً للتحميل</p>
                       </div>
-                      <span style={{ fontSize: 20, color: '#fff' }}>←</span>
+                      <span style={{ fontSize: 18, color: '#fff' }}>←</span>
                     </Link>
                   </div>
                 </>
               )}
 
-              {/* المستوى 2: المعايير */}
+              {/* Level 2: Standards */}
               {showStandards && !showIndicators && (
                 loadingStd ? (
-                  <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>
-                    <p>جاري التحميل...</p>
-                  </div>
+                  <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>جاري التحميل...</div>
                 ) : (
-                  <div style={{ display: 'grid', gap: 12 }}>
+                  <div style={{ display: 'grid', gap: 10 }}>
                     {standards.map(std => {
                       const pct = std.total ? Math.round((std.completed / std.total) * 100) : 0
                       return (
                         <div key={std.id} onClick={() => handleStandardClick(std)} className="std-card" style={{
                           background: '#fff', borderRadius: 16, border: '1.5px solid rgba(11,31,58,0.07)',
-                          padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 16,
+                          padding: mob ? '14px 16px' : '18px 22px',
+                          display: 'flex', alignItems: 'center', gap: 14,
                           boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
                         }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: `${domainColor}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: domainColor }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: `${domainColor}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: domainColor }}>
                             {std.code}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 8px', lineHeight: 1.5 }}>{std.name_ar}</p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                              <div style={{ width: 100, height: 5, background: '#EDEAE0', borderRadius: 99 }}>
-                                <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : domainColor, borderRadius: 99, transition: 'width 0.4s' }} />
+                            <p style={{ fontSize: mob ? 13 : 14, fontWeight: 700, color: NAVY, margin: '0 0 6px', lineHeight: 1.5 }}>{std.name_ar}</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <div style={{ width: 80, height: 4, background: '#EDEAE0', borderRadius: 99 }}>
+                                <div style={{ width: `${pct || 2}%`, height: '100%', background: pct === 100 ? '#16a34a' : domainColor, borderRadius: 99 }} />
                               </div>
-                              <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>{std.completed}/{std.total} مكتمل</span>
+                              <span style={{ fontSize: 11, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{std.completed}/{std.total}</span>
                             </div>
                           </div>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: pct === 100 ? '#16a34a' : domainColor, flexShrink: 0 }}>{pct}%</span>
-                          <span style={{ fontSize: 16, color: '#C0BCA8' }}>←</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: pct === 100 ? '#16a34a' : domainColor, flexShrink: 0 }}>{pct}%</span>
+                          <span style={{ fontSize: 14, color: '#C0BCA8' }}>←</span>
                         </div>
                       )
                     })}
@@ -402,49 +386,45 @@ export default function Dashboard() {
                 )
               )}
 
-              {/* المستوى 3: المؤشرات */}
+              {/* Level 3: Indicators */}
               {showIndicators && (
                 loadingInd ? (
-                  <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>
-                    <p>جاري التحميل...</p>
-                  </div>
+                  <div style={{ textAlign: 'center', padding: '4rem', color: '#8A8270' }}>جاري التحميل...</div>
                 ) : (
-                  <div style={{ display: 'grid', gap: 10 }}>
+                  <div style={{ display: 'grid', gap: 8 }}>
                     {indicators.map((ind, idx) => {
                       const hasEv = ind.evidence_count > 0
                       return (
                         <Link key={ind.id} href={`/indicator/${ind.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                           <div className="ind-row" style={{
-                            background: hasEv ? '#F8FFF9' : '#fff',
-                            borderRadius: 14,
+                            background: hasEv ? '#F8FFF9' : '#fff', borderRadius: 14,
                             border: '1px solid rgba(11,31,58,0.07)',
                             borderRight: `4px solid ${hasEv ? '#86EFAC' : '#FCA5A5'}`,
-                            padding: '16px 20px',
-                            display: 'flex', alignItems: 'center', gap: 14,
-                            boxShadow: '0 1px 4px rgba(11,31,58,0.04)'
+                            padding: mob ? '13px 16px' : '16px 20px',
+                            display: 'flex', alignItems: 'center', gap: 12,
                           }}>
                             <div style={{
-                              width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                              width: 32, height: 32, borderRadius: 9, flexShrink: 0,
                               background: hasEv ? '#DCFCE7' : '#FEE2E2',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 15, fontWeight: 800,
-                              color: hasEv ? '#15803d' : '#DC2626'
+                              fontSize: 14, fontWeight: 800, color: hasEv ? '#15803d' : '#DC2626'
                             }}>
                               {hasEv ? '✓' : idx + 1}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <p className="body-font" style={{ fontSize: 13, color: '#1F2937', margin: '0 0 3px', lineHeight: 1.6 }}>{ind.name_ar}</p>
-                              <span className="body-font" style={{ fontSize: 11, color: '#9CA3AF' }}>{ind.code}</span>
+                              <p style={{ fontSize: mob ? 12 : 13, color: '#1F2937', margin: '0 0 2px', lineHeight: 1.6, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ind.name_ar}</p>
+                              <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ind.code}</span>
                             </div>
-                            <span className="body-font" style={{
-                              fontSize: 12, fontWeight: 600, flexShrink: 0,
-                              padding: '4px 12px', borderRadius: 20,
+                            <span style={{
+                              fontSize: 11, fontWeight: 600, flexShrink: 0,
+                              padding: '3px 10px', borderRadius: 20,
                               background: hasEv ? '#DCFCE7' : '#FEE2E2',
-                              color: hasEv ? '#15803d' : '#DC2626'
+                              color: hasEv ? '#15803d' : '#DC2626',
+                              fontFamily: 'IBM Plex Sans Arabic, sans-serif'
                             }}>
                               {hasEv ? `${ind.evidence_count} شواهد` : 'فارغ'}
                             </span>
-                            <span style={{ fontSize: 14, color: '#C0BCA8', flexShrink: 0 }}>←</span>
+                            <span style={{ fontSize: 13, color: '#C0BCA8', flexShrink: 0 }}>←</span>
                           </div>
                         </Link>
                       )
@@ -458,35 +438,31 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Bottom Nav — جوال فقط */}
-      <nav className="bottom-nav" style={{
-        position: 'fixed', bottom: 0, right: 0, left: 0, zIndex: 100,
-        background: '#fff', borderTop: '1px solid rgba(11,31,58,0.10)',
-        alignItems: 'center', justifyContent: 'space-around',
-        padding: '10px 0 18px', gap: 0
-      }}>
-        {[
-          { href: '/dashboard', icon: '🏠', label: 'الرئيسية' },
-          { href: '/forms', icon: '📋', label: 'النماذج' },
-          { href: '/print', icon: '🖨️', label: 'التقرير' },
-          { href: 'https://wa.me/00966555826838', icon: '💬', label: 'الدعم', external: true },
-        ].map(item => (
-          <a key={item.href} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined}
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-              textDecoration: 'none', flex: 1, padding: '4px 0'
-            }}>
-            <span style={{ fontSize: 22 }}>{item.icon}</span>
-            <span style={{ fontSize: 10, fontWeight: 600, color: NAVY, fontFamily: 'Tajawal, sans-serif' }}>{item.label}</span>
-          </a>
-        ))}
-      </nav>
+      {/* Bottom Nav — موبايل فقط */}
+      {mob && (
+        <nav style={{
+          position: 'fixed', bottom: 0, right: 0, left: 0, zIndex: 100,
+          background: '#fff', borderTop: '1px solid rgba(11,31,58,0.10)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+          paddingTop: 10, paddingBottom: 20,
+        }}>
+          {[
+            { href: '/dashboard', icon: '🏠', label: 'الرئيسية' },
+            { href: '/forms', icon: '📋', label: 'النماذج' },
+            { href: '/print', icon: '🖨️', label: 'التقرير' },
+            { href: 'https://wa.me/00966555826838', icon: '💬', label: 'الدعم', external: true },
+          ].map(item => (
+            <a key={item.href} href={item.href}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noreferrer' : undefined}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none', flex: 1 }}>
+              <span style={{ fontSize: 22 }}>{item.icon}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: NAVY, fontFamily: 'Tajawal, sans-serif' }}>{item.label}</span>
+            </a>
+          ))}
+        </nav>
+      )}
 
     </div>
   )
 }
-
-
-
-
-
