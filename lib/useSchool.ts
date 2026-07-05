@@ -7,15 +7,21 @@ export type SchoolData = {
   name: string
   school_number: string | null
   region: string | null
+  city: string | null
   school_type: string
   principal_name: string | null
+  phone: string | null
+  email: string | null
   subscription_status: string
+  subscription_start: string | null
   subscription_end: string
+  allowed_domain_id: number | null
 }
 
 export function useSchool() {
   const router = useRouter()
   const [school, setSchool] = useState<SchoolData | null>(null)
+  const [role, setRole] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -25,11 +31,13 @@ export function useSchool() {
 
       const { data: schoolUser } = await supabase
         .from('school_users')
-        .select('school_id')
+        .select('school_id, role')
         .eq('auth_id', user.id)
         .single()
 
       if (!schoolUser) { setLoading(false); router.push('/login'); return }
+
+      setRole(schoolUser.role)
 
       const { data: schoolData } = await supabase
         .from('schools')
@@ -52,5 +60,9 @@ export function useSchool() {
     load()
   }, [])
 
-  return { school, loading }
+  // للحساب المجاني: مسموح مجال واحد فقط. للمدفوع: كل المجالات.
+  const isTrial = school?.subscription_status === 'trial'
+  const allowedDomainId = isTrial ? (school?.allowed_domain_id ?? 4) : null // null = الكل مسموح
+
+  return { school, role, loading, isTrial, allowedDomainId }
 }
