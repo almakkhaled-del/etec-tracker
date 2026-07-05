@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
@@ -59,6 +60,9 @@ function BreadcrumbChip({ icon, label, color, onClick }: {
 
 export default function Dashboard() {
   const { school, loading: schoolLoading } = useSchool()
+  const searchParams = useSearchParams()
+  const domainParam = searchParams.get('domain')
+  const [autoOpened, setAutoOpened] = useState(false)
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
@@ -122,6 +126,17 @@ export default function Dashboard() {
     }
     load()
   }, [school])
+
+  // فتح المجال تلقائياً عند القدوم من /domain/[id]
+  useEffect(() => {
+    if (!autoOpened && domainParam && domains.length > 0) {
+      const target = domains.find(d => String(d.id) === domainParam || d.code === domainParam)
+      if (target) {
+        setAutoOpened(true)
+        handleDomainClick(target)
+      }
+    }
+  }, [domainParam, domains, autoOpened])
 
   async function handleDomainClick(domain: Domain) {
     setLoadingStd(true)
@@ -539,6 +554,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
