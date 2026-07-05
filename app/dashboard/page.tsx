@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
+import { getGuidance } from '@/lib/indicatorGuidance'
 
 const NAVY = '#0B1F3A'
 const GOLD = '#C28A1F'
@@ -73,6 +74,7 @@ export default function Dashboard() {
   const [showIndicators, setShowIndicators] = useState(false)
 
   const [animKey, setAnimKey] = useState(0)
+  const [guidanceFor, setGuidanceFor] = useState<Indicator | null>(null)
 
   // mob يبدأ true — الجوال هو الافتراضي، الديسكتوب يتغير بعد الـ mount
   const [mob, setMob] = useState(true)
@@ -409,6 +411,7 @@ export default function Dashboard() {
                       return (
                         <Link key={ind.id} href={`/indicator/${ind.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                           <div className="ind-card" style={{
+                            position: 'relative',
                             background: hasEv ? '#F8FFF9' : '#fff', borderRadius: 18,
                             border: '1.5px solid rgba(11,31,58,0.07)',
                             borderTop: `4px solid ${hasEv ? '#86EFAC' : '#FCA5A5'}`,
@@ -416,6 +419,17 @@ export default function Dashboard() {
                             display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
                             gap: 8, minHeight: mob ? 140 : 160, boxShadow: '0 2px 10px rgba(11,31,58,0.05)'
                           }}>
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setGuidanceFor(ind) }}
+                              title="ماذا يتوقع من المدرسة؟"
+                              style={{
+                                position: 'absolute', top: 8, insetInlineStart: 8,
+                                width: 26, height: 26, borderRadius: '50%',
+                                background: 'rgba(11,31,58,0.06)', border: 'none', cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 14, color: NAVY, fontWeight: 800, padding: 0, lineHeight: 1
+                              }}
+                            >ℹ︎</button>
                             <div style={{
                               width: 42, height: 42, borderRadius: 12, flexShrink: 0,
                               background: hasEv ? '#DCFCE7' : '#FEE2E2',
@@ -455,6 +469,48 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Modal: ماذا يتوقع من المدرسة */}
+      {guidanceFor && (
+        <div
+          onClick={() => setGuidanceFor(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(11,31,58,0.45)', backdropFilter: 'blur(3px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+          }}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%',
+              padding: '26px 24px', boxShadow: '0 20px 60px rgba(11,31,58,0.3)',
+              animation: 'fadeUp 0.3s cubic-bezier(0.34,1.3,0.5,1) both'
+            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: `${GOLD}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>💡</div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 11, color: GOLD, margin: '0 0 2px', fontWeight: 700, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>ماذا يُتوقع من المدرسة؟</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: 0, lineHeight: 1.5 }}>{guidanceFor.name_ar}</p>
+              </div>
+              <button onClick={() => setGuidanceFor(null)} style={{ background: 'rgba(11,31,58,0.06)', border: 'none', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, color: NAVY, flexShrink: 0 }}>✕</button>
+            </div>
+            <div style={{ background: '#FBF8F2', borderRadius: 14, padding: '16px 18px', borderInlineStart: `4px solid ${GOLD}` }}>
+              <p style={{ fontSize: 13.5, color: '#3A3A3A', margin: 0, lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                {getGuidance(guidanceFor.name_ar)}
+              </p>
+            </div>
+            <Link href={`/indicator/${guidanceFor.id}`} onClick={() => setGuidanceFor(null)} style={{ textDecoration: 'none' }}>
+              <button style={{
+                width: '100%', marginTop: 16, padding: '13px', fontSize: 14, fontWeight: 700,
+                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY,
+                border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif'
+              }}>
+                رفع شواهد هذا المؤشر ←
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Bottom Nav — موبايل فقط */}
       {mob && (
         <nav style={{
@@ -483,6 +539,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
