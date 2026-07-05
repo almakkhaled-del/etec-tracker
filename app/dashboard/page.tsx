@@ -335,11 +335,6 @@ function DashboardInner() {
                       const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
                       const c = DOMAIN_COLORS[domain.code] || NAVY
                       const sz = mob ? 64 : 80
-                      return (
-                    }) : domains.map(domain => {
-                      const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
-                      const c = DOMAIN_COLORS[domain.code] || NAVY
-                      const sz = mob ? 64 : 80
                       const locked = trialPlan && allowedDomainId != null && domain.id !== allowedDomainId
                       return (
                         <div key={domain.id}
@@ -645,6 +640,7 @@ export default function Dashboard() {
     </Suspense>
   )
 }
+
 
 
 
