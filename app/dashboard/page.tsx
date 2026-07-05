@@ -428,6 +428,14 @@ export default function Dashboard() {
                             }}>
                               {hasEv ? `${ind.evidence_count} شواهد` : 'فارغ'}
                             </span>
+                            {hasEv && (
+                              <span style={{
+                                fontSize: 9, color: '#16a34a', lineHeight: 1.4,
+                                fontFamily: 'IBM Plex Sans Arabic, sans-serif'
+                              }}>
+                                الحد الأدنى مكتمل · يمكنك رفع المزيد
+                              </span>
+                            )}
                           </div>
                         </Link>
                       )
@@ -469,5 +477,6 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
