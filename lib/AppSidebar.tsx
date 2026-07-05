@@ -87,9 +87,9 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         </p>
 
         {domains.map(domain => {
-          const isActive = activeDomainId === domain.id || pathname === `/domain/${domain.id}`
+          const isActive = activeDomainId === domain.id
           return (
-            <Link key={domain.id} href={`/domain/${domain.id}`} className="sidebar-link" style={{
+            <Link key={domain.id} href={`/dashboard?domain=${domain.id}`} prefetch={false} className="sidebar-link" style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
               textDecoration: 'none', marginBottom: 2,
               background: isActive ? 'rgba(232,194,117,0.14)' : 'transparent',
@@ -159,3 +159,4 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
     </aside>
   )
 }
+
