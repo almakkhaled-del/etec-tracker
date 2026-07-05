@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
@@ -58,7 +58,7 @@ function BreadcrumbChip({ icon, label, color, onClick }: {
   )
 }
 
-export default function Dashboard() {
+function DashboardInner() {
   const { school, loading: schoolLoading } = useSchool()
   const searchParams = useSearchParams()
   const domainParam = searchParams.get('domain')
@@ -554,6 +554,19 @@ export default function Dashboard() {
     </div>
   )
 }
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FBF8F2', fontFamily: 'Tajawal, sans-serif' }}>
+        <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
+      </div>
+    }>
+      <DashboardInner />
+    </Suspense>
+  )
+}
+
 
 
 
