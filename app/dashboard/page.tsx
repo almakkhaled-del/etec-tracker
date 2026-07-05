@@ -73,17 +73,14 @@ export default function Dashboard() {
 
   const [animKey, setAnimKey] = useState(0)
 
-  // mobile detection — mounted فقط بعد الـ hydration
-  const [mounted, setMounted] = useState(false)
-  const [W, setW] = useState(1200)
+  // mob يبدأ true — الجوال هو الافتراضي، الديسكتوب يتغير بعد الـ mount
+  const [mob, setMob] = useState(true)
   useEffect(() => {
-    setMounted(true)
-    setW(window.innerWidth)
-    const onResize = () => setW(window.innerWidth)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    const check = () => setMob(window.innerWidth <= 860)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
-  const mob = mounted && W <= 860
 
   const isTrial = school?.subscription_status === 'trial'
   const trialDaysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null
@@ -466,3 +463,4 @@ export default function Dashboard() {
     </div>
   )
 }
+
