@@ -62,7 +62,6 @@ function DashboardInner() {
   const { school, loading: schoolLoading, isTrial: trialPlan, allowedDomainId } = useSchool()
   const searchParams = useSearchParams()
   const domainParam = searchParams.get('domain')
-  const [autoOpened, setAutoOpened] = useState(false)
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, completed: 0, evidences: 0 })
@@ -128,18 +127,16 @@ function DashboardInner() {
     load()
   }, [school])
 
-  // فتح المجال تلقائياً عند القدوم من /domain/[id]
+  // فتح المجال تلقائياً عند القدوم مع ?domain= (من السايدبار أو /domain/[id])
   useEffect(() => {
-    if (!autoOpened && domainParam && domains.length > 0) {
+    if (domainParam && domains.length > 0) {
       const target = domains.find(d => String(d.id) === domainParam || d.code === domainParam)
       if (target) {
-        setAutoOpened(true)
         handleDomainClick(target)
-        // مسح الـ param من الـ URL حتى لا يُعاد الفتح عند التحديث
         window.history.replaceState(null, '', '/dashboard')
       }
     }
-  }, [domainParam, domains, autoOpened])
+  }, [domainParam, domains])
 
   async function handleDomainClick(domain: Domain) {
     setLoadingStd(true)
@@ -640,6 +637,7 @@ export default function Dashboard() {
     </Suspense>
   )
 }
+
 
 
 
