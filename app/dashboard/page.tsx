@@ -59,7 +59,7 @@ function BreadcrumbChip({ icon, label, color, onClick }: {
 }
 
 function DashboardInner() {
-  const { school, loading: schoolLoading } = useSchool()
+  const { school, loading: schoolLoading, isTrial: trialPlan, allowedDomainId } = useSchool()
   const searchParams = useSearchParams()
   const domainParam = searchParams.get('domain')
   const [autoOpened, setAutoOpened] = useState(false)
@@ -79,6 +79,7 @@ function DashboardInner() {
 
   const [animKey, setAnimKey] = useState(0)
   const [guidanceFor, setGuidanceFor] = useState<Indicator | null>(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   // mob يبدأ true — الجوال هو الافتراضي، الديسكتوب يتغير بعد الـ mount
   const [mob, setMob] = useState(true)
@@ -232,27 +233,43 @@ function DashboardInner() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             position: 'sticky', top: 0, zIndex: 50
           }}>
-            <div>
-              <p style={{ fontSize: mob ? 15 : 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
-                {!showStandards ? `مرحباً، ${principalFirstName} 👋` : showIndicators ? 'المؤشرات' : 'المعايير'}
-              </p>
-              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                {!showStandards ? `${school?.name} — 1448هـ`
-                  : showIndicators ? `${selectedStandard?.completed} من ${selectedStandard?.total} مؤشراً مكتمل`
-                  : `${selectedDomain?.completed} من ${selectedDomain?.total_indicators} مؤشراً مكتمل`}
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <a href="https://www.shawahede.com" title="الصفحة الرئيسية" style={{
+                display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0
+              }}>
+                <div style={{
+                  width: mob ? 34 : 40, height: mob ? 34 : 40, borderRadius: 11,
+                  background: `linear-gradient(135deg, ${NAVY}, #14284a)`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: GOLD_LIGHT, fontSize: mob ? 15 : 18, fontWeight: 800
+                }}>ش</div>
+              </a>
+              <div>
+                <p style={{ fontSize: mob ? 15 : 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
+                  {!showStandards ? `مرحباً، ${principalFirstName} 👋` : showIndicators ? 'المؤشرات' : 'المعايير'}
+                </p>
+                <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                  {!showStandards ? `${school?.name} — 1448هـ`
+                    : showIndicators ? `${selectedStandard?.completed} من ${selectedStandard?.total} مؤشراً مكتمل`
+                    : `${selectedDomain?.completed} من ${selectedDomain?.total_indicators} مؤشراً مكتمل`}
+                </p>
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {isTrial && trialDaysLeft !== null && (
-                <span style={{
-                  fontSize: 11, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F',
-                  padding: '5px 10px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)',
-                  fontFamily: 'IBM Plex Sans Arabic, sans-serif'
-                }}>{trialDaysLeft} أيام متبقية</span>
+                <Link href="/account" style={{ textDecoration: 'none' }}>
+                  <span style={{
+                    fontSize: 11, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F',
+                    padding: '5px 10px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)',
+                    fontFamily: 'IBM Plex Sans Arabic, sans-serif', display: 'inline-block'
+                  }}>{trialDaysLeft} أيام متبقية</span>
+                </Link>
               )}
-              <div style={{ width: 38, height: 38, borderRadius: '50%', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', color: GOLD_LIGHT, fontSize: 14, fontWeight: 700 }}>
-                {school?.principal_name?.[0] || 'م'}
-              </div>
+              <Link href="/account" title="حسابي" style={{ textDecoration: 'none' }}>
+                <div style={{ width: 38, height: 38, borderRadius: '50%', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', color: GOLD_LIGHT, fontSize: 14, fontWeight: 700 }}>
+                  {school?.principal_name?.[0] || 'م'}
+                </div>
+              </Link>
             </div>
           </header>
 
@@ -319,17 +336,35 @@ function DashboardInner() {
                       const c = DOMAIN_COLORS[domain.code] || NAVY
                       const sz = mob ? 64 : 80
                       return (
-                        <div key={domain.id} onClick={() => handleDomainClick(domain)} className="domain-card" style={{
-                          background: '#fff', borderRadius: 18,
+                    }) : domains.map(domain => {
+                      const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
+                      const c = DOMAIN_COLORS[domain.code] || NAVY
+                      const sz = mob ? 64 : 80
+                      const locked = trialPlan && allowedDomainId != null && domain.id !== allowedDomainId
+                      return (
+                        <div key={domain.id}
+                          onClick={() => { if (locked) { setShowUpgrade(true) } else { handleDomainClick(domain) } }}
+                          className="domain-card" style={{
+                          background: locked ? '#FAFAF7' : '#fff', borderRadius: 18,
                           border: '1.5px solid rgba(11,31,58,0.07)',
                           padding: mob ? '16px 18px' : '22px 24px',
                           display: 'flex', alignItems: 'center', gap: mob ? 14 : 20,
-                          boxShadow: '0 2px 8px rgba(11,31,58,0.05)'
+                          boxShadow: '0 2px 8px rgba(11,31,58,0.05)',
+                          opacity: locked ? 0.75 : 1, position: 'relative'
                         }}>
+                          {locked && (
+                            <div style={{
+                              position: 'absolute', top: 12, insetInlineStart: 12,
+                              display: 'flex', alignItems: 'center', gap: 4,
+                              background: 'rgba(11,31,58,0.06)', borderRadius: 20,
+                              padding: '4px 10px', fontSize: 10, fontWeight: 700, color: NAVY,
+                              fontFamily: 'IBM Plex Sans Arabic, sans-serif'
+                            }}>🔒 يتطلب الاشتراك</div>
+                          )}
                           <div style={{ position: 'relative', flexShrink: 0 }}>
-                            <CircleProgress percent={pct} color={c} size={sz} />
+                            <CircleProgress percent={locked ? 0 : pct} color={locked ? '#C0BCA8' : c} size={sz} />
                             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <span style={{ fontSize: mob ? 13 : 16, fontWeight: 800, color: NAVY }}>{pct}%</span>
+                              <span style={{ fontSize: mob ? 13 : 16, fontWeight: 800, color: locked ? '#C0BCA8' : NAVY }}>{locked ? '🔒' : `${pct}%`}</span>
                             </div>
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -337,18 +372,26 @@ function DashboardInner() {
                               <span style={{ fontSize: mob ? 18 : 22 }}>{DOMAIN_ICONS[domain.code]}</span>
                               <p style={{ fontWeight: 700, fontSize: mob ? 13 : 15, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
                             </div>
-                            <p style={{ fontSize: 12, color: '#8A8270', margin: '0 0 2px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                              {domain.completed} من {domain.total_indicators} مؤشراً مكتمل
-                            </p>
-                            <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                              {domain.total_evidences} شاهد مرفوع
-                            </p>
-                            <p style={{ fontSize: 9, color: '#A6730F', margin: '3px 0 0', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                              يمكنك رفع أكثر من شاهد لكل مؤشر
-                            </p>
+                            {locked ? (
+                              <p style={{ fontSize: 12, color: '#A6730F', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                                متاح في الاشتراك المدفوع
+                              </p>
+                            ) : (
+                              <>
+                                <p style={{ fontSize: 12, color: '#8A8270', margin: '0 0 2px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                                  {domain.completed} من {domain.total_indicators} مؤشراً مكتمل
+                                </p>
+                                <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                                  {domain.total_evidences} شاهد مرفوع
+                                </p>
+                                <p style={{ fontSize: 9, color: '#A6730F', margin: '3px 0 0', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                                  يمكنك رفع أكثر من شاهد لكل مؤشر
+                                </p>
+                              </>
+                            )}
                           </div>
-                          <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: `${c}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ fontSize: 14, color: c }}>←</span>
+                          <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: `${locked ? '#C0BCA8' : c}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: 14, color: locked ? '#C0BCA8' : c }}>{locked ? '🔒' : '←'}</span>
                           </div>
                         </div>
                       )
@@ -486,6 +529,40 @@ function DashboardInner() {
         </div>
       </div>
 
+      {/* Modal: ترقية الاشتراك */}
+      {showUpgrade && (
+        <div onClick={() => setShowUpgrade(false)} style={{
+          position: 'fixed', inset: 0, zIndex: 200,
+          background: 'rgba(11,31,58,0.45)', backdropFilter: 'blur(3px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            background: '#fff', borderRadius: 22, maxWidth: 400, width: '100%',
+            padding: '30px 26px', textAlign: 'center',
+            boxShadow: '0 20px 60px rgba(11,31,58,0.3)',
+            animation: 'fadeUp 0.3s cubic-bezier(0.34,1.3,0.5,1) both'
+          }}>
+            <div style={{ fontSize: 44, marginBottom: 10 }}>🔒</div>
+            <p style={{ fontSize: 18, fontWeight: 800, color: NAVY, margin: '0 0 8px' }}>هذا المجال يتطلب الاشتراك</p>
+            <p style={{ fontSize: 13, color: '#8A8270', margin: '0 0 20px', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              في النسخة التجريبية يتاح مجال <b>البيئة المدرسية</b> فقط. اشترك الآن لفتح المجالات الأربعة كاملة، ومكتبة النماذج، ومولّد الخطة التشغيلية.
+            </p>
+            <a href="https://wa.me/00966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <button style={{
+                width: '100%', padding: '14px', fontSize: 15, fontWeight: 800,
+                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY,
+                border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 10
+              }}>💬 تواصل للاشتراك</button>
+            </a>
+            <button onClick={() => setShowUpgrade(false)} style={{
+              width: '100%', padding: '11px', fontSize: 13, fontWeight: 600,
+              background: 'transparent', color: '#8A8270', border: 'none', cursor: 'pointer',
+              fontFamily: 'Tajawal, sans-serif'
+            }}>لاحقاً</button>
+          </div>
+        </div>
+      )}
+
       {/* Modal: ماذا يتوقع من المدرسة */}
       {guidanceFor && (
         <div
@@ -568,6 +645,7 @@ export default function Dashboard() {
     </Suspense>
   )
 }
+
 
 
 
