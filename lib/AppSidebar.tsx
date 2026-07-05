@@ -15,6 +15,8 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
   const router = useRouter()
   const [domains, setDomains] = useState<Domain[]>([])
   const [schoolId, setSchoolId] = useState<string | null>(null)
+  const [isTrial, setIsTrial] = useState(false)
+  const [allowedDomainId, setAllowedDomainId] = useState<number | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -23,6 +25,13 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
       const { data: schoolUser } = await supabase.from('school_users').select('school_id').eq('auth_id', user.id).single()
       if (!schoolUser) return
       setSchoolId(schoolUser.school_id)
+
+      const { data: schoolData } = await supabase.from('schools').select('subscription_status, allowed_domain_id').eq('id', schoolUser.school_id).single()
+      if (schoolData) {
+        const trial = schoolData.subscription_status === 'trial'
+        setIsTrial(trial)
+        setAllowedDomainId(trial ? (schoolData.allowed_domain_id ?? 4) : null)
+      }
 
       const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
       const { data: standards } = await supabase.from('standards').select('id, domain_id')
@@ -88,6 +97,20 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
 
         {domains.map(domain => {
           const isActive = activeDomainId === domain.id
+          const locked = isTrial && allowedDomainId != null && domain.id !== allowedDomainId
+          if (locked) {
+            return (
+              <div key={domain.id} title="يتطلب الاشتراك" className="sidebar-link" style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
+                marginBottom: 2, cursor: 'not-allowed', opacity: 0.45,
+                color: 'rgba(255,255,255,0.6)'
+              }}>
+                <span style={{ fontSize: 14, flexShrink: 0 }}>{DOMAIN_ICONS[domain.code]}</span>
+                <span style={{ fontSize: 13, fontWeight: 500, flex: 1, lineHeight: 1.4 }}>{domain.name_ar}</span>
+                <span style={{ fontSize: 12, flexShrink: 0 }}>🔒</span>
+              </div>
+            )
+          }
           return (
             <Link key={domain.id} href={`/dashboard?domain=${domain.id}`} prefetch={false} className="sidebar-link" style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
@@ -159,4 +182,5 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
     </aside>
   )
 }
+
 
