@@ -19,7 +19,15 @@ type SchoolRow = {
   subscription_status: string
   subscription_end: string
   allowed_domain_id: number | null
+  allowed_domains: string | null
 }
+
+const DOMAINS = [
+  { id: 1, name: 'الإدارة المدرسية', icon: '🏫' },
+  { id: 2, name: 'التعليم والتعلم', icon: '📚' },
+  { id: 3, name: 'نواتج التعلم', icon: '📊' },
+  { id: 4, name: 'البيئة المدرسية', icon: '🏢' },
+]
 
 export default function AdminPage() {
   const { role, loading: schoolLoading } = useSchool()
@@ -81,6 +89,24 @@ export default function AdminPage() {
     setBusy(null)
   }
 
+  // فتح/قفل مجال لمدرسة تجريبية
+  async function toggleDomain(school: SchoolRow, domainId: number) {
+    setBusy(school.id)
+    const current = school.allowed_domains
+      ? school.allowed_domains.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
+      : [4]
+    let next: number[]
+    if (current.includes(domainId)) {
+      next = current.filter(d => d !== domainId)
+      if (next.length === 0) next = [4] // لا نترك المدرسة بدون أي مجال
+    } else {
+      next = [...current, domainId].sort((a, b) => a - b)
+    }
+    await supabase.from('schools').update({ allowed_domains: next.join(',') }).eq('id', school.id)
+    await loadSchools()
+    setBusy(null)
+  }
+
   if (schoolLoading || role !== 'admin') return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: CREAM, fontFamily: 'Tajawal, sans-serif' }}>
       <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
@@ -110,19 +136,19 @@ export default function AdminPage() {
           <main style={{ padding: '28px', maxWidth: 900, margin: '0 auto' }}>
 
             {/* إحصائيات */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 22 }}>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '18px 20px' }}>
-                <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>مشتركون</p>
-                <p style={{ fontSize: 28, fontWeight: 800, color: '#16a34a', margin: 0 }}>{activeCount}</p>
-              </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '18px 20px' }}>
-                <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>تجريبي</p>
-                <p style={{ fontSize: 28, fontWeight: 800, color: GOLD, margin: 0 }}>{trialCount}</p>
-              </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '18px 20px' }}>
-                <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>منتهٍ</p>
-                <p style={{ fontSize: 28, fontWeight: 800, color: '#DC2626', margin: 0 }}>{expiredCount}</p>
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 22 }}>
+              {[
+                { label: 'الإجمالي', value: schools.length, color: NAVY, icon: '🏫', bg: '#fff' },
+                { label: 'مشتركون', value: activeCount, color: '#16a34a', icon: '✅', bg: '#F8FFF9' },
+                { label: 'تجريبي', value: trialCount, color: '#A6730F', icon: '⏳', bg: '#FFFCF5' },
+                { label: 'منتهٍ', value: expiredCount, color: '#DC2626', icon: '⛔', bg: '#FFF8F8' },
+              ].map(stat => (
+                <div key={stat.label} style={{ background: stat.bg, border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: '18px 16px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 22, marginBottom: 6 }}>{stat.icon}</div>
+                  <p style={{ fontSize: 30, fontWeight: 800, color: stat.color, margin: '0 0 2px' }}>{stat.value}</p>
+                  <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{stat.label}</p>
+                </div>
+              ))}
             </div>
 
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="ابحث باسم المدرسة أو المدير أو البريد..."
@@ -161,6 +187,39 @@ export default function AdminPage() {
                           ✕ تعطيل
                         </button>
                       </div>
+
+                      {/* تحكم المجالات — للتجريبي فقط */}
+                      {s.subscription_status === 'trial' && !expired && (() => {
+                        const allowed = s.allowed_domains
+                          ? s.allowed_domains.split(',').map(x => parseInt(x.trim())).filter(n => !isNaN(n))
+                          : [4]
+                        return (
+                          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px dashed rgba(11,31,58,0.12)' }}>
+                            <p style={{ fontSize: 11, fontWeight: 700, color: '#8A8270', margin: '0 0 10px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                              المجالات المفتوحة لهذه المدرسة التجريبية:
+                            </p>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              {DOMAINS.map(dom => {
+                                const on = allowed.includes(dom.id)
+                                return (
+                                  <button key={dom.id} onClick={() => toggleDomain(s, dom.id)} disabled={busy === s.id} style={{
+                                    display: 'flex', alignItems: 'center', gap: 6,
+                                    padding: '8px 12px', borderRadius: 10, cursor: 'pointer',
+                                    fontSize: 12, fontWeight: 600, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+                                    background: on ? '#DCFCE7' : '#F3F4F6',
+                                    color: on ? '#15803d' : '#9CA3AF',
+                                    border: `1.5px solid ${on ? '#86EFAC' : 'rgba(11,31,58,0.08)'}`,
+                                    opacity: busy === s.id ? 0.5 : 1, transition: 'all 0.15s'
+                                  }}>
+                                    <span>{on ? '✓' : '○'}</span>
+                                    <span>{dom.icon} {dom.name}</span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })()}
                     </div>
                   )
                 })}
@@ -174,3 +233,4 @@ export default function AdminPage() {
     </div>
   )
 }
+
