@@ -75,9 +75,9 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
       `}</style>
 
       <div style={{ padding: '0 24px', marginBottom: 32 }}>
-        <Link href="/dashboard">
-          <img src="/logo.png" alt="شواهدي" style={{ height: 36, filter: 'brightness(0) invert(1)' }} />
-        </Link>
+        <a href="https://www.shawahede.com" title="الصفحة الرئيسية">
+          <img src="/logo.png" alt="شواهدي" style={{ height: 36, filter: 'brightness(0) invert(1)', cursor: 'pointer' }} />
+        </a>
       </div>
 
       <nav style={{ flex: 1, padding: '0 14px' }}>
@@ -182,5 +182,6 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
     </aside>
   )
 }
+
 
 
