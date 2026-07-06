@@ -16,7 +16,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
   const [domains, setDomains] = useState<Domain[]>([])
   const [schoolId, setSchoolId] = useState<string | null>(null)
   const [isTrial, setIsTrial] = useState(false)
-  const [allowedDomainId, setAllowedDomainId] = useState<number | null>(null)
+  const [allowedDomains, setAllowedDomains] = useState<number[] | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -26,11 +26,18 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
       if (!schoolUser) return
       setSchoolId(schoolUser.school_id)
 
-      const { data: schoolData } = await supabase.from('schools').select('subscription_status, allowed_domain_id').eq('id', schoolUser.school_id).single()
+      const { data: schoolData } = await supabase.from('schools').select('subscription_status, allowed_domains').eq('id', schoolUser.school_id).single()
       if (schoolData) {
         const trial = schoolData.subscription_status === 'trial'
         setIsTrial(trial)
-        setAllowedDomainId(trial ? (schoolData.allowed_domain_id ?? 4) : null)
+        if (trial) {
+          const list = schoolData.allowed_domains
+            ? schoolData.allowed_domains.split(',').map((s: string) => parseInt(s.trim())).filter((n: number) => !isNaN(n))
+            : [4]
+          setAllowedDomains(list)
+        } else {
+          setAllowedDomains(null)
+        }
       }
 
       const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
@@ -97,7 +104,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
 
         {domains.map(domain => {
           const isActive = activeDomainId === domain.id
-          const locked = isTrial && allowedDomainId != null && domain.id !== allowedDomainId
+          const locked = isTrial && allowedDomains != null && !allowedDomains.includes(domain.id)
           if (locked) {
             return (
               <div key={domain.id} title="يتطلب الاشتراك" className="sidebar-link" style={{
@@ -182,6 +189,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
     </aside>
   )
 }
+
 
 
 
