@@ -59,7 +59,7 @@ function BreadcrumbChip({ icon, label, color, onClick }: {
 }
 
 function DashboardInner() {
-  const { school, loading: schoolLoading, isTrial: trialPlan, allowedDomainId } = useSchool()
+  const { school, loading: schoolLoading, isTrial: trialPlan, allowedDomains } = useSchool()
   const searchParams = useSearchParams()
   const domainParam = searchParams.get('domain')
   const [domains, setDomains] = useState<Domain[]>([])
@@ -140,7 +140,7 @@ function DashboardInner() {
 
   async function handleDomainClick(domain: Domain) {
     // حماية: منع فتح مجال محجوب للحساب المجاني من أي مصدر
-    if (trialPlan && allowedDomainId != null && domain.id !== allowedDomainId) {
+    if (trialPlan && allowedDomains != null && !allowedDomains.includes(domain.id)) {
       setShowUpgrade(true)
       return
     }
@@ -327,7 +327,7 @@ function DashboardInner() {
                       const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
                       const c = DOMAIN_COLORS[domain.code] || NAVY
                       const sz = mob ? 64 : 80
-                      const locked = trialPlan && allowedDomainId != null && domain.id !== allowedDomainId
+                      const locked = trialPlan && allowedDomains != null && !allowedDomains.includes(domain.id)
                       return (
                         <div key={domain.id}
                           onClick={() => { if (locked) { setShowUpgrade(true) } else { handleDomainClick(domain) } }}
@@ -626,6 +626,7 @@ export default function Dashboard() {
     </Suspense>
   )
 }
+
 
 
 
