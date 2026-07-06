@@ -16,6 +16,7 @@ export type SchoolData = {
   subscription_start: string | null
   subscription_end: string
   allowed_domain_id: number | null
+  allowed_domains: string | null
 }
 
 export function useSchool() {
@@ -60,9 +61,17 @@ export function useSchool() {
     load()
   }, [])
 
-  // للحساب المجاني: مسموح مجال واحد فقط. للمدفوع: كل المجالات.
+  // للحساب المجاني: مسموح مجالات محددة فقط. للمدفوع: كل المجالات.
   const isTrial = school?.subscription_status === 'trial'
-  const allowedDomainId = isTrial ? (school?.allowed_domain_id ?? 4) : null // null = الكل مسموح
+  const allowedDomainId = isTrial ? (school?.allowed_domain_id ?? 4) : null // null = الكل مسموح (توافق قديم)
 
-  return { school, role, loading, isTrial, allowedDomainId }
+  // قائمة المجالات المسموحة للتجريبي (من allowed_domains). للمدفوع: null = الكل
+  const allowedDomains: number[] | null = isTrial
+    ? (school?.allowed_domains
+        ? school.allowed_domains.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
+        : [4])
+    : null
+
+  return { school, role, loading, isTrial, allowedDomainId, allowedDomains }
 }
+
