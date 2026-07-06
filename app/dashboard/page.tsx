@@ -236,16 +236,6 @@ function DashboardInner() {
             position: 'sticky', top: 0, zIndex: 50
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <a href="https://www.shawahede.com" title="الصفحة الرئيسية" style={{
-                display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0
-              }}>
-                <div style={{
-                  width: mob ? 34 : 40, height: mob ? 34 : 40, borderRadius: 11,
-                  background: `linear-gradient(135deg, ${NAVY}, #14284a)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: GOLD_LIGHT, fontSize: mob ? 15 : 18, fontWeight: 800
-                }}>ش</div>
-              </a>
               <div>
                 <p style={{ fontSize: mob ? 15 : 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
                   {!showStandards ? `مرحباً، ${principalFirstName} 👋` : showIndicators ? 'المؤشرات' : 'المعايير'}
@@ -349,19 +339,10 @@ function DashboardInner() {
                           boxShadow: '0 2px 8px rgba(11,31,58,0.05)',
                           opacity: locked ? 0.75 : 1, position: 'relative'
                         }}>
-                          {locked && (
-                            <div style={{
-                              position: 'absolute', top: 12, insetInlineStart: 12,
-                              display: 'flex', alignItems: 'center', gap: 4,
-                              background: 'rgba(11,31,58,0.06)', borderRadius: 20,
-                              padding: '4px 10px', fontSize: 10, fontWeight: 700, color: NAVY,
-                              fontFamily: 'IBM Plex Sans Arabic, sans-serif'
-                            }}>🔒 يتطلب الاشتراك</div>
-                          )}
                           <div style={{ position: 'relative', flexShrink: 0 }}>
                             <CircleProgress percent={locked ? 0 : pct} color={locked ? '#C0BCA8' : c} size={sz} />
                             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <span style={{ fontSize: mob ? 13 : 16, fontWeight: 800, color: locked ? '#C0BCA8' : NAVY }}>{locked ? '🔒' : `${pct}%`}</span>
+                              <span style={{ fontSize: locked ? (mob ? 20 : 26) : (mob ? 13 : 16), fontWeight: 800, color: locked ? '#C0BCA8' : NAVY }}>{locked ? '🔒' : `${pct}%`}</span>
                             </div>
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -370,9 +351,12 @@ function DashboardInner() {
                               <p style={{ fontWeight: 700, fontSize: mob ? 13 : 15, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
                             </div>
                             {locked ? (
-                              <p style={{ fontSize: 12, color: '#A6730F', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                                متاح في الاشتراك المدفوع
-                              </p>
+                              <span style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 5,
+                                background: 'rgba(194,138,31,0.12)', color: '#A6730F',
+                                fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 20,
+                                fontFamily: 'IBM Plex Sans Arabic, sans-serif', marginTop: 2
+                              }}>🔒 يتطلب الاشتراك</span>
                             ) : (
                               <>
                                 <p style={{ fontSize: 12, color: '#8A8270', margin: '0 0 2px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
@@ -642,6 +626,7 @@ export default function Dashboard() {
     </Suspense>
   )
 }
+
 
 
 
