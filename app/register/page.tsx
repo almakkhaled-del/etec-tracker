@@ -31,6 +31,25 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
+      // فحص تكرار البيانات قبل التسجيل
+      const orConds: string[] = [`email.eq.${form.email}`]
+      if (form.school_number) orConds.push(`school_number.eq.${form.school_number}`)
+      if (form.phone) orConds.push(`phone.eq.${form.phone}`)
+
+      const { data: existing } = await supabase
+        .from('schools')
+        .select('email, school_number, phone')
+        .or(orConds.join(','))
+
+      if (existing && existing.length > 0) {
+        const dupEmail = existing.some(s => s.email === form.email)
+        const dupNumber = form.school_number && existing.some(s => s.school_number === form.school_number)
+        const dupPhone = form.phone && existing.some(s => s.phone === form.phone)
+        if (dupEmail) { setError('البريد الإلكتروني مسجّل مسبقاً. جرّب تسجيل الدخول.'); setLoading(false); return }
+        if (dupNumber) { setError('الرقم الوزاري مسجّل مسبقاً لمدرسة أخرى.'); setLoading(false); return }
+        if (dupPhone) { setError('رقم الجوال مسجّل مسبقاً لمدرسة أخرى.'); setLoading(false); return }
+      }
+
       const { data: authData, error: authError } = await supabase.auth.signUp({ email: form.email, password: form.password })
       if (authError) throw authError
 
@@ -150,3 +169,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+
