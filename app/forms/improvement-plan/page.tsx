@@ -21,39 +21,17 @@ function SectionHeader({ icon, title }: { icon: string; title: string }) {
 type Step = 'upload' | 'analyzing' | 'done' | 'error'
 
 interface WeakIndicator {
-  id: string
-  name: string
-  domain: string
-  score: number
-  level: string
-  need: string
-  actions: string
-  methods: string
-  duration: string
-  responsible: string
+  id: string; name: string; domain: string; score: number; level: string
+  need: string; actions: string; methods: string; duration: string; responsible: string
 }
 
 interface AnalysisResult {
-  school_name: string
-  principal_name: string
-  grade: string
-  gender: string
-  ministry_number: string
-  building_type: string
-  independence: string
-  overall_level: string
-  outcomes_level: string
-  domain_admin: string
-  domain_teaching: string
-  domain_outcomes: string
-  domain_env: string
-  swot_strengths: string
-  swot_weaknesses: string
-  swot_opportunities: string
-  swot_challenges: string
-  priorities: string
-  recommendations: string
-  weak_indicators: WeakIndicator[]
+  school_name: string; principal_name: string; grade: string; gender: string
+  ministry_number: string; building_type: string; independence: string
+  overall_level: string; outcomes_level: string
+  domain_admin: string; domain_teaching: string; domain_outcomes: string; domain_env: string
+  swot_strengths: string; swot_weaknesses: string; swot_opportunities: string; swot_challenges: string
+  priorities: string; recommendations: string; weak_indicators: WeakIndicator[]
 }
 
 export default function ImprovementPlanPage() {
@@ -67,10 +45,9 @@ export default function ImprovementPlanPage() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setDragOver(false)
+    e.preventDefault(); setDragOver(false)
     const f = e.dataTransfer.files[0]
-    if (f?.type === 'application/pdf') setFile(f)
+    if (f?.type === 'application/pdf') { setFile(f); setError('') }
     else setError('يرجى رفع ملف PDF فقط')
   }
 
@@ -82,12 +59,8 @@ export default function ImprovementPlanPage() {
 
   async function handleAnalyze() {
     if (!file) return
-    setStep('analyzing')
-    setProgress('جاري قراءة التقرير...')
-    setError('')
-
+    setStep('analyzing'); setProgress('جاري قراءة التقرير...'); setError('')
     try {
-      // Convert PDF to base64
       const base64 = await new Promise<string>((res, rej) => {
         const reader = new FileReader()
         reader.onload = () => res((reader.result as string).split(',')[1])
@@ -95,87 +68,24 @@ export default function ImprovementPlanPage() {
         reader.readAsDataURL(file)
       })
 
-      setProgress('يقرأ Claude التقرير ويحلل المؤشرات...')
+      setProgress('يقرأ الذكاء الاصطناعي التقرير ويحلل المؤشرات...')
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/analyze-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 4000,
-          messages: [{
-            role: 'user',
-            content: [
-              {
-                type: 'document',
-                source: { type: 'base64', media_type: 'application/pdf', data: base64 }
-              },
-              {
-                type: 'text',
-                text: `أنت خبير تربوي متخصص في تحليل تقارير التقويم المدرسي لهيئة تقويم التعليم والتدريب (إتقان).
-
-استخرج من هذا التقرير المعلومات التالية وأجب بـ JSON فقط بدون أي نص إضافي أو backticks:
-
-{
-  "school_name": "اسم المدرسة",
-  "principal_name": "اسم مدير المدرسة إن وجد وإلا اتركه فارغاً",
-  "grade": "المرحلة الدراسية",
-  "gender": "بنين أو بنات",
-  "ministry_number": "الرقم الوزاري",
-  "building_type": "حكومي أو مستأجر",
-  "independence": "مستقل أو مشترك",
-  "overall_level": "مستوى الأداء العام (التميز/التقدم/الانطلاق/التهيئة) مع النسبة مثال: انطلاق - 71%",
-  "outcomes_level": "مستوى نواتج التعلم مع النسبة",
-  "domain_admin": "نسبة الإدارة المدرسية مثال: 73.50%",
-  "domain_teaching": "نسبة التعليم والتعلم مثال: 63.00%",
-  "domain_outcomes": "نسبة نواتج التعلم مثال: 71.50%",
-  "domain_env": "نسبة البيئة المدرسية مثال: 80.00%",
-  "swot_strengths": "نقاط القوة من التقرير مفصولة بفاصلة",
-  "swot_weaknesses": "نقاط الضعف الرئيسية مفصولة بفاصلة",
-  "swot_opportunities": "الفرص المتاحة مفصولة بفاصلة",
-  "swot_challenges": "التحديات والتهديدات مفصولة بفاصلة",
-  "priorities": "أبرز الأولويات العاجلة للتحسين",
-  "recommendations": "التوصيات العامة المستخرجة من التقرير",
-  "weak_indicators": [
-    {
-      "id": "رقم المؤشر مثال: 4-1-4-1",
-      "name": "اسم المؤشر",
-      "domain": "المجال: الإدارة المدرسية أو التعليم والتعلم أو نواتج التعلم أو البيئة المدرسية",
-      "score": 48.5,
-      "level": "مستوى الأداء: تهيئة أو انطلاق",
-      "need": "وصف الاحتياج بناءً على ما ذكره التقرير",
-      "actions": "إجراءات التحسين المقترحة من التقرير",
-      "methods": "أساليب وطرق التحسين المناسبة",
-      "duration": "الفصل الدراسي الأول أو الثاني أو طوال العام",
-      "responsible": "مدير المدرسة ووكيل الشؤون التعليمية"
-    }
-  ]
-}
-
-قواعد مهمة:
-- أدرج في weak_indicators كل مؤشر نسبته أقل من 75%
-- اجعل "need" وصفاً دقيقاً مبنياً على نص التقرير
-- اجعل "actions" إجراءات عملية قابلة للتنفيذ (3-4 إجراءات مفصولة بفاصلة منقوطة)
-- اجعل "methods" أساليب تربوية محددة (2-3 أساليب)
-- رتّب المؤشرات من الأضعف للأقوى (ascending by score)
-- أجب بـ JSON صالح فقط`
-              }
-            ]
-          }]
-        })
+        body: JSON.stringify({ base64 })
       })
 
-      if (!response.ok) throw new Error(`API error: ${response.status}`)
-      const data = await response.json()
-      const text = data.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
-      const clean = text.replace(/```json|```/g, '').trim()
-      const parsed: AnalysisResult = JSON.parse(clean)
+      if (!response.ok) {
+        const err = await response.json()
+        throw new Error(err.error || `Server error: ${response.status}`)
+      }
 
+      const parsed: AnalysisResult = await response.json()
       setResult(parsed)
       setProgress('جاري توليد الملفات...')
       await generateDocuments(parsed)
       setStep('done')
-
     } catch (err: any) {
       console.error(err)
       setError(err.message || 'حدث خطأ غير متوقع')
@@ -185,8 +95,8 @@ export default function ImprovementPlanPage() {
 
   async function generateDocuments(data: AnalysisResult) {
     const [
-      { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, AlignmentType,
-        BorderStyle, ShadingType, HeadingLevel, PageOrientation, Header },
+      { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun,
+        WidthType, AlignmentType, BorderStyle, ShadingType, PageOrientation },
       { default: JSZip },
       { saveAs }
     ] = await Promise.all([
@@ -195,314 +105,136 @@ export default function ImprovementPlanPage() {
       import('file-saver'),
     ])
 
-    const rtlPara = (text: string, bold = false, size = 22, color = '000000') =>
-      new Paragraph({
-        bidirectional: true,
-        alignment: AlignmentType.RIGHT,
-        children: [new TextRun({ text, bold, size, color, font: 'Sakkal Majalla' })]
-      })
-
-    const greenCell = (text: string, bold = true) => new TableCell({
-      shading: { type: ShadingType.CLEAR, fill: 'C6EFCE' },
-      children: [new Paragraph({
-        bidirectional: true,
-        alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text, bold, size: 20, font: 'Sakkal Majalla' })]
-      })],
-      borders: allBorders()
-    })
-
-    const dataCell = (text: string, bold = false) => new TableCell({
-      children: [new Paragraph({
-        bidirectional: true,
-        alignment: AlignmentType.RIGHT,
-        children: [new TextRun({ text, bold, size: 20, font: 'Sakkal Majalla' })]
-      })],
-      borders: allBorders()
-    })
-
     function allBorders() {
       const b = { style: BorderStyle.SINGLE, size: 4, color: '999999' }
       return { top: b, bottom: b, left: b, right: b, insideHorizontal: b, insideVertical: b }
     }
 
+    const rtlPara = (text: string, bold = false, size = 22, color = '000000') =>
+      new Paragraph({
+        bidirectional: true, alignment: AlignmentType.RIGHT,
+        children: [new TextRun({ text, bold, size, color, font: 'Sakkal Majalla' })]
+      })
+
+    const greenCell = (text: string) => new TableCell({
+      shading: { type: ShadingType.CLEAR, fill: 'C6EFCE' },
+      borders: allBorders(),
+      children: [new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text, bold: true, size: 20, font: 'Sakkal Majalla' })] })]
+    })
+
+    const dataCell = (text: string, bold = false) => new TableCell({
+      borders: allBorders(),
+      children: [new Paragraph({ bidirectional: true, alignment: AlignmentType.RIGHT, children: [new TextRun({ text, bold, size: 20, font: 'Sakkal Majalla' })] })]
+    })
+
     const headerRow = (cells: string[]) => new TableRow({
       children: cells.map(t => new TableCell({
-        shading: { type: ShadingType.CLEAR, fill: '1F3864' },
-        children: [new Paragraph({
-          bidirectional: true,
-          alignment: AlignmentType.CENTER,
-          children: [new TextRun({ text: t, bold: true, size: 20, color: 'FFFFFF', font: 'Sakkal Majalla' })]
-        })],
-        borders: allBorders()
+        shading: { type: ShadingType.CLEAR, fill: '1F3864' }, borders: allBorders(),
+        children: [new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: t, bold: true, size: 20, color: 'FFFFFF', font: 'Sakkal Majalla' })] })]
       }))
     })
 
-    // ============ DOC 1: بناء خطة التحسين ============
-    const doc1 = new Document({
-      sections: [{
-        properties: {
-          page: {
-            size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
-            margin: { top: 720, bottom: 720, left: 720, right: 720 }
-          }
-        },
-        children: [
-          new Paragraph({
-            bidirectional: true,
-            alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: 'استمارة المدرسة (1): بناء خطة التحسين في مجالات الممارسات الإشرافية', bold: true, size: 28, color: '1F3864', font: 'Sakkal Majalla' })]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('أولاً/ البيانات الأساسية:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          // Basic info table
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [
-              new TableRow({ children: [
-                greenCell('اسم المدرسة'), dataCell(data.school_name, true),
-                greenCell('المرحلة'), dataCell(data.grade),
-                greenCell('جنس المدرسة'), dataCell(data.gender),
-              ]}),
-              new TableRow({ children: [
-                greenCell('الرقم الوزاري'), dataCell(data.ministry_number),
-                greenCell('نوع المبنى'), dataCell(data.building_type),
-                greenCell('استقلالية المبنى'), dataCell(data.independence),
-              ]}),
-              new TableRow({ children: [
-                greenCell('مستوى الأداء العام'), dataCell(data.overall_level),
-                greenCell('مستوى نواتج التعلم'), dataCell(data.outcomes_level),
-                greenCell(''), dataCell(''),
-              ]}),
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('ثانياً/ إجراءات خطة التحسين في مجالات الممارسات الإشرافية:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          // Weak indicators table
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            columnWidths: [1800, 2200, 2200, 2200, 1800, 1600, 1600],
-            rows: [
-              headerRow(['المجال', 'العنصر / المكون / العملية المراد تحسينها', 'وصف الاحتياج', 'إجراءات التحسين', 'أساليب وطرق التحسين', 'مدة الإنجاز', 'التنفيذ والمسؤولية']),
-              ...data.weak_indicators.map(ind => new TableRow({
-                children: [
-                  dataCell(ind.domain),
-                  dataCell(`(${ind.id}) ${ind.name} - ${ind.score}%`),
-                  dataCell(ind.need),
-                  dataCell(ind.actions),
-                  dataCell(ind.methods),
-                  dataCell(ind.duration),
-                  dataCell(ind.responsible),
-                ]
-              }))
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('ثالثاً/ التوصيات والمقترحات:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          rtlPara(data.recommendations),
-          new Paragraph({ children: [] }),
-          new Paragraph({ children: [] }),
-          // Signature row
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [new TableRow({ children: [
-              greenCell('مدير/ة المدرسة'), dataCell(data.school_name),
-              greenCell('التوقيع'), dataCell(''),
-              greenCell('مقدم/ة خدمات دعم التميز المدرسي'), dataCell(''),
-              greenCell('التوقيع'), dataCell(''),
-              greenCell('الختم'), dataCell(''),
-            ]})]
-          }),
-        ]
-      }]
-    })
+    const landscapeProps = {
+      page: { size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 } }
+    }
 
-    // ============ DOC 2: تنفيذ خطة التحسين ============
-    const doc2 = new Document({
-      sections: [{
-        properties: {
-          page: {
-            size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
-            margin: { top: 720, bottom: 720, left: 720, right: 720 }
-          }
-        },
-        children: [
-          new Paragraph({
-            bidirectional: true,
-            alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: 'استمارة المدرسة (2): تنفيذ خطة التحسين في مجالات الممارسات الإشرافية', bold: true, size: 28, color: '1F3864', font: 'Sakkal Majalla' })]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('أولاً/ البيانات الأساسية:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [
-              new TableRow({ children: [
-                greenCell('اسم المدرسة'), dataCell(data.school_name, true),
-                greenCell('المرحلة'), dataCell(data.grade),
-                greenCell('جنس المدرسة'), dataCell(data.gender),
-              ]}),
-              new TableRow({ children: [
-                greenCell('الرقم الوزاري'), dataCell(data.ministry_number),
-                greenCell('نوع المبنى'), dataCell(data.building_type),
-                greenCell('استقلالية المبنى'), dataCell(data.independence),
-              ]}),
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('ثانياً/ إجراءات تنفيذ خطة التحسين في مجالات الممارسات الإشرافية:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            columnWidths: [1800, 2200, 3000, 2000, 1800, 2600],
-            rows: [
-              headerRow(['المجال', 'العنصر / المكون / العملية', 'الإجراءات المنفذة\n(يكتب وصف الإجراء بدقة ويوم وتاريخ تنفيذه)', 'أساليب وطرق التحسين', 'مقدم خدمات دعم التميز المدرسي', '']),
-              new TableRow({ children: [
-                dataCell(''), dataCell(''), dataCell(''), dataCell(''),
-                dataCell('لجان المدرسة'), dataCell('المشرف التربوي'),
-              ]}),
-              ...data.weak_indicators.map(ind => new TableRow({
-                children: [
-                  dataCell(ind.domain),
-                  dataCell(`(${ind.id}) ${ind.name}`),
-                  dataCell(''),
-                  dataCell(ind.methods),
-                  dataCell(''),
-                  dataCell(''),
-                ]
-              }))
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('ثالثاً/ التوصيات والمقترحات:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          rtlPara(''),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [new TableRow({ children: [
-              greenCell('مدير/ة المدرسة'), dataCell(''),
-              greenCell('التوقيع'), dataCell(''),
-              greenCell('مقدم/ة خدمات دعم التميز المدرسي'), dataCell(''),
-              greenCell('التوقيع'), dataCell(''),
-              greenCell('الختم'), dataCell(''),
-            ]})]
-          }),
-        ]
-      }]
-    })
+    // ===== DOC 1: بناء خطة التحسين =====
+    const doc1 = new Document({ sections: [{ properties: landscapeProps, children: [
+      new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'استمارة المدرسة (1): بناء خطة التحسين في مجالات الممارسات الإشرافية', bold: true, size: 28, color: '1F3864', font: 'Sakkal Majalla' })] }),
+      new Paragraph({ children: [] }),
+      rtlPara('أولاً/ البيانات الأساسية:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+        new TableRow({ children: [greenCell('اسم المدرسة'), dataCell(data.school_name, true), greenCell('المرحلة'), dataCell(data.grade), greenCell('جنس المدرسة'), dataCell(data.gender)] }),
+        new TableRow({ children: [greenCell('الرقم الوزاري'), dataCell(data.ministry_number), greenCell('نوع المبنى'), dataCell(data.building_type), greenCell('استقلالية المبنى'), dataCell(data.independence)] }),
+        new TableRow({ children: [greenCell('مستوى الأداء العام'), dataCell(data.overall_level), greenCell('مستوى نواتج التعلم'), dataCell(data.outcomes_level), greenCell(''), dataCell('')] }),
+      ]}),
+      new Paragraph({ children: [] }),
+      rtlPara('ثانياً/ إجراءات خطة التحسين:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, columnWidths: [1800, 2200, 2200, 2200, 1800, 1600, 1600], rows: [
+        headerRow(['المجال', 'العنصر / المكون / العملية', 'وصف الاحتياج', 'إجراءات التحسين', 'أساليب وطرق التحسين', 'مدة الإنجاز', 'التنفيذ والمسؤولية']),
+        ...data.weak_indicators.map(ind => new TableRow({ children: [
+          dataCell(ind.domain), dataCell(`(${ind.id}) ${ind.name} - ${ind.score}%`),
+          dataCell(ind.need), dataCell(ind.actions), dataCell(ind.methods), dataCell(ind.duration), dataCell(ind.responsible)
+        ]}))
+      ]}),
+      new Paragraph({ children: [] }),
+      rtlPara('ثالثاً/ التوصيات والمقترحات:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      rtlPara(data.recommendations),
+    ]}]})
 
-    // ============ DOC 3: تقرير واقع المدرسة ============
-    const doc3 = new Document({
-      sections: [{
-        properties: {
-          page: {
-            size: { width: 12240, height: 15840 },
-            margin: { top: 900, bottom: 900, left: 900, right: 900 }
-          }
-        },
-        children: [
-          new Paragraph({
-            bidirectional: true,
-            alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: 'تقرير واقع المدرسة', bold: true, size: 32, color: '1F3864', font: 'Sakkal Majalla' })]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('البيانات الأساسية:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [
-              new TableRow({ children: [greenCell('اسم المدرسة'), dataCell(data.school_name, true), greenCell('الرقم الوزاري'), dataCell(data.ministry_number)] }),
-              new TableRow({ children: [greenCell('المرحلة الدراسية'), dataCell(data.grade), greenCell('الجنس'), dataCell(data.gender)] }),
-              new TableRow({ children: [greenCell('اسم مدير المدرسة'), dataCell(data.principal_name || ''), greenCell('نوع المبنى'), dataCell(data.building_type)] }),
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('نتائج التقويم المدرسي (حسب أحدث تقرير):', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [
-              new TableRow({ children: [greenCell('متوسط الأداء العام'), dataCell(data.overall_level), greenCell('مستوى نواتج التعلم'), dataCell(data.outcomes_level)] }),
-              new TableRow({ children: [greenCell('الإدارة المدرسية'), dataCell(data.domain_admin), greenCell('التعليم والتعلم'), dataCell(data.domain_teaching)] }),
-              new TableRow({ children: [greenCell('نواتج التعلم'), dataCell(data.domain_outcomes), greenCell('البيئة المدرسية'), dataCell(data.domain_env)] }),
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('تحليل الواقع (SWOT):', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [
-              new TableRow({ children: [greenCell('نقاط القوة'), dataCell(data.swot_strengths), greenCell('الفرص'), dataCell(data.swot_opportunities)] }),
-              new TableRow({ children: [greenCell('نقاط الضعف'), dataCell(data.swot_weaknesses), greenCell('التحديات'), dataCell(data.swot_challenges)] }),
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('الأولويات العاجلة للتحسين:', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            columnWidths: [3000, 2000, 7240],
-            rows: [
-              headerRow(['المجال', 'الأولوية', 'مبررات تحديد مستوى الأولوية']),
-              ...(['الإدارة المدرسية', 'التعليم والتعلم', 'نواتج التعلم', 'البيئة المدرسية'].map(domain => {
-                const domainInds = data.weak_indicators.filter(i => i.domain === domain)
-                const priority = domainInds.length >= 3 ? 'عالي' : domainInds.length >= 1 ? 'متوسط' : 'منخفض'
-                const justification = domainInds.length > 0
-                  ? `يوجد ${domainInds.length} مؤشر بحاجة للتحسين أبرزها: ${domainInds.slice(0,2).map(i=>i.name).join('، ')}`
-                  : 'لا يوجد احتياج للتحسين'
-                return new TableRow({ children: [dataCell(domain), dataCell(priority, true), dataCell(justification)] })
-              }))
-            ]
-          }),
-          new Paragraph({ children: [] }),
-          rtlPara('المؤشرات الضعيفة (أقل من 75%):', true, 24, '1F3864'),
-          new Paragraph({ children: [] }),
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            columnWidths: [1500, 4500, 2000, 1500, 2740],
-            rows: [
-              headerRow(['رقم المؤشر', 'اسم المؤشر', 'المجال', 'النسبة', 'المستوى']),
-              ...data.weak_indicators.map(ind => new TableRow({
-                children: [
-                  dataCell(ind.id),
-                  dataCell(ind.name),
-                  dataCell(ind.domain),
-                  dataCell(`${ind.score}%`, true),
-                  new TableCell({
-                    shading: { type: ShadingType.CLEAR, fill: ind.score < 50 ? 'FFCCCC' : 'FFF2CC' },
-                    children: [new Paragraph({
-                      bidirectional: true,
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: ind.level, bold: true, size: 20, font: 'Sakkal Majalla' })]
-                    })],
-                    borders: allBorders()
-                  })
-                ]
-              }))
-            ]
-          }),
-        ]
-      }]
-    })
+    // ===== DOC 2: تنفيذ خطة التحسين =====
+    const doc2 = new Document({ sections: [{ properties: landscapeProps, children: [
+      new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'استمارة المدرسة (2): تنفيذ خطة التحسين في مجالات الممارسات الإشرافية', bold: true, size: 28, color: '1F3864', font: 'Sakkal Majalla' })] }),
+      new Paragraph({ children: [] }),
+      rtlPara('أولاً/ البيانات الأساسية:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+        new TableRow({ children: [greenCell('اسم المدرسة'), dataCell(data.school_name, true), greenCell('المرحلة'), dataCell(data.grade), greenCell('جنس المدرسة'), dataCell(data.gender)] }),
+        new TableRow({ children: [greenCell('الرقم الوزاري'), dataCell(data.ministry_number), greenCell('نوع المبنى'), dataCell(data.building_type), greenCell('استقلالية المبنى'), dataCell(data.independence)] }),
+      ]}),
+      new Paragraph({ children: [] }),
+      rtlPara('ثانياً/ إجراءات تنفيذ خطة التحسين:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, columnWidths: [1800, 2200, 3000, 2000, 1500, 2900], rows: [
+        headerRow(['المجال', 'العنصر / المكون', 'الإجراءات المنفذة (يكتب وصف الإجراء بدقة ويوم وتاريخ تنفيذه)', 'أساليب وطرق التحسين', 'لجان المدرسة', 'المشرف التربوي']),
+        ...data.weak_indicators.map(ind => new TableRow({ children: [
+          dataCell(ind.domain), dataCell(`(${ind.id}) ${ind.name}`),
+          dataCell(''), dataCell(ind.methods), dataCell(''), dataCell('')
+        ]}))
+      ]}),
+      new Paragraph({ children: [] }),
+      rtlPara('ثالثاً/ التوصيات والمقترحات:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }), rtlPara(''),
+    ]}]})
 
-    // Pack all 3 docs into a zip
+    // ===== DOC 3: تقرير واقع المدرسة =====
+    const doc3 = new Document({ sections: [{ properties: { page: { margin: { top: 900, bottom: 900, left: 900, right: 900 } } }, children: [
+      new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'تقرير واقع المدرسة', bold: true, size: 32, color: '1F3864', font: 'Sakkal Majalla' })] }),
+      new Paragraph({ children: [] }),
+      rtlPara('البيانات الأساسية:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+        new TableRow({ children: [greenCell('اسم المدرسة'), dataCell(data.school_name, true), greenCell('الرقم الوزاري'), dataCell(data.ministry_number)] }),
+        new TableRow({ children: [greenCell('المرحلة الدراسية'), dataCell(data.grade), greenCell('الجنس'), dataCell(data.gender)] }),
+        new TableRow({ children: [greenCell('اسم مدير المدرسة'), dataCell(data.principal_name || ''), greenCell('نوع المبنى'), dataCell(data.building_type)] }),
+      ]}),
+      new Paragraph({ children: [] }),
+      rtlPara('نتائج التقويم المدرسي:', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+        new TableRow({ children: [greenCell('متوسط الأداء العام'), dataCell(data.overall_level), greenCell('مستوى نواتج التعلم'), dataCell(data.outcomes_level)] }),
+        new TableRow({ children: [greenCell('الإدارة المدرسية'), dataCell(data.domain_admin), greenCell('التعليم والتعلم'), dataCell(data.domain_teaching)] }),
+        new TableRow({ children: [greenCell('نواتج التعلم'), dataCell(data.domain_outcomes), greenCell('البيئة المدرسية'), dataCell(data.domain_env)] }),
+      ]}),
+      new Paragraph({ children: [] }),
+      rtlPara('تحليل الواقع (SWOT):', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+        new TableRow({ children: [greenCell('نقاط القوة'), dataCell(data.swot_strengths), greenCell('الفرص'), dataCell(data.swot_opportunities)] }),
+        new TableRow({ children: [greenCell('نقاط الضعف'), dataCell(data.swot_weaknesses), greenCell('التحديات'), dataCell(data.swot_challenges)] }),
+      ]}),
+      new Paragraph({ children: [] }),
+      rtlPara('المؤشرات الضعيفة (أقل من 75%):', true, 24, '1F3864'),
+      new Paragraph({ children: [] }),
+      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, columnWidths: [1500, 4500, 2000, 1500, 2740], rows: [
+        headerRow(['رقم المؤشر', 'اسم المؤشر', 'المجال', 'النسبة', 'المستوى']),
+        ...data.weak_indicators.map(ind => new TableRow({ children: [
+          dataCell(ind.id), dataCell(ind.name), dataCell(ind.domain), dataCell(`${ind.score}%`, true),
+          new TableCell({ shading: { type: ShadingType.CLEAR, fill: ind.score < 50 ? 'FFCCCC' : 'FFF2CC' }, borders: allBorders(),
+            children: [new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: ind.level, bold: true, size: 20, font: 'Sakkal Majalla' })] })]
+          })
+        ]}))
+      ]}),
+    ]}]})
+
     const zip = new JSZip()
-    const [buf1, buf2, buf3] = await Promise.all([
-      Packer.toBlob(doc1),
-      Packer.toBlob(doc2),
-      Packer.toBlob(doc3),
-    ])
+    const [buf1, buf2, buf3] = await Promise.all([Packer.toBlob(doc1), Packer.toBlob(doc2), Packer.toBlob(doc3)])
     zip.file(`(1) بناء خطة التحسين - ${data.school_name}.docx`, buf1)
     zip.file(`(2) تنفيذ خطة التحسين - ${data.school_name}.docx`, buf2)
     zip.file(`(3) تقرير واقع المدرسة - ${data.school_name}.docx`, buf3)
-
     const zipBlob = await zip.generateAsync({ type: 'blob' })
     saveAs(zipBlob, `خطة التحسين - ${data.school_name}.zip`)
   }
@@ -510,36 +242,23 @@ export default function ImprovementPlanPage() {
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
-      <style>{`
-        .body-font { font-family: 'IBM Plex Sans Arabic','Tajawal',sans-serif; }
-        .upload-zone:hover { border-color: #C28A1F !important; background: #FFF8EC !important; }
-        .gen-btn:hover { filter: brightness(1.05); }
-      `}</style>
-
+      <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif}.upload-zone:hover{border-color:#C28A1F!important;background:#FFF8EC!important}.gen-btn:hover{filter:brightness(1.05)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
-
-          {/* Header */}
           <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
             <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
             <div>
               <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>🤖 المساعد الذكي — خطة التحسين</p>
-              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>ارفع تقرير ETEC — يولّد Claude 3 ملفات جاهزة</p>
+              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>ارفع تقرير ETEC — يولّد الذكاء 3 ملفات جاهزة</p>
             </div>
           </header>
 
           <main style={{ padding: '24px 28px', maxWidth: 700, margin: '0 auto' }}>
-
-            {/* Info card */}
             <div style={{ background: 'linear-gradient(135deg, #0B1F3A, #14284a)', borderRadius: 16, padding: '18px 22px', marginBottom: 24, color: '#fff' }}>
               <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 10px' }}>📄 سيتم توليد 3 ملفات تلقائياً:</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                {[
-                  { n: '1', t: 'بناء خطة التحسين', d: 'الاستمارة الرسمية مملوءة بالمؤشرات الضعيفة' },
-                  { n: '2', t: 'تنفيذ خطة التحسين', d: 'جدول المتابعة والإجراءات المنفذة' },
-                  { n: '3', t: 'تقرير واقع المدرسة', d: 'SWOT + الأولويات + المؤشرات' },
-                ].map(item => (
+                {[{n:'1',t:'بناء خطة التحسين',d:'الاستمارة الرسمية مملوءة بالمؤشرات الضعيفة'},{n:'2',t:'تنفيذ خطة التحسين',d:'جدول المتابعة والإجراءات المنفذة'},{n:'3',t:'تقرير واقع المدرسة',d:'SWOT + الأولويات + المؤشرات'}].map(item => (
                   <div key={item.n} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px 14px' }}>
                     <div style={{ fontSize: 20, marginBottom: 6 }}>📋</div>
                     <p style={{ fontSize: 12, fontWeight: 700, margin: '0 0 4px' }}>({item.n}) {item.t}</p>
@@ -551,148 +270,68 @@ export default function ImprovementPlanPage() {
 
             <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
 
-              {/* STEP: Upload */}
-              {(step === 'upload' || step === 'error') && (
-                <>
-                  <SectionHeader icon="📤" title="ارفع تقرير التقويم الخارجي" />
+              {(step === 'upload' || step === 'error') && (<>
+                <SectionHeader icon="📤" title="ارفع تقرير التقويم الخارجي" />
+                <div className="upload-zone" onDragOver={e=>{e.preventDefault();setDragOver(true)}} onDragLeave={()=>setDragOver(false)} onDrop={handleDrop} onClick={()=>fileRef.current?.click()}
+                  style={{ border:`2px dashed ${dragOver?GOLD:file?'#86EFAC':'rgba(11,31,58,0.15)'}`, borderRadius:14, padding:'40px 20px', textAlign:'center', cursor:'pointer', background:dragOver?'#FFF8EC':file?'#F0FDF4':'#FAFAF7', transition:'all 0.2s', marginBottom:16 }}>
+                  <input ref={fileRef} type="file" accept=".pdf" style={{display:'none'}} onChange={handleFileChange} />
+                  <div style={{fontSize:40,marginBottom:10}}>{file?'✅':'📁'}</div>
+                  {file ? (<>
+                    <p style={{fontSize:15,fontWeight:700,color:GREEN,margin:'0 0 4px'}}>{file.name}</p>
+                    <p className="body-font" style={{fontSize:12,color:'#166534',margin:0}}>{(file.size/1024/1024).toFixed(2)} MB · اضغط لتغيير الملف</p>
+                  </>) : (<>
+                    <p style={{fontSize:15,fontWeight:600,color:NAVY,margin:'0 0 6px'}}>اسحب ملف PDF هنا أو اضغط للاختيار</p>
+                    <p className="body-font" style={{fontSize:13,color:'#8A8270',margin:0}}>تقرير التقويم الخارجي من هيئة تقويم التعليم والتدريب</p>
+                  </>)}
+                </div>
+                {error && <div style={{background:'#FEF2F2',border:'1px solid #FECACA',borderRadius:10,padding:'12px 16px',marginBottom:16}}><p className="body-font" style={{fontSize:13,color:'#DC2626',margin:0}}>⚠️ {error}</p></div>}
+                <button onClick={handleAnalyze} disabled={!file} className="gen-btn"
+                  style={{ width:'100%',padding:'16px',fontSize:17,fontWeight:800,background:!file?'#9CA3AF':`linear-gradient(135deg,#D9A441,${GOLD})`,color:!file?'#fff':NAVY,border:'none',borderRadius:14,cursor:!file?'not-allowed':'pointer',fontFamily:'Tajawal,sans-serif',boxShadow:!file?'none':'0 6px 20px rgba(194,138,31,0.30)',transition:'all 0.2s' }}>
+                  🤖 تحليل التقرير وتوليد الملفات ←
+                </button>
+              </>)}
 
-                  <div
-                    className="upload-zone"
-                    onDragOver={e => { e.preventDefault(); setDragOver(true) }}
-                    onDragLeave={() => setDragOver(false)}
-                    onDrop={handleDrop}
-                    onClick={() => fileRef.current?.click()}
-                    style={{
-                      border: `2px dashed ${dragOver ? GOLD : file ? '#86EFAC' : 'rgba(11,31,58,0.15)'}`,
-                      borderRadius: 14,
-                      padding: '40px 20px',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      background: dragOver ? '#FFF8EC' : file ? '#F0FDF4' : '#FAFAF7',
-                      transition: 'all 0.2s',
-                      marginBottom: 16,
-                    }}
-                  >
-                    <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} onChange={handleFileChange} />
-                    <div style={{ fontSize: 40, marginBottom: 10 }}>{file ? '✅' : '📁'}</div>
-                    {file ? (
-                      <>
-                        <p style={{ fontSize: 15, fontWeight: 700, color: GREEN, margin: '0 0 4px' }}>{file.name}</p>
-                        <p className="body-font" style={{ fontSize: 12, color: '#166534', margin: 0 }}>
-                          {(file.size / 1024 / 1024).toFixed(2)} MB · اضغط لتغيير الملف
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p style={{ fontSize: 15, fontWeight: 600, color: NAVY, margin: '0 0 6px' }}>اسحب ملف PDF هنا أو اضغط للاختيار</p>
-                        <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>تقرير التقويم الخارجي من هيئة تقويم التعليم والتدريب</p>
-                      </>
-                    )}
-                  </div>
-
-                  {error && (
-                    <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
-                      <p className="body-font" style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>⚠️ {error}</p>
-                    </div>
-                  )}
-
-                  <button
-                    onClick={handleAnalyze}
-                    disabled={!file}
-                    className="gen-btn"
-                    style={{
-                      width: '100%', padding: '16px', fontSize: 17, fontWeight: 800,
-                      background: !file ? '#9CA3AF' : `linear-gradient(135deg, #D9A441, ${GOLD})`,
-                      color: !file ? '#fff' : NAVY, border: 'none', borderRadius: 14,
-                      cursor: !file ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif',
-                      boxShadow: !file ? 'none' : '0 6px 20px rgba(194,138,31,0.30)', transition: 'all 0.2s'
-                    }}
-                  >
-                    🤖 تحليل التقرير وتوليد الملفات ←
-                  </button>
-                </>
-              )}
-
-              {/* STEP: Analyzing */}
               {step === 'analyzing' && (
-                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                  <div style={{ fontSize: 56, marginBottom: 16, animation: 'pulse 1.5s infinite' }}>🤖</div>
-                  <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }`}</style>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: NAVY, margin: '0 0 8px' }}>{progress}</p>
-                  <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: '0 0 24px' }}>
-                    يقرأ Claude التقرير ويستخرج المؤشرات الضعيفة تلقائياً
-                  </p>
-                  <div style={{ background: 'rgba(11,31,58,0.05)', borderRadius: 10, padding: '12px 16px' }}>
-                    <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                      هذا قد يستغرق 30-60 ثانية حسب حجم التقرير
-                    </p>
+                <div style={{textAlign:'center',padding:'40px 20px'}}>
+                  <div style={{fontSize:56,marginBottom:16,animation:'pulse 1.5s infinite'}}>🤖</div>
+                  <p style={{fontSize:17,fontWeight:700,color:NAVY,margin:'0 0 8px'}}>{progress}</p>
+                  <p className="body-font" style={{fontSize:13,color:'#8A8270',margin:'0 0 24px'}}>يقرأ الذكاء الاصطناعي التقرير ويستخرج المؤشرات الضعيفة تلقائياً</p>
+                  <div style={{background:'rgba(11,31,58,0.05)',borderRadius:10,padding:'12px 16px'}}>
+                    <p className="body-font" style={{fontSize:12,color:'#8A8270',margin:0}}>هذا قد يستغرق 30-60 ثانية حسب حجم التقرير</p>
                   </div>
                 </div>
               )}
 
-              {/* STEP: Done */}
               {step === 'done' && result && (
                 <div>
-                  <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 14, padding: '20px', marginBottom: 20, textAlign: 'center' }}>
-                    <p style={{ fontSize: 18, fontWeight: 800, color: GREEN, margin: '0 0 6px' }}>✅ تم التوليد بنجاح!</p>
-                    <p className="body-font" style={{ fontSize: 13, color: '#166534', margin: '0 0 4px' }}>
-                      تم تحميل ملف ZIP يحتوي على 3 ملفات Word جاهزة
-                    </p>
-                    <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
-                      خطة التحسين - {result.school_name}.zip
-                    </p>
+                  <div style={{background:'#F0FDF4',border:'1.5px solid #86EFAC',borderRadius:14,padding:'20px',marginBottom:20,textAlign:'center'}}>
+                    <p style={{fontSize:18,fontWeight:800,color:GREEN,margin:'0 0 6px'}}>✅ تم التوليد بنجاح!</p>
+                    <p className="body-font" style={{fontSize:13,color:'#166534',margin:'0 0 4px'}}>تم تحميل ملف ZIP يحتوي على 3 ملفات Word جاهزة</p>
+                    <p className="body-font" style={{fontSize:12,color:'#8A8270',margin:0}}>خطة التحسين - {result.school_name}.zip</p>
                   </div>
-
-                  {/* Summary */}
                   <SectionHeader icon="📊" title="ملخص التحليل" />
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-                    {[
-                      { label: 'الأداء العام', value: result.overall_level },
-                      { label: 'الإدارة المدرسية', value: result.domain_admin },
-                      { label: 'التعليم والتعلم', value: result.domain_teaching },
-                      { label: 'نواتج التعلم', value: result.domain_outcomes },
-                      { label: 'البيئة المدرسية', value: result.domain_env },
-                      { label: 'مؤشرات تحتاج تحسين', value: `${result.weak_indicators.length} مؤشر` },
-                    ].map(item => (
-                      <div key={item.label} style={{ background: '#F8F7F4', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>{item.label}</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{item.value}</span>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+                    {[{label:'الأداء العام',value:result.overall_level},{label:'الإدارة المدرسية',value:result.domain_admin},{label:'التعليم والتعلم',value:result.domain_teaching},{label:'نواتج التعلم',value:result.domain_outcomes},{label:'البيئة المدرسية',value:result.domain_env},{label:'مؤشرات تحتاج تحسين',value:`${result.weak_indicators.length} مؤشر`}].map(item=>(
+                      <div key={item.label} style={{background:'#F8F7F4',borderRadius:10,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                        <span className="body-font" style={{fontSize:12,color:'#8A8270'}}>{item.label}</span>
+                        <span style={{fontSize:13,fontWeight:700,color:NAVY}}>{item.value}</span>
                       </div>
                     ))}
                   </div>
-
-                  {/* Weak indicators list */}
                   <SectionHeader icon="⚠️" title={`المؤشرات الضعيفة (${result.weak_indicators.length} مؤشر)`} />
-                  <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid rgba(11,31,58,0.08)', borderRadius: 10 }}>
-                    {result.weak_indicators.map((ind, i) => (
-                      <div key={i} style={{
-                        padding: '10px 14px', borderBottom: '1px solid rgba(11,31,58,0.06)',
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        background: i % 2 === 0 ? '#fff' : '#FAFAF7'
-                      }}>
+                  <div style={{maxHeight:300,overflowY:'auto',border:'1px solid rgba(11,31,58,0.08)',borderRadius:10}}>
+                    {result.weak_indicators.map((ind,i)=>(
+                      <div key={i} style={{padding:'10px 14px',borderBottom:'1px solid rgba(11,31,58,0.06)',display:'flex',justifyContent:'space-between',alignItems:'center',background:i%2===0?'#fff':'#FAFAF7'}}>
                         <div>
-                          <span className="body-font" style={{ fontSize: 11, color: '#8A8270', display: 'block' }}>{ind.id} · {ind.domain}</span>
-                          <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
+                          <span className="body-font" style={{fontSize:11,color:'#8A8270',display:'block'}}>{ind.id} · {ind.domain}</span>
+                          <span style={{fontSize:13,color:NAVY}}>{ind.name}</span>
                         </div>
-                        <span style={{
-                          fontSize: 13, fontWeight: 800,
-                          color: ind.score < 50 ? '#DC2626' : '#D97706',
-                          background: ind.score < 50 ? '#FEF2F2' : '#FFFBEB',
-                          padding: '2px 10px', borderRadius: 20
-                        }}>{ind.score}%</span>
+                        <span style={{fontSize:13,fontWeight:800,color:ind.score<50?'#DC2626':'#D97706',background:ind.score<50?'#FEF2F2':'#FFFBEB',padding:'2px 10px',borderRadius:20}}>{ind.score}%</span>
                       </div>
                     ))}
                   </div>
-
-                  <button
-                    onClick={() => { setStep('upload'); setFile(null); setResult(null) }}
-                    style={{
-                      marginTop: 20, width: '100%', padding: '14px', fontSize: 14, fontWeight: 700,
-                      background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12,
-                      cursor: 'pointer', fontFamily: 'Tajawal, sans-serif'
-                    }}
-                  >
+                  <button onClick={()=>{setStep('upload');setFile(null);setResult(null)}}
+                    style={{marginTop:20,width:'100%',padding:'14px',fontSize:14,fontWeight:700,background:'rgba(11,31,58,0.06)',color:NAVY,border:'none',borderRadius:12,cursor:'pointer',fontFamily:'Tajawal,sans-serif'}}>
                     🔄 تحليل تقرير آخر
                   </button>
                 </div>
