@@ -62,7 +62,7 @@ async function callGemini(base64: string, apiKey: string): Promise<Response> {
           { inline_data: { mime_type: 'application/pdf', data: base64 } },
           { text: PROMPT }
         ]}],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 4000 }
+        generationConfig: { temperature: 0.1, maxOutputTokens: 4000, responseMimeType: 'application/json' }
       })
     }
   )
