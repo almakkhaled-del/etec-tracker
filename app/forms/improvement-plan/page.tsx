@@ -18,7 +18,8 @@ function SectionHeader({ icon, title }: { icon: string; title: string }) {
   )
 }
 
-type Step = 'upload' | 'analyzing' | 'done' | 'error'
+type Step = 'upload' | 'analyzing' | 'ready' | 'error'
+type DocStatus = 'idle' | 'generating' | 'done'
 
 interface Priority { level: string; justification: string }
 interface WeakIndicator {
@@ -27,14 +28,14 @@ interface WeakIndicator {
 }
 interface AnalysisResult {
   school_name: string; principal_name: string; grade: string; gender: string
-  ministry_number: string; building_type: string; independence: string
-  period: string; admin_independence: string; scope: string; phone: string
-  overall_level: string; outcomes_level: string; report_date: string
+  ministry_number: string; building_type: string; building_independence: string
+  period: string; admin_independence: string; shared_school: string; scope: string; phone: string
+  overall_level: string; outcomes_level: string; report_date: string; overall_avg: string
   domain_admin: string; domain_teaching: string; domain_outcomes: string; domain_env: string
   swot_strengths: string; swot_weaknesses: string; swot_opportunities: string
   swot_challenges: string; swot_solutions: string
   priority_admin: Priority; priority_guidance: Priority; priority_activities: Priority
-  priority_outcomes: Priority; priority_teaching: Priority
+  priority_outcomes: Priority; priority_teaching: Priority; priority_env: Priority
   recommendations: string; weak_indicators: WeakIndicator[]
 }
 
@@ -46,6 +47,7 @@ export default function ImprovementPlanPage() {
   const [progress, setProgress] = useState('')
   const [error, setError] = useState('')
   const [result, setResult] = useState<AnalysisResult | null>(null)
+  const [docStatus, setDocStatus] = useState<Record<string, DocStatus>>({ doc1: 'idle', doc2: 'idle', doc3: 'idle' })
   const fileRef = useRef<HTMLInputElement>(null)
 
   function handleDrop(e: React.DragEvent) {
@@ -71,7 +73,7 @@ export default function ImprovementPlanPage() {
         reader.onerror = () => rej(new Error('فشل قراءة الملف'))
         reader.readAsDataURL(file)
       })
-      setProgress('يحلل الذكاء الاصطناعي التقرير...')
+      setProgress('يحلل النظام التقرير ويستخرج البيانات...')
       const response = await fetch('/api/analyze-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,22 +85,19 @@ export default function ImprovementPlanPage() {
       }
       const parsed: AnalysisResult = await response.json()
       setResult(parsed)
-      setProgress('جاري توليد الملفات...')
-      await generateDocuments(parsed)
-      setStep('done')
+      setStep('ready')
     } catch (err: any) {
       setError(err.message || 'حدث خطأ غير متوقع')
       setStep('error')
     }
   }
 
-  async function generateDocuments(d: AnalysisResult) {
+  async function buildDocxHelpers() {
     const [
       { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun,
         WidthType, AlignmentType, BorderStyle, ShadingType, PageOrientation },
-      { default: JSZip },
       { saveAs }
-    ] = await Promise.all([import('docx'), import('jszip'), import('file-saver')])
+    ] = await Promise.all([import('docx'), import('file-saver')])
 
     const B = { style: BorderStyle.SINGLE, size: 4, color: '999999' }
     const borders = { top: B, bottom: B, left: B, right: B, insideHorizontal: B, insideVertical: B }
@@ -114,236 +113,320 @@ export default function ImprovementPlanPage() {
       shading: { type: ShadingType.CLEAR, fill: '1F3864' }, borders,
       children: [p(text, true, 20, 'FFFFFF', true)]
     })
-
     const gCell = (text: string) => new TableCell({
       shading: { type: ShadingType.CLEAR, fill: 'E2EFDA' }, borders,
       children: [p(text, true, 20, '1F3864')]
     })
-
     const dCell = (text: string, bold = false) => new TableCell({
       borders, children: [p(text || '—', bold, 20)]
     })
-
     const title = (text: string) => new Paragraph({
       bidirectional: true, alignment: AlignmentType.CENTER,
       children: [new TextRun({ text, bold: true, size: 30, color: '1F3864', font: 'Sakkal Majalla' })]
     })
-
     const section = (text: string) => new Paragraph({
       bidirectional: true, alignment: AlignmentType.RIGHT,
       children: [new TextRun({ text, bold: true, size: 24, color: '1F3864', font: 'Sakkal Majalla' })]
     })
-
     const gap = () => new Paragraph({ children: [] })
 
-    const landscapeProps = {
-      page: {
-        size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
-        margin: { top: 720, bottom: 720, left: 900, right: 900 }
-      }
-    }
-
-    const portraitProps = {
-      page: {
-        margin: { top: 900, bottom: 900, left: 900, right: 900 }
-      }
-    }
-
-    // ======= SHARED: Basic Info Table =======
-    const basicInfoTable = () => new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
-        new TableRow({ children: [gCell('الرقم الوزاري'), dCell(d.ministry_number), gCell('نوع المبنى'), dCell(d.building_type), gCell('استقلالية المبنى'), dCell(d.independence)] }),
-        new TableRow({ children: [gCell('الفترة'), dCell(d.period || 'صباحي'), gCell('استقلالية الإدارة'), dCell(d.admin_independence || 'مستقلة'), gCell('المدرسة المشتركة في الإدارة'), dCell('—')] }),
-      ]
-    })
-
-    const levelTable = () => new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({ children: [gCell('مستوى الأداء العام للمدرسة في التقويم المدرسي'), dCell(d.overall_level), gCell('مستوى المدرسة في نواتج التعلم'), dCell(d.outcomes_level)] })
-      ]
-    })
-
-    // ======= DOC 1: بناء خطة التحسين =======
-    const doc1 = new Document({ sections: [{ properties: landscapeProps, children: [
-      title('استمارة المدرسة (1): بناء خطة التحسين في مجالات الممارسات الإشرافية'),
-      gap(),
-      section('أولاً/ البيانات الأساسية:'),
-      gap(),
-      basicInfoTable(),
-      gap(),
-      levelTable(),
-      gap(),
-      section('ثانياً/ إجراءات خطة التحسين في مجالات الممارسات الإشرافية:'),
-      gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        columnWidths: [1700, 2000, 2000, 2200, 1800, 1600, 2100],
-        rows: [
-          new TableRow({ children: [
-            hCell('المجال'),
-            hCell('العنصر / المكون / العملية المراد تحسينها'),
-            hCell('وصف الاحتياج'),
-            hCell('إجراءات التحسين'),
-            hCell('أساليب وطرق التحسين'),
-            hCell('مدة الإنجاز'),
-            hCell('التنفيذ والمسؤولية'),
-          ]}),
-          ...d.weak_indicators.map(ind => new TableRow({ children: [
-            dCell(ind.domain),
-            dCell(`(${ind.id}) ${ind.name}\n${ind.score}%`),
-            dCell(ind.need),
-            dCell(ind.actions),
-            dCell(ind.methods),
-            dCell(ind.duration),
-            dCell(ind.responsible),
-          ]}))
-        ]
-      }),
-      gap(),
-      section('ثالثاً/ التوصيات والمقترحات:'),
-      gap(),
-      p(d.recommendations),
-      gap(), gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [new TableRow({ children: [
-          gCell('مدير/ة المدرسة'), dCell(d.principal_name || d.school_name),
-          gCell('التوقيع'), dCell(''),
-          gCell('مقدم/ة خدمات دعم التميز المدرسي'), dCell(''),
-          gCell('التوقيع'), dCell(''),
-          gCell('الختم'), dCell(''),
-        ]})]
-      })
-    ]}]})
-
-    // ======= DOC 2: تنفيذ خطة التحسين =======
-    const doc2 = new Document({ sections: [{ properties: landscapeProps, children: [
-      title('استمارة المدرسة (2): تنفيذ خطة التحسين في مجالات الممارسات الإشرافية'),
-      gap(),
-      section('أولاً/ البيانات الأساسية:'),
-      gap(),
-      basicInfoTable(),
-      gap(),
-      section('ثانياً/ إجراءات تنفيذ خطة التحسين في مجالات الممارسات الإشرافية:'),
-      gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        columnWidths: [1700, 2000, 3500, 2000, 1800, 2400],
-        rows: [
-          new TableRow({ children: [
-            hCell('المجال'),
-            hCell('العنصر / المكون / العملية المراد تحسينها'),
-            hCell('الإجراءات المنفذة\n(يكتب وصف الإجراء بدقة ويوم وتاريخ تنفيذه)'),
-            hCell('أساليب وطرق التحسين'),
-            hCell('لجان المدرسة'),
-            hCell('المشرف التربوي'),
-          ]}),
-          ...d.weak_indicators.map(ind => new TableRow({ children: [
-            dCell(ind.domain),
-            dCell(`(${ind.id}) ${ind.name}`),
-            dCell(''),
-            dCell(ind.methods),
-            dCell(''),
-            dCell(''),
-          ]}))
-        ]
-      }),
-      gap(),
-      section('ثالثاً/ التوصيات والمقترحات:'),
-      gap(),
-      p(''),
-      gap(), gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [new TableRow({ children: [
-          gCell('مدير/ة المدرسة'), dCell(d.principal_name || d.school_name),
-          gCell('التوقيع'), dCell(''),
-          gCell('مقدم/ة خدمات دعم التميز المدرسي'), dCell(''),
-          gCell('التوقيع'), dCell(''),
-          gCell('الختم'), dCell(''),
-        ]})]
-      })
-    ]}]})
-
-    // ======= DOC 3: تقرير واقع المدرسة =======
-    const doc3 = new Document({ sections: [{ properties: portraitProps, children: [
-      title('تقرير واقع المدرسة'),
-      gap(),
-      section('البيانات الأساسية:'),
-      gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('الرقم الوزاري'), dCell(d.ministry_number)] }),
-          new TableRow({ children: [gCell('المرحلة الدراسية'), dCell(d.grade), gCell('الجنس'), dCell(d.gender)] }),
-          new TableRow({ children: [gCell('النطاق'), dCell(d.scope || ''), gCell('مبنى المدرسة'), dCell(`${d.building_type} / ${d.independence}`)] }),
-          new TableRow({ children: [gCell('اسم مدير المدرسة'), dCell(d.principal_name || ''), gCell('رقم الجوال'), dCell(d.phone || '')] }),
-        ]
-      }),
-      gap(),
-      section('نتائج التقويم المدرسي (حسب أحدث تقرير صدر للمدرسة في منصة تميز الرقمية):'),
-      gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({ children: [gCell('نوع تقرير التقويم المدرسي'), dCell('خارجي ✓'), gCell('تاريخ التقرير'), dCell(d.report_date || '')] }),
-          new TableRow({ children: [gCell('متوسط الأداء العام'), dCell(d.overall_level), gCell(''), dCell('')] }),
-          new TableRow({ children: [gCell('الإدارة المدرسية'), dCell(d.domain_admin), gCell('التعليم والتعلم'), dCell(d.domain_teaching)] }),
-          new TableRow({ children: [gCell('نواتج التعلم'), dCell(d.domain_outcomes), gCell('البيئة المدرسية'), dCell(d.domain_env)] }),
-        ]
-      }),
-      gap(),
-      section('تحليل الواقع للمدرسة المرتبط بالمجالات الأساسية:'),
-      gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({ children: [gCell('نقاط القوة'), dCell(d.swot_strengths)] }),
-          new TableRow({ children: [gCell('نقاط الضعف'), dCell(d.swot_weaknesses)] }),
-          new TableRow({ children: [gCell('الفرص'), dCell(d.swot_opportunities)] }),
-          new TableRow({ children: [gCell('التحديات'), dCell(d.swot_challenges)] }),
-          new TableRow({ children: [gCell('آلية معالجة نقاط الضعف'), dCell(d.swot_solutions)] }),
-        ]
-      }),
-      gap(),
-      section('الأولويات العاجلة للتحسين في المدرسة وفق المجالات الأساسية:'),
-      gap(),
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        columnWidths: [2500, 2000, 7740],
-        rows: [
-          new TableRow({ children: [hCell('المجال'), hCell('الأولوية'), hCell('مبررات تحديد مستوى الأولوية')] }),
-          ...[
-            { label: 'الإدارة المدرسية', p: d.priority_admin },
-            { label: 'التوجيه الطلابي', p: d.priority_guidance },
-            { label: 'الأنشطة المدرسية', p: d.priority_activities },
-            { label: 'نواتج التعلم', p: d.priority_outcomes },
-            { label: 'التدريس', p: d.priority_teaching },
-          ].map(item => new TableRow({ children: [
-            dCell(item.label),
-            dCell(item.p?.level || '', true),
-            dCell(item.p?.justification || ''),
-          ]}))
-        ]
-      }),
-    ]}]})
-
-    const zip = new JSZip()
-    const [b1, b2, b3] = await Promise.all([Packer.toBlob(doc1), Packer.toBlob(doc2), Packer.toBlob(doc3)])
-    zip.file(`(1) بناء خطة التحسين - ${d.school_name}.docx`, b1)
-    zip.file(`(2) تنفيذ خطة التحسين - ${d.school_name}.docx`, b2)
-    zip.file(`(3) تقرير واقع المدرسة - ${d.school_name}.docx`, b3)
-    const zipBlob = await zip.generateAsync({ type: 'blob' })
-    saveAs(zipBlob, `خطة التحسين - ${d.school_name}.zip`)
+    return { Document, Packer, Table, TableRow, TableCell, WidthType, PageOrientation,
+             p, hCell, gCell, dCell, title, section, gap, saveAs }
   }
+
+  async function downloadDoc1() {
+    if (!result) return
+    setDocStatus(s => ({ ...s, doc1: 'generating' }))
+    try {
+      const { Document, Packer, Table, TableRow, WidthType, PageOrientation,
+              hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
+
+      const d = result
+      const landscapeProps = {
+        page: {
+          size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
+          margin: { top: 720, bottom: 720, left: 900, right: 900 }
+        }
+      }
+
+      const basicInfoTable = () => new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
+          new TableRow({ children: [gCell('الرقم الوزاري'), dCell(d.ministry_number), gCell('نوع المبنى'), dCell(d.building_type), gCell('استقلالية المبنى'), dCell(d.building_independence || '')] }),
+          new TableRow({ children: [gCell('الفترة'), dCell(d.period || 'صباحي'), gCell('استقلالية الإدارة'), dCell(d.admin_independence || 'مستقلة'), gCell('المدرسة المشتركة في الإدارة'), dCell(d.shared_school || '—')] }),
+        ]
+      })
+
+      const doc = new Document({ sections: [{ properties: landscapeProps, children: [
+        title('استمارة المدرسة (1): بناء خطة التحسين في مجالات الممارسات الإشرافية'),
+        gap(),
+        section('أولاً/ البيانات الأساسية:'),
+        gap(),
+        basicInfoTable(),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({ children: [gCell('مستوى الأداء العام للمدرسة في التقويم المدرسي'), dCell(d.overall_level), gCell('مستوى المدرسة في نواتج التعلم'), dCell(d.outcomes_level)] })
+          ]
+        }),
+        gap(),
+        section('ثانياً/ إجراءات خطة التحسين في مجالات الممارسات الإشرافية:'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          columnWidths: [1700, 2000, 2000, 2200, 1800, 1600, 2100],
+          rows: [
+            new TableRow({ children: [
+              hCell('المجال'),
+              hCell('العنصر / المكون / العملية المراد تحسينها'),
+              hCell('وصف الاحتياج'),
+              hCell('إجراءات التحسين'),
+              hCell('أساليب وطرق التحسين'),
+              hCell('مدة الإنجاز'),
+              hCell('التنفيذ والمسؤولية'),
+            ]}),
+            ...d.weak_indicators.map(ind => new TableRow({ children: [
+              dCell(ind.domain),
+              dCell(`(${ind.id}) ${ind.name} - ${ind.score}%`),
+              dCell(ind.need),
+              dCell(ind.actions),
+              dCell(ind.methods),
+              dCell(ind.duration),
+              dCell(ind.responsible),
+            ]}))
+          ]
+        }),
+        gap(),
+        section('ثالثاً/ التوصيات والمقترحات:'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [new TableRow({ children: [dCell(d.recommendations)] })]
+        }),
+        gap(), gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [new TableRow({ children: [
+            gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
+            gCell('التوقيع'), dCell(''),
+            gCell('مقدم/ة خدمات دعم التميز المدرسي'), dCell(''),
+            gCell('التوقيع'), dCell(''),
+            gCell('الختم'), dCell(''),
+          ]})]
+        })
+      ]}]})
+
+      const blob = await Packer.toBlob(doc)
+      saveAs(blob, `(1) بناء خطة التحسين - ${d.school_name}.docx`)
+      setDocStatus(s => ({ ...s, doc1: 'done' }))
+    } catch (e: any) {
+      alert('خطأ في توليد الملف: ' + e.message)
+      setDocStatus(s => ({ ...s, doc1: 'idle' }))
+    }
+  }
+
+  async function downloadDoc2() {
+    if (!result) return
+    setDocStatus(s => ({ ...s, doc2: 'generating' }))
+    try {
+      const { Document, Packer, Table, TableRow, WidthType, PageOrientation,
+              hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
+
+      const d = result
+      const landscapeProps = {
+        page: {
+          size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
+          margin: { top: 720, bottom: 720, left: 900, right: 900 }
+        }
+      }
+
+      const basicInfoTable = () => new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
+          new TableRow({ children: [gCell('الرقم الوزاري'), dCell(d.ministry_number), gCell('نوع المبنى'), dCell(d.building_type), gCell('استقلالية المبنى'), dCell(d.building_independence || '')] }),
+          new TableRow({ children: [gCell('الفترة'), dCell(d.period || 'صباحي'), gCell('استقلالية الإدارة'), dCell(d.admin_independence || 'مستقلة'), gCell('المدرسة المشتركة في الإدارة'), dCell(d.shared_school || '—')] }),
+        ]
+      })
+
+      const doc = new Document({ sections: [{ properties: landscapeProps, children: [
+        title('استمارة المدرسة (2): تنفيذ خطة التحسين في مجالات الممارسات الإشرافية'),
+        gap(),
+        section('أولاً/ البيانات الأساسية:'),
+        gap(),
+        basicInfoTable(),
+        gap(),
+        section('ثانياً/ إجراءات تنفيذ خطة التحسين في مجالات الممارسات الإشرافية:'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          columnWidths: [1700, 2200, 3500, 2000, 1800, 2200],
+          rows: [
+            new TableRow({ children: [
+              hCell('المجال'),
+              hCell('العنصر / المكون / العملية المراد تحسينها'),
+              hCell('الإجراءات المنفذة\n(يكتب وصف الإجراء بدقة ويوم وتاريخ تنفيذه)'),
+              hCell('أساليب وطرق التحسين'),
+              hCell('لجان المدرسة'),
+              hCell('المشرف التربوي'),
+            ]}),
+            ...d.weak_indicators.map(ind => new TableRow({ children: [
+              dCell(ind.domain),
+              dCell(`(${ind.id}) ${ind.name}`),
+              dCell(''),
+              dCell(ind.methods),
+              dCell(''),
+              dCell(''),
+            ]}))
+          ]
+        }),
+        gap(),
+        section('ثالثاً/ التوصيات والمقترحات:'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [new TableRow({ children: [dCell('')] })]
+        }),
+        gap(), gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [new TableRow({ children: [
+            gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
+            gCell('التوقيع'), dCell(''),
+            gCell('مقدم/ة خدمات دعم التميز المدرسي'), dCell(''),
+            gCell('التوقيع'), dCell(''),
+            gCell('الختم'), dCell(''),
+          ]})]
+        })
+      ]}]})
+
+      const blob = await Packer.toBlob(doc)
+      saveAs(blob, `(2) تنفيذ خطة التحسين - ${d.school_name}.docx`)
+      setDocStatus(s => ({ ...s, doc2: 'done' }))
+    } catch (e: any) {
+      alert('خطأ في توليد الملف: ' + e.message)
+      setDocStatus(s => ({ ...s, doc2: 'idle' }))
+    }
+  }
+
+  async function downloadDoc3() {
+    if (!result) return
+    setDocStatus(s => ({ ...s, doc3: 'generating' }))
+    try {
+      const { Document, Packer, Table, TableRow, WidthType,
+              hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
+
+      const d = result
+      const portraitProps = { page: { margin: { top: 900, bottom: 900, left: 900, right: 900 } } }
+
+      const doc = new Document({ sections: [{ properties: portraitProps, children: [
+        title('تقرير واقع المدرسة'),
+        gap(),
+        section('البيانات الأساسية:'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('الرقم الوزاري'), dCell(d.ministry_number)] }),
+            new TableRow({ children: [gCell('المرحلة الدراسية'), dCell(d.grade), gCell('الجنس'), dCell(d.gender)] }),
+            new TableRow({ children: [gCell('النطاق'), dCell(d.scope || ''), gCell('مبنى المدرسة'), dCell(d.building_independence || '')] }),
+            new TableRow({ children: [gCell('اسم مدير المدرسة'), dCell(d.principal_name || ''), gCell('رقم الجوال'), dCell(d.phone || '')] }),
+          ]
+        }),
+        gap(),
+        section('نتائج التقويم المدرسي (حسب أحدث تقرير صدر للمدرسة في منصة تميز الرقمية):'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({ children: [gCell('نوع تقرير التقويم المدرسي'), dCell('خارجي ✓'), gCell('تاريخ التقرير'), dCell(d.report_date || '')] }),
+            new TableRow({ children: [gCell('متوسط الأداء العام'), dCell(d.overall_avg || d.overall_level), gCell(''), dCell('')] }),
+            new TableRow({ children: [gCell('الإدارة المدرسية'), dCell(d.domain_admin), gCell('التعليم والتعلم'), dCell(d.domain_teaching)] }),
+            new TableRow({ children: [gCell('نواتج التعلم'), dCell(d.domain_outcomes), gCell('البيئة المدرسية'), dCell(d.domain_env)] }),
+          ]
+        }),
+        gap(),
+        section('تحليل الواقع للمدرسة المرتبط بالمجالات الأساسية:'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({ children: [gCell('نقاط القوة'), dCell(d.swot_strengths)] }),
+            new TableRow({ children: [gCell('نقاط الضعف'), dCell(d.swot_weaknesses)] }),
+            new TableRow({ children: [gCell('الفرص'), dCell(d.swot_opportunities)] }),
+            new TableRow({ children: [gCell('التحديات'), dCell(d.swot_challenges)] }),
+            new TableRow({ children: [gCell('آلية معالجة نقاط الضعف'), dCell(d.swot_solutions)] }),
+          ]
+        }),
+        gap(),
+        section('الأولويات العاجلة للتحسين في المدرسة وفق المجالات الأساسية:'),
+        gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          columnWidths: [2500, 2000, 7740],
+          rows: [
+            new TableRow({ children: [hCell('المجال'), hCell('الأولوية'), hCell('مبررات تحديد مستوى الأولوية')] }),
+            ...[
+              { label: 'الإدارة المدرسية', pr: d.priority_admin },
+              { label: 'التوجيه الطلابي', pr: d.priority_guidance },
+              { label: 'الأنشطة المدرسية', pr: d.priority_activities },
+              { label: 'نواتج التعلم', pr: d.priority_outcomes },
+              { label: 'التدريس', pr: d.priority_teaching },
+              { label: 'البيئة المدرسية', pr: d.priority_env },
+            ].map(item => new TableRow({ children: [
+              dCell(item.label),
+              dCell(item.pr?.level || '', true),
+              dCell(item.pr?.justification || ''),
+            ]}))
+          ]
+        }),
+        gap(), gap(),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [new TableRow({ children: [
+            gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
+            gCell('التوقيع'), dCell(''),
+            gCell('الختم'), dCell(''),
+          ]})]
+        })
+      ]}]})
+
+      const blob = await Packer.toBlob(doc)
+      saveAs(blob, `(3) تقرير واقع المدرسة - ${d.school_name}.docx`)
+      setDocStatus(s => ({ ...s, doc3: 'done' }))
+    } catch (e: any) {
+      alert('خطأ في توليد الملف: ' + e.message)
+      setDocStatus(s => ({ ...s, doc3: 'idle' }))
+    }
+  }
+
+  const DOCS = [
+    {
+      key: 'doc1', num: '1', icon: '📋',
+      title: 'بناء خطة التحسين',
+      desc: 'استمارة رسمية مملوءة بالمؤشرات الضعيفة وإجراءات التحسين',
+      fn: downloadDoc1,
+    },
+    {
+      key: 'doc2', num: '2', icon: '📝',
+      title: 'تنفيذ خطة التحسين',
+      desc: 'جدول متابعة الإجراءات المنفذة جاهز للتوثيق',
+      fn: downloadDoc2,
+    },
+    {
+      key: 'doc3', num: '3', icon: '📊',
+      title: 'تقرير واقع المدرسة',
+      desc: 'تحليل SWOT والأولويات العاجلة ومؤشرات الأداء',
+      fn: downloadDoc3,
+    },
+  ]
 
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
-      <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif}.upload-zone:hover{border-color:#C28A1F!important;background:#FFF8EC!important}.gen-btn:hover{filter:brightness(1.05)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+      <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif}.upload-zone:hover{border-color:#C28A1F!important;background:#FFF8EC!important}.doc-btn:hover{filter:brightness(1.04)}.doc-btn:disabled{opacity:0.6;cursor:not-allowed}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -351,39 +434,33 @@ export default function ImprovementPlanPage() {
             <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
             <div>
               <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>بناء خطة التحسين والتنفيذ وواقع المدرسة</p>
-              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>ارفع تقرير ETEC — يولّد 3 ملفات رسمية جاهزة</p>
+              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>ارفع تقرير التقويم الخارجي — يولّد 3 ملفات رسمية مستقلة</p>
             </div>
           </header>
 
           <main style={{ padding: '24px 28px', maxWidth: 700, margin: '0 auto' }}>
-            <div style={{ background: 'linear-gradient(135deg, #0B1F3A, #14284a)', borderRadius: 16, padding: '18px 22px', marginBottom: 24, color: '#fff' }}>
-              <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 10px' }}>📄 سيتم توليد 3 ملفات رسمية تلقائياً:</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                {[
-                  { n: '1', t: 'بناء خطة التحسين', d: 'استمارة رسمية حسب نموذج الهيئة' },
-                  { n: '2', t: 'تنفيذ خطة التحسين', d: 'جدول المتابعة والإجراءات المنفذة' },
-                  { n: '3', t: 'تقرير واقع المدرسة', d: 'SWOT + الأولويات + النتائج' },
-                ].map(item => (
-                  <div key={item.n} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px 14px' }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, margin: '0 0 4px' }}>({item.n}) {item.t}</p>
-                    <p className="body-font" style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', margin: 0 }}>{item.d}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
-
-              {(step === 'upload' || step === 'error') && (<>
+            {/* Upload / Error step */}
+            {(step === 'upload' || step === 'error') && (
+              <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
                 <div style={{ background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF', margin: '0 0 8px' }}>📌 لبناء خطة التحسين والتنفيذ وتقرير واقع المدرسة</p>
                   <p className="body-font" style={{ fontSize: 13, color: '#1E3A8A', margin: 0, lineHeight: 1.8 }}>
-                    قم برفع آخر تقويم خارجي للمدرسة الصادر من هيئة تقويم التعليم والتدريب، وسيقوم النظام تلقائياً بملء النماذج الرسمية الثلاثة.
+                    قم برفع آخر تقويم خارجي للمدرسة الصادر من هيئة تقويم التعليم والتدريب، وسيقوم النظام تلقائياً بـ:
                   </p>
+                  <ul style={{ margin: '8px 0 0', padding: '0 18px', fontFamily: 'IBM Plex Sans Arabic, sans-serif', fontSize: 13, color: '#1E3A8A', lineHeight: 2 }}>
+                    <li>بناء خطة التحسين: استمارة رسمية مملوءة بالمؤشرات الضعيفة وإجراءات التحسين</li>
+                    <li>تنفيذ خطة التحسين: جدول متابعة الإجراءات المنفذة جاهز للتوثيق</li>
+                    <li>تقرير واقع المدرسة: تحليل SWOT والأولويات العاجلة ومؤشرات الأداء</li>
+                  </ul>
                 </div>
 
                 <SectionHeader icon="📤" title="ارفع تقرير التقويم الخارجي" />
-                <div className="upload-zone" onDragOver={e => { e.preventDefault(); setDragOver(true) }} onDragLeave={() => setDragOver(false)} onDrop={handleDrop} onClick={() => fileRef.current?.click()}
+                <div className="upload-zone"
+                  onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  onClick={() => fileRef.current?.click()}
                   style={{ border: `2px dashed ${dragOver ? GOLD : file ? '#86EFAC' : 'rgba(11,31,58,0.15)'}`, borderRadius: 14, padding: '40px 20px', textAlign: 'center', cursor: 'pointer', background: dragOver ? '#FFF8EC' : file ? '#F0FDF4' : '#FAFAF7', transition: 'all 0.2s', marginBottom: 16 }}>
                   <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} onChange={handleFileChange} />
                   <div style={{ fontSize: 40, marginBottom: 10 }}>{file ? '✅' : '📁'}</div>
@@ -395,77 +472,118 @@ export default function ImprovementPlanPage() {
                     <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>تقرير التقويم الخارجي من هيئة تقويم التعليم والتدريب</p>
                   </>)}
                 </div>
-                {error && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}><p className="body-font" style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>⚠️ {error}</p></div>}
-                <button onClick={handleAnalyze} disabled={!file} className="gen-btn"
+
+                {error && (
+                  <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
+                    <p className="body-font" style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>⚠️ {error}</p>
+                  </div>
+                )}
+
+                <button onClick={handleAnalyze} disabled={!file} className="doc-btn"
                   style={{ width: '100%', padding: '16px', fontSize: 17, fontWeight: 800, background: !file ? '#9CA3AF' : `linear-gradient(135deg, #D9A441, ${GOLD})`, color: !file ? '#fff' : NAVY, border: 'none', borderRadius: 14, cursor: !file ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif', boxShadow: !file ? 'none' : '0 6px 20px rgba(194,138,31,0.30)', transition: 'all 0.2s' }}>
-                  📄 تحليل التقرير وتوليد الملفات ←
+                  📄 تحليل التقرير واستخراج البيانات ←
                 </button>
-              </>)}
+              </div>
+            )}
 
-              {step === 'analyzing' && (
-                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                  <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
-                    <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(11,31,58,0.08)" strokeWidth="6" />
-                      <circle cx="36" cy="36" r="30" fill="none" stroke="#C28A1F" strokeWidth="6"
-                        strokeLinecap="round" strokeDasharray="60 130"
-                        style={{ transformOrigin: '36px 36px', animation: 'spin 1.2s linear infinite' }} />
-                      <text x="36" y="41" textAnchor="middle" fontSize="22" fill="#0B1F3A">📄</text>
-                    </svg>
-                  </div>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: NAVY, margin: '0 0 8px' }}>{progress}</p>
-                  <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: '0 0 24px' }}>يعالج النظام التقرير ويملأ النماذج الرسمية</p>
-                  <div style={{ background: 'rgba(11,31,58,0.05)', borderRadius: 10, padding: '12px 16px' }}>
-                    <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>قد يستغرق 30-60 ثانية</p>
-                  </div>
+            {/* Analyzing step */}
+            {step === 'analyzing' && (
+              <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '3rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)', textAlign: 'center' }}>
+                <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
+                  <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(11,31,58,0.08)" strokeWidth="7" />
+                    <circle cx="40" cy="40" r="34" fill="none" stroke={GOLD} strokeWidth="7"
+                      strokeLinecap="round" strokeDasharray="70 145"
+                      style={{ transformOrigin: '40px 40px', animation: 'spin 1.2s linear infinite' }} />
+                    <text x="40" y="47" textAnchor="middle" fontSize="24" fill={NAVY}>📄</text>
+                  </svg>
                 </div>
-              )}
+                <p style={{ fontSize: 18, fontWeight: 700, color: NAVY, margin: '0 0 8px' }}>{progress}</p>
+                <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: '0 0 20px' }}>يعالج النظام التقرير ويستخرج البيانات</p>
+                <div style={{ background: 'rgba(11,31,58,0.04)', borderRadius: 10, padding: '12px 16px' }}>
+                  <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>قد يستغرق 30-60 ثانية</p>
+                </div>
+              </div>
+            )}
 
-              {step === 'done' && result && (
-                <div>
-                  <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 14, padding: '20px', marginBottom: 20, textAlign: 'center' }}>
-                    <p style={{ fontSize: 18, fontWeight: 800, color: GREEN, margin: '0 0 6px' }}>✅ تم التوليد بنجاح!</p>
-                    <p className="body-font" style={{ fontSize: 13, color: '#166534', margin: '0 0 4px' }}>تم تحميل 3 ملفات Word رسمية في ملف ZIP</p>
-                    <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>خطة التحسين - {result.school_name}.zip</p>
+            {/* Ready step - show indicators summary + 3 separate download buttons */}
+            {step === 'ready' && result && (
+              <>
+                {/* Summary */}
+                <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)', marginBottom: 16 }}>
+                  <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 12, padding: '14px 18px', marginBottom: 20, textAlign: 'center' }}>
+                    <p style={{ fontSize: 16, fontWeight: 800, color: GREEN, margin: '0 0 4px' }}>✅ اكتمل التحليل — {result.school_name}</p>
+                    <p className="body-font" style={{ fontSize: 13, color: '#166534', margin: 0 }}>تم اكتشاف {result.weak_indicators.length} مؤشر يحتاج تحسين · حمّل كل ملف بشكل مستقل</p>
                   </div>
 
-                  <SectionHeader icon="📊" title="ملخص التحليل" />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
                     {[
                       { label: 'الأداء العام', value: result.overall_level },
-                      { label: 'الإدارة المدرسية', value: result.domain_admin },
+                      { label: 'الإدارة', value: result.domain_admin },
                       { label: 'التعليم والتعلم', value: result.domain_teaching },
                       { label: 'نواتج التعلم', value: result.domain_outcomes },
                       { label: 'البيئة المدرسية', value: result.domain_env },
-                      { label: 'مؤشرات تحتاج تحسين', value: `${result.weak_indicators.length} مؤشر` },
+                      { label: 'مؤشرات ضعيفة', value: `${result.weak_indicators.length}` },
                     ].map(item => (
-                      <div key={item.label} style={{ background: '#F8F7F4', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>{item.label}</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{item.value}</span>
+                      <div key={item.label} style={{ background: '#F8F7F4', borderRadius: 10, padding: '10px 12px', textAlign: 'center' }}>
+                        <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 3px' }}>{item.label}</p>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: 0 }}>{item.value}</p>
                       </div>
                     ))}
                   </div>
 
                   <SectionHeader icon="⚠️" title={`المؤشرات الضعيفة (${result.weak_indicators.length} مؤشر)`} />
-                  <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid rgba(11,31,58,0.08)', borderRadius: 10 }}>
+                  <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid rgba(11,31,58,0.08)', borderRadius: 10 }}>
                     {result.weak_indicators.map((ind, i) => (
                       <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(11,31,58,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#FAFAF7' }}>
                         <div>
                           <span className="body-font" style={{ fontSize: 11, color: '#8A8270', display: 'block' }}>{ind.id} · {ind.domain}</span>
                           <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
                         </div>
-                        <span style={{ fontSize: 13, fontWeight: 800, color: ind.score < 50 ? '#DC2626' : '#D97706', background: ind.score < 50 ? '#FEF2F2' : '#FFFBEB', padding: '2px 10px', borderRadius: 20 }}>{ind.score}%</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span className="body-font" style={{ fontSize: 11, color: '#8A8270' }}>{ind.level}</span>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: ind.score < 50 ? '#DC2626' : '#D97706', background: ind.score < 50 ? '#FEF2F2' : '#FFFBEB', padding: '2px 10px', borderRadius: 20 }}>{ind.score}%</span>
+                        </div>
                       </div>
                     ))}
                   </div>
-
-                  <button onClick={() => { setStep('upload'); setFile(null); setResult(null) }}
-                    style={{ marginTop: 20, width: '100%', padding: '14px', fontSize: 14, fontWeight: 700, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
-                    🔄 تحليل تقرير آخر
-                  </button>
                 </div>
-              )}
-            </div>
+
+                {/* 3 separate download cards */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                  {DOCS.map(doc => {
+                    const st = docStatus[doc.key]
+                    return (
+                      <div key={doc.key} style={{ background: '#fff', borderRadius: 14, border: `1.5px solid ${st === 'done' ? '#86EFAC' : 'rgba(11,31,58,0.08)'}`, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(11,31,58,0.04)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 12, background: st === 'done' ? '#F0FDF4' : 'rgba(11,31,58,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+                            {st === 'done' ? '✅' : doc.icon}
+                          </div>
+                          <div>
+                            <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 3px' }}>({doc.num}) {doc.title}</p>
+                            <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>{doc.desc}</p>
+                          </div>
+                        </div>
+                        <button onClick={doc.fn} disabled={st === 'generating'} className="doc-btn"
+                          style={{ padding: '10px 20px', fontSize: 13, fontWeight: 700, background: st === 'done' ? '#F0FDF4' : st === 'generating' ? '#F3F4F6' : `linear-gradient(135deg, #D9A441, ${GOLD})`, color: st === 'done' ? GREEN : st === 'generating' ? '#9CA3AF' : NAVY, border: st === 'done' ? `1.5px solid #86EFAC` : 'none', borderRadius: 10, cursor: st === 'generating' ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6, boxShadow: st === 'idle' ? '0 3px 10px rgba(194,138,31,0.25)' : 'none', transition: 'all 0.2s' }}>
+                          {st === 'generating' && (
+                            <svg width="16" height="16" viewBox="0 0 16 16" style={{ animation: 'spin 1s linear infinite' }}>
+                              <circle cx="8" cy="8" r="6" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeDasharray="12 26" />
+                            </svg>
+                          )}
+                          {st === 'done' ? 'تم التحميل ✓' : st === 'generating' ? 'جاري التوليد...' : '⬇️ تحميل'}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <button onClick={() => { setStep('upload'); setFile(null); setResult(null); setDocStatus({ doc1: 'idle', doc2: 'idle', doc3: 'idle' }) }}
+                  style={{ width: '100%', padding: '14px', fontSize: 14, fontWeight: 700, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
+                  🔄 تحليل تقرير آخر
+                </button>
+              </>
+            )}
           </main>
         </div>
       </div>
