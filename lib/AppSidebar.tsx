@@ -163,7 +163,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           color: pathname === '/forms/improvement-plan' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🤖</span>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>خطة التحسين الذكية</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>بناء خطة التحسين والتنفيذ وواقع المدرسة</span>
         </Link>
 
         <Link href="/print" className="sidebar-link" style={{
