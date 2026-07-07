@@ -343,14 +343,14 @@ export default function ImprovementPlanPage() {
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
-      <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif}.upload-zone:hover{border-color:#C28A1F!important;background:#FFF8EC!important}.gen-btn:hover{filter:brightness(1.05)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
+      <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif}.upload-zone:hover{border-color:#C28A1F!important;background:#FFF8EC!important}.gen-btn:hover{filter:brightness(1.05)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
           <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
             <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
             <div>
-              <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>🤖 المساعد الذكي — خطة التحسين</p>
+              <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>بناء خطة التحسين والتنفيذ وواقع المدرسة</p>
               <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>ارفع تقرير ETEC — يولّد 3 ملفات رسمية جاهزة</p>
             </div>
           </header>
@@ -378,7 +378,7 @@ export default function ImprovementPlanPage() {
                 <div style={{ background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF', margin: '0 0 8px' }}>📌 لبناء خطة التحسين والتنفيذ وتقرير واقع المدرسة</p>
                   <p className="body-font" style={{ fontSize: 13, color: '#1E3A8A', margin: 0, lineHeight: 1.8 }}>
-                    قم برفع آخر تقويم خارجي للمدرسة الصادر من هيئة تقويم التعليم والتدريب — سيقوم الذكاء الاصطناعي بتحليله وملء النماذج الرسمية الثلاثة تلقائياً.
+                    قم برفع آخر تقويم خارجي للمدرسة الصادر من هيئة تقويم التعليم والتدريب، وسيقوم النظام تلقائياً بملء النماذج الرسمية الثلاثة.
                   </p>
                 </div>
 
@@ -398,15 +398,23 @@ export default function ImprovementPlanPage() {
                 {error && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}><p className="body-font" style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>⚠️ {error}</p></div>}
                 <button onClick={handleAnalyze} disabled={!file} className="gen-btn"
                   style={{ width: '100%', padding: '16px', fontSize: 17, fontWeight: 800, background: !file ? '#9CA3AF' : `linear-gradient(135deg, #D9A441, ${GOLD})`, color: !file ? '#fff' : NAVY, border: 'none', borderRadius: 14, cursor: !file ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif', boxShadow: !file ? 'none' : '0 6px 20px rgba(194,138,31,0.30)', transition: 'all 0.2s' }}>
-                  🤖 تحليل التقرير وتوليد الملفات ←
+                  📄 تحليل التقرير وتوليد الملفات ←
                 </button>
               </>)}
 
               {step === 'analyzing' && (
                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                  <div style={{ fontSize: 56, marginBottom: 16, animation: 'pulse 1.5s infinite' }}>🤖</div>
+                  <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+                    <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(11,31,58,0.08)" strokeWidth="6" />
+                      <circle cx="36" cy="36" r="30" fill="none" stroke="#C28A1F" strokeWidth="6"
+                        strokeLinecap="round" strokeDasharray="60 130"
+                        style={{ transformOrigin: '36px 36px', animation: 'spin 1.2s linear infinite' }} />
+                      <text x="36" y="41" textAnchor="middle" fontSize="22" fill="#0B1F3A">📄</text>
+                    </svg>
+                  </div>
                   <p style={{ fontSize: 17, fontWeight: 700, color: NAVY, margin: '0 0 8px' }}>{progress}</p>
-                  <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: '0 0 24px' }}>يقرأ الذكاء الاصطناعي التقرير ويملأ النماذج الرسمية</p>
+                  <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: '0 0 24px' }}>يعالج النظام التقرير ويملأ النماذج الرسمية</p>
                   <div style={{ background: 'rgba(11,31,58,0.05)', borderRadius: 10, padding: '12px 16px' }}>
                     <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>قد يستغرق 30-60 ثانية</p>
                   </div>
