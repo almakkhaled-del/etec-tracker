@@ -139,15 +139,13 @@ export default function ImprovementPlanPage() {
     const landscapeProps = {
       page: {
         size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
-        margin: { top: 720, bottom: 720, left: 900, right: 900 },
-        textDirection: 'rtl' as const
+        margin: { top: 720, bottom: 720, left: 900, right: 900 }
       }
     }
 
     const portraitProps = {
       page: {
-        margin: { top: 900, bottom: 900, left: 900, right: 900 },
-        textDirection: 'rtl' as const
+        margin: { top: 900, bottom: 900, left: 900, right: 900 }
       }
     }
 
