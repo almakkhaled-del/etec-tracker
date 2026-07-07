@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PROMPT = `أنت خبير تربوي متخصص في تحليل تقارير التقويم المدرسي لهيئة تقويم التعليم والتدريب (إتقان).
+const PROMPT = `IMPORTANT: Your response must be ONLY a valid JSON object. No text before or after. No markdown. No explanation. Start with { and end with }.
 
-استخرج من هذا التقرير المعلومات التالية وأجب بـ JSON فقط بدون أي نص إضافي أو backticks:
+أنت خبير تربوي متخصص في تحليل تقارير التقويم المدرسي لهيئة تقويم التعليم والتدريب (إتقان).
+
+استخرج من هذا التقرير المعلومات التالية. أجب بـ JSON فقط — ابدأ مباشرة بـ { وانته بـ } بدون أي نص قبله أو بعده:
 
 {
   "school_name": "اسم المدرسة",
@@ -45,7 +47,9 @@ const PROMPT = `أنت خبير تربوي متخصص في تحليل تقاري
 - اجعل need وصفاً دقيقاً مبنياً على نص التقرير
 - اجعل actions إجراءات عملية قابلة للتنفيذ
 - رتّب المؤشرات من الأضعف للأقوى
-- أجب بـ JSON صالح فقط`
+- أجب بـ JSON صالح فقط
+- لا تكتب أي نص قبل { أو بعد }
+- لا تستخدم markdown أو backticks`
 
 async function callGemini(base64: string, apiKey: string): Promise<Response> {
   return fetch(
