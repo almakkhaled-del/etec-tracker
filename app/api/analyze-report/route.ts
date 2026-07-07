@@ -47,6 +47,23 @@ const PROMPT = `أنت خبير تربوي متخصص في تحليل تقاري
 - رتّب المؤشرات من الأضعف للأقوى
 - أجب بـ JSON صالح فقط`
 
+async function callGemini(base64: string, apiKey: string): Promise<Response> {
+  return fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { inline_data: { mime_type: 'application/pdf', data: base64 } },
+          { text: PROMPT }
+        ]}],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 4000 }
+      })
+    }
+  )
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { base64 } = await req.json()
@@ -56,34 +73,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 })
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                inline_data: {
-                  mime_type: 'application/pdf',
-                  data: base64
-                }
-              },
-              { text: PROMPT }
-            ]
-          }],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 4000,
-          }
-        })
-      }
-    )
+    // Retry up to 3 times on 503/429
+    let response: Response | null = null
+    let lastStatus = 0
 
-    if (!response.ok) {
-      const err = await response.text()
-      return NextResponse.json({ error: `Gemini API error: ${response.status}`, detail: err }, { status: 500 })
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      response = await callGemini(base64, apiKey)
+      lastStatus = response.status
+
+      if (response.ok) break
+
+      if (response.status === 503 || response.status === 429) {
+        if (attempt < 3) {
+          await new Promise(r => setTimeout(r, attempt * 2000)) // 2s, 4s
+          continue
+        }
+      }
+      break
+    }
+
+    if (!response || !response.ok) {
+      const err = await response!.text()
+      return NextResponse.json(
+        { error: `Gemini API error: ${lastStatus}`, detail: err },
+        { status: 500 }
+      )
     }
 
     const data = await response.json()
