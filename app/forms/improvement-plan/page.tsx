@@ -271,6 +271,28 @@ export default function ImprovementPlanPage() {
             <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
 
               {(step === 'upload' || step === 'error') && (<>
+                {/* شرح الملفات الثلاثة */}
+                <div style={{ background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF', margin: '0 0 10px' }}>📌 لبناء خطة التحسين والتنفيذ وتقرير واقع المدرسة</p>
+                  <p className="body-font" style={{ fontSize: 13, color: '#1E3A8A', margin: '0 0 8px', lineHeight: 1.8 }}>
+                    قم برفع آخر تقويم خارجي للمدرسة الصادر من هيئة تقويم التعليم والتدريب (إتقان)، وسيقوم الذكاء الاصطناعي تلقائياً بـ:
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {[
+                      { n: '1', t: 'بناء خطة التحسين', d: 'استمارة رسمية مملوءة بالمؤشرات الضعيفة وإجراءات التحسين' },
+                      { n: '2', t: 'تنفيذ خطة التحسين', d: 'جدول متابعة الإجراءات المنفذة جاهز للتوثيق' },
+                      { n: '3', t: 'تقرير واقع المدرسة', d: 'تحليل SWOT والأولويات العاجلة ومؤشرات الأداء' },
+                    ].map(item => (
+                      <div key={item.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                        <span style={{ background: '#1E40AF', color: '#fff', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{item.n}</span>
+                        <div>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#1E3A8A' }}>{item.t}: </span>
+                          <span className="body-font" style={{ fontSize: 12, color: '#3B82F6' }}>{item.d}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 <SectionHeader icon="📤" title="ارفع تقرير التقويم الخارجي" />
                 <div className="upload-zone" onDragOver={e=>{e.preventDefault();setDragOver(true)}} onDragLeave={()=>setDragOver(false)} onDrop={handleDrop} onClick={()=>fileRef.current?.click()}
                   style={{ border:`2px dashed ${dragOver?GOLD:file?'#86EFAC':'rgba(11,31,58,0.15)'}`, borderRadius:14, padding:'40px 20px', textAlign:'center', cursor:'pointer', background:dragOver?'#FFF8EC':file?'#F0FDF4':'#FAFAF7', transition:'all 0.2s', marginBottom:16 }}>
