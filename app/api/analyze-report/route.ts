@@ -2,45 +2,26 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const PROMPT = `IMPORTANT: Return ONLY a valid JSON object. No markdown, no text before or after. Start with { and end with }.
 
-أنت خبير تربوي متخصص في تقويم المدارس السعودية وفق إطار إتقان. مهمتك تحليل تقرير التقويم المدرسي الخارجي واستخراج بيانات دقيقة لملء ثلاثة نماذج رسمية.
+CRITICAL JSON RULES:
+- All string values must be on a single line (no line breaks inside strings)
+- Use \\n for line breaks within string values
+- Escape all double quotes inside strings with \\"
+- Do not use Arabic quotation marks
+- Keep all text values concise (max 100 characters per field)
 
-━━━ قاعدة المؤشرات الضعيفة (مهمة جداً) ━━━
-أدرج في weak_indicators كل مؤشر يحقق الشرطين التاليين معاً:
-1. مرحلته: "تهيئة" أو "انطلاق" (وليس "تطور" أو "ريادة")
+أنت خبير تربوي متخصص في تقويم المدارس السعودية وفق إطار إتقان. حلل تقرير التقويم المدرسي الخارجي واستخرج البيانات لملء ثلاثة نماذج رسمية.
+
+━━━ قاعدة المؤشرات الضعيفة ━━━
+أدرج في weak_indicators كل مؤشر يحقق الشرطين:
+1. مرحلته: "تهيئة" أو "انطلاق" فقط
 2. نسبته: 75% أو أقل
 
-━━━ النموذج الأول: استمارة (1) بناء خطة التحسين ━━━
-يحتوي على:
-أولاً - البيانات الأساسية:
-  • اسم المدرسة، المرحلة، جنس المدرسة (بنين/بنات)
-  • الرقم الوزاري، نوع المبنى (حكومي/مستأجر)، استقلالية المبنى (مستقل/مشترك)
-  • الفترة (صباحي/مسائي)، استقلالية الإدارة (مستقلة/مشتركة)
-  • مستوى الأداء العام للمدرسة (من آخر تقرير)
-  • مستوى المدرسة في نواتج التعلم (من آخر تقرير)
+━━━ بيانات النماذج الثلاثة ━━━
+النموذج 1 - بناء خطة التحسين: البيانات الأساسية + جدول المؤشرات الضعيفة (المجال، العنصر، وصف الاحتياج، إجراءات التحسين، الأساليب، مدة الإنجاز، التنفيذ والمسؤولية) + التوصيات
+النموذج 2 - تنفيذ خطة التحسين: نفس البيانات + جدول التنفيذ
+النموذج 3 - تقرير واقع المدرسة: البيانات الأساسية + نتائج التقويم + SWOT + الأولويات
 
-ثانياً - جدول إجراءات خطة التحسين (صف لكل مؤشر ضعيف):
-  • المجال | العنصر/المكون/العملية المراد تحسينها | وصف الاحتياج | إجراءات التحسين | أساليب وطرق التحسين | مدة الإنجاز | التنفيذ والمسؤولية
-
-ثالثاً - التوصيات والمقترحات (نص مكثف)
-
-━━━ النموذج الثاني: استمارة (2) تنفيذ خطة التحسين ━━━
-يحتوي على:
-أولاً - نفس البيانات الأساسية
-
-ثانياً - جدول التنفيذ (نفس المؤشرات الضعيفة):
-  • المجال | العنصر/المكون/العملية | الإجراءات المنفذة (يُكتب وصف الإجراء بدقة ويوم وتاريخ تنفيذه) | أساليب وطرق التحسين | مقدم خدمات دعم التميز (لجان المدرسة / المشرف التربوي)
-
-━━━ النموذج الثالث: تقرير واقع المدرسة ━━━
-يحتوي على:
-- البيانات الأساسية: اسم المدرسة، الرقم الوزاري، المرحلة الدراسية، الجنس، النطاق، مبنى المدرسة (مستقل/مشترك)، اسم مدير المدرسة، رقم الجوال
-- نتائج التقويم: نوع التقرير (خارجي)، تاريخ التقرير، متوسط الأداء العام
-- أداء المجالات الأربعة: الإدارة المدرسية، التعليم والتعلم، نواتج التعلم، البيئة المدرسية
-- تحليل الواقع SWOT مرتبط بالمجالات (الإدارة المدرسية، التوجيه الطلابي، الأنشطة المدرسية، نواتج التعلم، التدريس):
-  • نقاط القوة | نقاط الضعف | الفرص | التحديات | آلية معالجة نقاط الضعف
-- الأولويات العاجلة للتحسين (6 مجالات): الإدارة المدرسية، التوجيه الطلابي، الأنشطة المدرسية، نواتج التعلم، التدريس، البيئة المدرسية
-  لكل مجال: مستوى الأولوية (عالي/متوسط/منخفض/لا يوجد احتياج) + مبررات تحديد المستوى
-
-أجب بهذا JSON بالضبط (لا تغير أسماء المفاتيح):
+أجب بهذا JSON (القيم النصية مختصرة وعلى سطر واحد):
 
 {
   "school_name": "",
@@ -86,14 +67,53 @@ const PROMPT = `IMPORTANT: Return ONLY a valid JSON object. No markdown, no text
       "need": "",
       "actions": "",
       "methods": "",
-      "duration": "",
-      "responsible": "",
-      "executed_actions": "",
-      "school_committee": "",
-      "supervisor": ""
+      "duration": "فصل دراسي",
+      "responsible": "مدير المدرسة"
     }
   ]
 }`
+
+function repairJson(raw: string): string {
+  // Extract the outermost JSON object
+  const start = raw.indexOf('{')
+  const end = raw.lastIndexOf('}')
+  if (start === -1 || end === -1) throw new Error('No JSON object found in response')
+  let s = raw.slice(start, end + 1)
+
+  // Remove control characters that break JSON (newlines inside strings, etc.)
+  // Strategy: parse char by char, track if we're inside a string
+  let result = ''
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i]
+    if (escaped) {
+      result += ch
+      escaped = false
+      continue
+    }
+    if (ch === '\\') {
+      escaped = true
+      result += ch
+      continue
+    }
+    if (ch === '"') {
+      inString = !inString
+      result += ch
+      continue
+    }
+    if (inString) {
+      // Replace raw newlines/tabs/carriage returns inside strings
+      if (ch === '\n') { result += '\\n'; continue }
+      if (ch === '\r') { result += '\\r'; continue }
+      if (ch === '\t') { result += '\\t'; continue }
+    }
+    result += ch
+  }
+
+  return result
+}
 
 async function callGemini(base64: string, apiKey: string): Promise<Response> {
   return fetch(
@@ -145,10 +165,24 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json()
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    const clean = jsonMatch ? jsonMatch[0] : text.replace(/```json|```/g, '').trim()
-    const parsed = JSON.parse(clean)
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+    let parsed: any
+    try {
+      // First attempt: direct parse
+      parsed = JSON.parse(raw)
+    } catch {
+      try {
+        // Second attempt: repair then parse
+        const repaired = repairJson(raw)
+        parsed = JSON.parse(repaired)
+      } catch (e2: any) {
+        return NextResponse.json(
+          { error: 'JSON parse failed', detail: e2.message, raw: raw.slice(0, 500) },
+          { status: 500 }
+        )
+      }
+    }
 
     return NextResponse.json(parsed)
 
