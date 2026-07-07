@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// PROMPT 1: Extract school info + SWOT + priorities (portrait data)
-const PROMPT_INFO = `Return ONLY valid JSON. No markdown. No text before or after.
+const PROMPT_INFO = `Return ONLY valid JSON object. No markdown. No text before or after. Start with { end with }.
 
 Extract from this Saudi school external evaluation report:
 
@@ -40,43 +39,77 @@ Extract from this Saudi school external evaluation report:
   "recommendations": ""
 }
 
+Rules: all string values single line only, max 80 chars per field.`
+
+const PROMPT_INDICATORS = `You are analyzing a Saudi school external evaluation report.
+
+Your task: extract EVERY indicator where BOTH conditions are true:
+1. مرحلة (stage) = "تهيئة" OR "انطلاق"
+2. نسبة (score) <= 75%
+
+Output a JSON array. Start with [ and end with ]. No markdown, no extra text.
+
+For each indicator output exactly this structure (all on one line per object):
+{"id":"X-X-X-X","name":"...","domain":"...","score":65.5,"level":"تهيئة","need":"...","actions":"...","methods":"...","duration":"فصل دراسي","responsible":"مدير المدرسة"}
+
 Rules:
-- All string values on a single line only
-- No line breaks inside string values
-- Keep values concise (max 80 chars per field)`
+- score is a NUMBER not a string
+- Keep all Arabic text values SHORT (max 60 chars) and on one line
+- No newlines inside any string value
+- Do NOT stop early — include ALL qualifying indicators
+- If there are 20 indicators, output all 20`
 
-// PROMPT 2: Extract ALL weak indicators
-const PROMPT_INDICATORS = `Return ONLY valid JSON array. No markdown. No text before or after.
-
-From this Saudi school external evaluation report, extract EVERY indicator that meets BOTH conditions:
-1. Stage (مرحلة) is "تهيئة" OR "انطلاق" (NOT تطور or ريادة)  
-2. Score (نسبة) is 75% or less
-
-Return ALL matching indicators without exception. Do not stop early.
-
-Return this exact structure:
-[
-  {
-    "id": "indicator code e.g. 1-1-1-1",
-    "name": "indicator name in Arabic",
-    "domain": "domain name in Arabic",
-    "score": 65.5,
-    "level": "تهيئة or انطلاق",
-    "need": "brief description of the improvement need in Arabic (max 60 chars)",
-    "actions": "improvement actions in Arabic (max 80 chars)",
-    "methods": "improvement methods in Arabic (max 60 chars)",
-    "duration": "فصل دراسي",
-    "responsible": "مدير المدرسة"
+function repairAndParseArray(raw: string): any[] {
+  // Find array boundaries
+  const start = raw.indexOf('[')
+  const end = raw.lastIndexOf(']')
+  if (start === -1 || end === -1) {
+    // Try wrapping in array if it looks like objects
+    const objStart = raw.indexOf('{')
+    if (objStart !== -1) {
+      return repairAndParseArray('[' + raw.slice(objStart) + ']')
+    }
+    throw new Error('No JSON array found in response')
   }
-]
 
-Rules:
-- score must be a number (not a string)
-- All text values on a single line only
-- No line breaks inside any string value
-- Include ALL qualifying indicators, even if there are 20+`
+  let s = raw.slice(start, end + 1)
 
-function repairJson(raw: string): string {
+  // Fix raw newlines/tabs inside strings
+  let result = ''
+  let inString = false
+  let escaped = false
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i]
+    if (escaped) { result += ch; escaped = false; continue }
+    if (ch === '\\') { escaped = true; result += ch; continue }
+    if (ch === '"') { inString = !inString; result += ch; continue }
+    if (inString) {
+      if (ch === '\n') { result += ' '; continue }
+      if (ch === '\r') { continue }
+      if (ch === '\t') { result += ' '; continue }
+    }
+    result += ch
+  }
+
+  // Try direct parse first
+  try { return JSON.parse(result) } catch {}
+
+  // Fallback: extract individual objects with regex
+  const objects: any[] = []
+  const objRegex = /\{[^{}]+\}/g
+  let match
+  while ((match = objRegex.exec(result)) !== null) {
+    try {
+      const obj = JSON.parse(match[0])
+      if (obj.id && obj.name) objects.push(obj)
+    } catch {}
+  }
+  if (objects.length > 0) return objects
+
+  throw new Error('Could not parse indicators array')
+}
+
+function repairAndParseObject(raw: string): any {
   const start = raw.indexOf('{')
   const end = raw.lastIndexOf('}')
   if (start === -1 || end === -1) throw new Error('No JSON object found')
@@ -90,78 +123,48 @@ function repairJson(raw: string): string {
     if (ch === '\\') { escaped = true; result += ch; continue }
     if (ch === '"') { inString = !inString; result += ch; continue }
     if (inString) {
-      if (ch === '\n') { result += '\\n'; continue }
-      if (ch === '\r') { result += '\\r'; continue }
-      if (ch === '\t') { result += '\\t'; continue }
+      if (ch === '\n') { result += ' '; continue }
+      if (ch === '\r') { continue }
+      if (ch === '\t') { result += ' '; continue }
     }
     result += ch
   }
-  return result
+  return JSON.parse(result)
 }
 
-function repairJsonArray(raw: string): string {
-  const start = raw.indexOf('[')
-  const end = raw.lastIndexOf(']')
-  if (start === -1 || end === -1) throw new Error('No JSON array found')
-  let s = raw.slice(start, end + 1)
-  let result = ''
-  let inString = false
-  let escaped = false
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i]
-    if (escaped) { result += ch; escaped = false; continue }
-    if (ch === '\\') { escaped = true; result += ch; continue }
-    if (ch === '"') { inString = !inString; result += ch; continue }
-    if (inString) {
-      if (ch === '\n') { result += '\\n'; continue }
-      if (ch === '\r') { result += '\\r'; continue }
-      if (ch === '\t') { result += '\\t'; continue }
-    }
-    result += ch
-  }
-  return result
-}
+async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode: boolean): Promise<string> {
+  const genConfig: any = { temperature: 0.1, maxOutputTokens: 16000 }
+  if (jsonMode) genConfig.responseMimeType = 'application/json'
 
-async function callGemini(base64: string, apiKey: string, prompt: string): Promise<Response> {
-  return fetch(
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
-      body: JSON.stringify({
-        contents: [{ parts: [
-          { inline_data: { mime_type: 'application/pdf', data: base64 } },
-          { text: prompt }
-        ]}],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 8000,
-          responseMimeType: 'application/json'
-        }
-      })
-    }
-  )
-}
-
-async function callWithRetry(base64: string, apiKey: string, prompt: string): Promise<any> {
-  let response: Response | null = null
   let lastStatus = 0
   for (let attempt = 1; attempt <= 3; attempt++) {
-    response = await callGemini(base64, apiKey, prompt)
-    lastStatus = response.status
-    if (response.ok) break
-    if ((response.status === 503 || response.status === 429) && attempt < 3) {
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { inline_data: { mime_type: 'application/pdf', data: b64 } },
+            { text: prompt }
+          ]}],
+          generationConfig: genConfig
+        })
+      }
+    )
+    lastStatus = res.status
+    if (res.ok) {
+      const data = await res.json()
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    }
+    if ((res.status === 503 || res.status === 429) && attempt < 3) {
       await new Promise(r => setTimeout(r, attempt * 2000))
       continue
     }
-    break
+    const errText = await res.text()
+    throw new Error(`Gemini error ${lastStatus}: ${errText.slice(0, 200)}`)
   }
-  if (!response || !response.ok) {
-    const err = await response!.text()
-    throw new Error(`Gemini API error: ${lastStatus} - ${err.slice(0, 200)}`)
-  }
-  const data = await response.json()
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  throw new Error(`Gemini failed after retries: ${lastStatus}`)
 }
 
 export async function POST(req: NextRequest) {
@@ -170,32 +173,26 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 })
 
-    // Run both calls in parallel
+    // Run both in parallel — info uses JSON mode, indicators uses plain text mode
     const [rawInfo, rawIndicators] = await Promise.all([
-      callWithRetry(base64, apiKey, PROMPT_INFO),
-      callWithRetry(base64, apiKey, PROMPT_INDICATORS)
+      callGemini(base64, apiKey, PROMPT_INFO, true),
+      callGemini(base64, apiKey, PROMPT_INDICATORS, false)
     ])
 
-    // Parse info
+    // Parse info object
     let info: any
-    try {
-      info = JSON.parse(rawInfo)
-    } catch {
-      try { info = JSON.parse(repairJson(rawInfo)) }
-      catch (e: any) {
-        return NextResponse.json({ error: 'JSON parse failed (info)', detail: e.message, raw: rawInfo.slice(0, 300) }, { status: 500 })
-      }
-    }
+    try { info = JSON.parse(rawInfo) }
+    catch { info = repairAndParseObject(rawInfo) }
 
-    // Parse indicators
-    let indicators: any[]
-    try {
-      indicators = JSON.parse(rawIndicators)
-    } catch {
-      try { indicators = JSON.parse(repairJsonArray(rawIndicators)) }
-      catch (e: any) {
-        return NextResponse.json({ error: 'JSON parse failed (indicators)', detail: e.message, raw: rawIndicators.slice(0, 300) }, { status: 500 })
-      }
+    // Parse indicators array — with multiple fallback strategies
+    let indicators: any[] = []
+    try { indicators = repairAndParseArray(rawIndicators) }
+    catch (e: any) {
+      return NextResponse.json({
+        error: 'JSON parse failed (indicators)',
+        detail: e.message,
+        raw: rawIndicators.slice(0, 400)
+      }, { status: 500 })
     }
 
     if (!Array.isArray(indicators)) indicators = []
