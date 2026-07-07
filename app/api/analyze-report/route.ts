@@ -102,7 +102,14 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    const clean = text.replace(/```json|```/g, '').trim()
+    // Extract JSON robustly — handle markdown fences and extra text
+    let clean = text
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      clean = jsonMatch[0]
+    } else {
+      clean = text.replace(/```json|```/g, '').trim()
+    }
     const parsed = JSON.parse(clean)
 
     return NextResponse.json(parsed)
