@@ -144,7 +144,6 @@ export default function ImprovementPlanPage() {
     })
     const section = (text: string) => new Paragraph({
       bidirectional: true, alignment: AlignmentType.RIGHT,
-      rightTabStop: true,
       children: [new TextRun({ text, bold: true, size: 28, color: DARK_TEXT, font: 'Sakkal Majalla' })]
     })
     const gap = () => new Paragraph({ children: [] })
