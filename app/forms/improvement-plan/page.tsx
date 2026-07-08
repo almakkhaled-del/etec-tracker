@@ -95,18 +95,22 @@ export default function ImprovementPlanPage() {
   async function buildDocxHelpers() {
     const [
       { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun,
-        WidthType, AlignmentType, BorderStyle, ShadingType, PageOrientation },
+        WidthType, AlignmentType, BorderStyle, ShadingType, PageOrientation,
+        VerticalAlign },
       { saveAs }
     ] = await Promise.all([import('docx'), import('file-saver')])
 
     // Exact values from official ETEC template
-    const HEADER_COLOR = '00A890'   // تركوازي رسمي
-    const LABEL_COLOR  = 'E7F9E9'   // أخضر فاتح رسمي
+    const HEADER_COLOR = '00A890'
+    const LABEL_COLOR  = 'E7F9E9'
     const HEADER_TEXT  = 'FFFFFF'
     const DARK_TEXT    = '000000'
 
     const B = { style: BorderStyle.SINGLE, size: 4, color: '000000' }
     const borders = { top: B, bottom: B, left: B, right: B, insideHorizontal: B, insideVertical: B }
+
+    // RTL table properties — bidiVisual makes columns go right-to-left
+    const tblBidi = { bidiVisual: true }
 
     const p = (text: string, bold = false, size = 24, color = DARK_TEXT, center = false) =>
       new Paragraph({
@@ -115,21 +119,24 @@ export default function ImprovementPlanPage() {
         children: [new TextRun({ text: text || '', bold, size, color, font: 'Sakkal Majalla' })]
       })
 
-    // Header cell (تركوازي + نص أبيض)
+    // Header cell — تركوازي + نص أبيض + محاذاة وسط عمودية
     const hCell = (text: string, w?: number) => new TableCell({
       shading: { type: ShadingType.CLEAR, fill: HEADER_COLOR }, borders,
+      verticalAlign: VerticalAlign.CENTER,
       width: w ? { size: w, type: WidthType.DXA } : undefined,
       children: [p(text, true, 24, HEADER_TEXT, true)]
     })
-    // Label cell (أخضر فاتح + نص عريض)
+    // Label cell — أخضر فاتح + نص عريض + محاذاة وسط عمودية
     const gCell = (text: string, w?: number) => new TableCell({
       shading: { type: ShadingType.CLEAR, fill: LABEL_COLOR }, borders,
+      verticalAlign: VerticalAlign.CENTER,
       width: w ? { size: w, type: WidthType.DXA } : undefined,
       children: [p(text, true, 24, DARK_TEXT)]
     })
-    // Data cell (أبيض)
+    // Data cell — أبيض + محاذاة وسط عمودية
     const dCell = (text: string, w?: number, bold = false) => new TableCell({
       borders,
+      verticalAlign: VerticalAlign.CENTER,
       width: w ? { size: w, type: WidthType.DXA } : undefined,
       children: [p(text || '', bold, 24, DARK_TEXT)]
     })
@@ -144,7 +151,7 @@ export default function ImprovementPlanPage() {
     const gap = () => new Paragraph({ children: [] })
 
     return { Document, Packer, Table, TableRow, TableCell, WidthType, PageOrientation,
-             p, hCell, gCell, dCell, title, section, gap, saveAs }
+             p, hCell, gCell, dCell, title, section, gap, saveAs, tblBidi }
   }
 
   async function downloadDoc1() {
@@ -164,7 +171,7 @@ export default function ImprovementPlanPage() {
       }
 
       // Table 0: Basic info — 6 cols: 2562×5 + 2564 = 15374 total
-      const basicInfoTable = () => new Table({
+      const basicInfoTable = () => new Table({ ...tblBidi,
         width: { size: 15374, type: WidthType.DXA },
         columnWidths: [2562, 2562, 2562, 2562, 2562, 2564],
         rows: [
@@ -187,7 +194,7 @@ export default function ImprovementPlanPage() {
       })
 
       // Table 1: Performance levels — 5482+2220+5293+2409 = 15404
-      const levelTable = () => new Table({
+      const levelTable = () => new Table({ ...tblBidi,
         width: { size: 15374, type: WidthType.DXA },
         columnWidths: [5482, 2220, 5293, 2409],
         rows: [
@@ -212,7 +219,7 @@ export default function ImprovementPlanPage() {
         section('ثانياً/ إجراءات خطة التحسين في مجالات الممارسات الإشرافية:'),
         gap(),
         // Table 2: Indicators — 7 cols: 2198×6 + 2199 = 15387
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 15374, type: WidthType.DXA },
           columnWidths: [2198, 2198, 2198, 2198, 2198, 2199, 2199],
           rows: [
@@ -239,14 +246,14 @@ export default function ImprovementPlanPage() {
         gap(),
         section('ثالثاً/ التوصيات والمقترحات:'),
         gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 15374, type: WidthType.DXA },
           columnWidths: [15374],
           rows: [new TableRow({ children: [dCell(d.recommendations, 15374)] })]
         }),
         gap(), gap(),
         // Table 3: Signatures — 3592+2329+3125+3125+3217 = 15388
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 15374, type: WidthType.DXA },
           columnWidths: [3592, 2329, 3125, 3125, 3217],
           rows: [
@@ -292,7 +299,7 @@ export default function ImprovementPlanPage() {
         }
       }
 
-      const basicInfoTable = () => new Table({
+      const basicInfoTable = () => new Table({ ...tblBidi,
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
           new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
@@ -310,7 +317,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('ثانياً/ إجراءات تنفيذ خطة التحسين في مجالات الممارسات الإشرافية:'),
         gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           columnWidths: [1700, 2200, 3500, 2000, 1800, 2200],
           rows: [
@@ -335,12 +342,12 @@ export default function ImprovementPlanPage() {
         gap(),
         section('ثالثاً/ التوصيات والمقترحات:'),
         gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [new TableRow({ children: [dCell('')] })]
         }),
         gap(), gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [new TableRow({ children: [
             gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
@@ -376,7 +383,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('البيانات الأساسية:'),
         gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('الرقم الوزاري'), dCell(d.ministry_number)] }),
@@ -388,7 +395,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('نتائج التقويم المدرسي (حسب أحدث تقرير صدر للمدرسة في منصة تميز الرقمية):'),
         gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({ children: [gCell('نوع تقرير التقويم المدرسي'), dCell('خارجي ✓'), gCell('تاريخ التقرير'), dCell(d.report_date || '')] }),
@@ -400,7 +407,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('تحليل الواقع للمدرسة المرتبط بالمجالات الأساسية:'),
         gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({ children: [gCell('نقاط القوة'), dCell(d.swot_strengths)] }),
@@ -413,7 +420,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('الأولويات العاجلة للتحسين في المدرسة وفق المجالات الأساسية:'),
         gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           columnWidths: [2500, 2000, 7740],
           rows: [
@@ -433,7 +440,7 @@ export default function ImprovementPlanPage() {
           ]
         }),
         gap(), gap(),
-        new Table({
+        new Table({ ...tblBidi,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [new TableRow({ children: [
             gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
