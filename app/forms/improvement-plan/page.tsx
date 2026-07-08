@@ -113,7 +113,7 @@ export default function ImprovementPlanPage() {
     const p = (text: string, bold = false, size = 24, color = DARK_TEXT, center = false) =>
       new Paragraph({
         bidirectional: true,
-        alignment: center ? AlignmentType.CENTER : AlignmentType.RIGHT,
+        alignment: AlignmentType.CENTER,
         children: [new TextRun({ text: text || '', bold, size, color, font: 'Sakkal Majalla' })]
       })
 
@@ -163,7 +163,7 @@ export default function ImprovementPlanPage() {
       // Exact page size from official template (A3 landscape DXA)
       const landscapeProps = {
         page: {
-          size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE },
+          size: { width: 16838, height: 11906 },
           margin: { top: 720, bottom: 720, left: 720, right: 720 }
         }
       }
@@ -292,7 +292,7 @@ export default function ImprovementPlanPage() {
       const d = result
       const landscapeProps = {
         page: {
-          size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE },
+          size: { width: 16838, height: 11906 },
           margin: { top: 720, bottom: 720, left: 720, right: 720 }
         }
       }
@@ -375,7 +375,7 @@ export default function ImprovementPlanPage() {
               hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
 
       const d = result
-      const landscapeProps3 = { page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }
+      const landscapeProps3 = { page: { size: { width: 16838, height: 11906 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }
 
       const doc = new Document({ sections: [{ properties: landscapeProps3, children: [
         title('تقرير واقع المدرسة'),
