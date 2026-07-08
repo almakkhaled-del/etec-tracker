@@ -150,7 +150,7 @@ export default function ImprovementPlanPage() {
     const gap = () => new Paragraph({ children: [] })
 
     return { Document, Packer, Table, TableRow, TableCell, WidthType, PageOrientation,
-             p, hCell, gCell, dCell, title, section, gap, saveAs }
+             p, hCell, gCell, dCell, title, section, gap, saveAs, VerticalAlign }
   }
 
   async function downloadDoc1() {
