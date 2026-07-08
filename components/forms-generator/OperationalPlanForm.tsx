@@ -60,15 +60,16 @@ export default function OperationalPlanForm({ schoolName: initialSchoolName, sch
       const response = await fetch('/templates/template_operational_plan.docx')
       const arrayBuffer = await response.arrayBuffer()
       const zip = new PizZip(arrayBuffer)
-      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, delimiters: { start: '{{', end: '}}' } })
+      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, delimiters: { start: '{{', end: '}}' }, nullGetter: () => '' })
       doc.render(f)
       const output = doc.getZip().generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
       const name = `الخطة التشغيلية - ${f.school_name}.docx`
       saveAs(output, name)
       setFileName(name); setDone(true); onGenerated?.(name)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error)
-      setError('حدث خطأ أثناء التوليد. يرجى المحاولة مرة أخرى.')
+      const msg = error?.message || error?.toString() || 'خطأ غير معروف'
+      setError(`حدث خطأ أثناء التوليد: ${msg}`)
     }
     setGenerating(false)
   }
