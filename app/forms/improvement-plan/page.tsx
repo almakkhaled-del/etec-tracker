@@ -299,7 +299,7 @@ export default function ImprovementPlanPage() {
       const basicInfoTable = () => new Table({ visuallyRightToLeft: true,
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
-          new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
+          new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, undefined, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
           new TableRow({ children: [gCell('الرقم الوزاري'), dCell(d.ministry_number), gCell('نوع المبنى'), dCell(d.building_type), gCell('استقلالية المبنى'), dCell(d.building_independence || '')] }),
           new TableRow({ children: [gCell('الفترة'), dCell(d.period || 'صباحي'), gCell('استقلالية الإدارة'), dCell(d.admin_independence || 'مستقلة'), gCell('المدرسة المشتركة في الإدارة'), dCell(d.shared_school || '—')] }),
         ]
@@ -383,7 +383,7 @@ export default function ImprovementPlanPage() {
         new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
-            new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('الرقم الوزاري'), dCell(d.ministry_number)] }),
+            new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, undefined, true), gCell('الرقم الوزاري'), dCell(d.ministry_number)] }),
             new TableRow({ children: [gCell('المرحلة الدراسية'), dCell(d.grade), gCell('الجنس'), dCell(d.gender)] }),
             new TableRow({ children: [gCell('النطاق'), dCell(d.scope || ''), gCell('مبنى المدرسة'), dCell(d.building_independence || '')] }),
             new TableRow({ children: [gCell('اسم مدير المدرسة'), dCell(d.principal_name || ''), gCell('رقم الجوال'), dCell(d.phone || '')] }),
@@ -431,7 +431,7 @@ export default function ImprovementPlanPage() {
               { label: 'البيئة المدرسية', pr: d.priority_env },
             ].map(item => new TableRow({ children: [
               dCell(item.label),
-              dCell(item.pr?.level || '', true),
+              dCell(item.pr?.level || '', undefined, true),
               dCell(item.pr?.justification || ''),
             ]}))
           ]
