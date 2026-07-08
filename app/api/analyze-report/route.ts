@@ -41,9 +41,15 @@ Extract from this Saudi school external evaluation report:
 
 Rules: all string values single line only, max 80 chars per field.`
 
-const PROMPT_INDICATORS = `أنت خبير تربوي متخصص في تطوير خطط التحسين المدرسية وفق إطار إتقان السعودي.
+// Professional prompt template — called twice with different domain groups
+function buildIndicatorsPrompt(domainGroup: 'group1' | 'group2'): string {
+  const domainFilter = domainGroup === 'group1'
+    ? 'الإدارة المدرسية والتعليم والتعلم'
+    : 'نواتج التعلم والبيئة المدرسية وأي مجالات أخرى'
 
-مهمتك: استخرج كل مؤشر يحقق الشرطين:
+  return `أنت خبير تربوي متخصص في تطوير خطط التحسين المدرسية وفق إطار إتقان السعودي.
+
+مهمتك: استخرج فقط مؤشرات مجالات: ${domainGroup === 'group1' ? 'الإدارة المدرسية + التعليم والتعلم' : 'نواتج التعلم + البيئة المدرسية + أي مجال آخر'} التي تحقق الشرطين:
 1. المرحلة = "تهيئة" أو "انطلاق"
 2. النسبة = 75% أو أقل
 
@@ -75,10 +81,13 @@ const PROMPT_INDICATORS = `أنت خبير تربوي متخصص في تطوير
 قواعد صارمة:
 - score رقم وليس نص
 - لا أسطر جديدة داخل أي قيمة نصية — استخدم | للفصل
-- استخرج كل المؤشرات المؤهلة دون استثناء
+- استخرج كل المؤشرات المؤهلة في المجالات المطلوبة دون استثناء
 - اجعل executed_actions تفصيلية مع أرقام أسابيع محددة ومنطقية
 - اجعل methods متعددة ومتنوعة (4 أساليب على الأقل)
 - اجعل school_committee مناسبة لطبيعة كل مجال`
+}
+
+
 
 function repairAndParseArray(raw: string): any[] {
   // Find array boundaries
@@ -194,10 +203,11 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 })
 
-    // Run both in parallel — info uses JSON mode, indicators uses plain text mode
-    const [rawInfo, rawIndicators] = await Promise.all([
+    // 3 parallel calls: info + indicators group1 (admin+teaching) + group2 (outcomes+env+others)
+    const [rawInfo, rawInd1, rawInd2] = await Promise.all([
       callGemini(base64, apiKey, PROMPT_INFO, true),
-      callGemini(base64, apiKey, PROMPT_INDICATORS, false)
+      callGemini(base64, apiKey, buildIndicatorsPrompt('group1'), false),
+      callGemini(base64, apiKey, buildIndicatorsPrompt('group2'), false),
     ])
 
     // Parse info object
@@ -205,18 +215,29 @@ export async function POST(req: NextRequest) {
     try { info = JSON.parse(rawInfo) }
     catch { info = repairAndParseObject(rawInfo) }
 
-    // Parse indicators array — with multiple fallback strategies
-    let indicators: any[] = []
-    try { indicators = repairAndParseArray(rawIndicators) }
-    catch (e: any) {
+    // Parse both indicator arrays and merge
+    let indicators1: any[] = []
+    let indicators2: any[] = []
+    try { indicators1 = repairAndParseArray(rawInd1) } catch {}
+    try { indicators2 = repairAndParseArray(rawInd2) } catch {}
+
+    // Merge and deduplicate by id
+    const allIndicators = [...indicators1, ...indicators2]
+    const seen = new Set<string>()
+    const indicators = allIndicators.filter(ind => {
+      if (!ind.id || seen.has(ind.id)) return false
+      seen.add(ind.id)
+      return true
+    })
+
+    if (indicators.length === 0) {
       return NextResponse.json({
         error: 'JSON parse failed (indicators)',
-        detail: e.message,
-        raw: rawIndicators.slice(0, 400)
+        detail: 'Both groups returned empty',
+        raw1: rawInd1.slice(0, 300),
+        raw2: rawInd2.slice(0, 300)
       }, { status: 500 })
     }
-
-    if (!Array.isArray(indicators)) indicators = []
 
     return NextResponse.json({ ...info, weak_indicators: indicators })
 
