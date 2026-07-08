@@ -99,34 +99,47 @@ export default function ImprovementPlanPage() {
       { saveAs }
     ] = await Promise.all([import('docx'), import('file-saver')])
 
-    const B = { style: BorderStyle.SINGLE, size: 4, color: '999999' }
+    // Exact values from official ETEC template
+    const HEADER_COLOR = '00A890'   // تركوازي رسمي
+    const LABEL_COLOR  = 'E7F9E9'   // أخضر فاتح رسمي
+    const HEADER_TEXT  = 'FFFFFF'
+    const DARK_TEXT    = '000000'
+
+    const B = { style: BorderStyle.SINGLE, size: 4, color: '000000' }
     const borders = { top: B, bottom: B, left: B, right: B, insideHorizontal: B, insideVertical: B }
 
-    const p = (text: string, bold = false, size = 22, color = '000000', center = false) =>
+    const p = (text: string, bold = false, size = 24, color = DARK_TEXT, center = false) =>
       new Paragraph({
         bidirectional: true,
         alignment: center ? AlignmentType.CENTER : AlignmentType.RIGHT,
-        children: [new TextRun({ text, bold, size, color, font: 'Sakkal Majalla' })]
+        children: [new TextRun({ text: text || '', bold, size, color, font: 'Sakkal Majalla' })]
       })
 
-    const hCell = (text: string) => new TableCell({
-      shading: { type: ShadingType.CLEAR, fill: '1F3864' }, borders,
-      children: [p(text, true, 20, 'FFFFFF', true)]
+    // Header cell (تركوازي + نص أبيض)
+    const hCell = (text: string, w?: number) => new TableCell({
+      shading: { type: ShadingType.CLEAR, fill: HEADER_COLOR }, borders,
+      width: w ? { size: w, type: WidthType.DXA } : undefined,
+      children: [p(text, true, 24, HEADER_TEXT, true)]
     })
-    const gCell = (text: string) => new TableCell({
-      shading: { type: ShadingType.CLEAR, fill: 'E2EFDA' }, borders,
-      children: [p(text, true, 20, '1F3864')]
+    // Label cell (أخضر فاتح + نص عريض)
+    const gCell = (text: string, w?: number) => new TableCell({
+      shading: { type: ShadingType.CLEAR, fill: LABEL_COLOR }, borders,
+      width: w ? { size: w, type: WidthType.DXA } : undefined,
+      children: [p(text, true, 24, DARK_TEXT)]
     })
-    const dCell = (text: string, bold = false) => new TableCell({
-      borders, children: [p(text || '—', bold, 20)]
+    // Data cell (أبيض)
+    const dCell = (text: string, w?: number, bold = false) => new TableCell({
+      borders,
+      width: w ? { size: w, type: WidthType.DXA } : undefined,
+      children: [p(text || '', bold, 24, DARK_TEXT)]
     })
     const title = (text: string) => new Paragraph({
       bidirectional: true, alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text, bold: true, size: 30, color: '1F3864', font: 'Sakkal Majalla' })]
+      children: [new TextRun({ text, bold: true, size: 32, color: DARK_TEXT, font: 'Sakkal Majalla' })]
     })
     const section = (text: string) => new Paragraph({
       bidirectional: true, alignment: AlignmentType.RIGHT,
-      children: [new TextRun({ text, bold: true, size: 24, color: '1F3864', font: 'Sakkal Majalla' })]
+      children: [new TextRun({ text, bold: true, size: 28, color: DARK_TEXT, font: 'Sakkal Majalla' })]
     })
     const gap = () => new Paragraph({ children: [] })
 
@@ -142,59 +155,84 @@ export default function ImprovementPlanPage() {
               hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
 
       const d = result
+      // Exact page size from official template (A3 landscape DXA)
       const landscapeProps = {
         page: {
-          size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
-          margin: { top: 720, bottom: 720, left: 900, right: 900 }
+          size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE },
+          margin: { top: 720, bottom: 720, left: 720, right: 720 }
         }
       }
 
+      // Table 0: Basic info — 6 cols: 2562×5 + 2564 = 15374 total
       const basicInfoTable = () => new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
+        width: { size: 15374, type: WidthType.DXA },
+        columnWidths: [2562, 2562, 2562, 2562, 2562, 2564],
         rows: [
-          new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
-          new TableRow({ children: [gCell('الرقم الوزاري'), dCell(d.ministry_number), gCell('نوع المبنى'), dCell(d.building_type), gCell('استقلالية المبنى'), dCell(d.building_independence || '')] }),
-          new TableRow({ children: [gCell('الفترة'), dCell(d.period || 'صباحي'), gCell('استقلالية الإدارة'), dCell(d.admin_independence || 'مستقلة'), gCell('المدرسة المشتركة في الإدارة'), dCell(d.shared_school || '—')] }),
+          new TableRow({ children: [
+            gCell('اسم المدرسة', 2562), dCell(d.school_name, 2562, true),
+            gCell('المرحلة', 2562), dCell(d.grade, 2562),
+            gCell('جنس المدرسة', 2562), dCell(d.gender, 2564),
+          ]}),
+          new TableRow({ children: [
+            gCell('الرقم الوزاري', 2562), dCell(d.ministry_number, 2562),
+            gCell('نوع المبنى', 2562), dCell(d.building_type, 2562),
+            gCell('استقلالية المبنى', 2562), dCell(d.building_independence || 'مشترك', 2564),
+          ]}),
+          new TableRow({ children: [
+            gCell('الفترة', 2562), dCell(d.period || 'صباحي', 2562),
+            gCell('استقلالية الإدارة', 2562), dCell(d.admin_independence || 'مستقلة', 2562),
+            gCell('المدرسة المشتركة في الإدارة', 2562), dCell(d.shared_school || '', 2564),
+          ]}),
+        ]
+      })
+
+      // Table 1: Performance levels — 5482+2220+5293+2409 = 15404
+      const levelTable = () => new Table({
+        width: { size: 15374, type: WidthType.DXA },
+        columnWidths: [5482, 2220, 5293, 2409],
+        rows: [
+          new TableRow({ children: [
+            gCell('مستوى الأداء العام للمدرسة في التقويم المدرسي ( آخر تقرير)', 5482),
+            dCell(d.overall_level, 2220, true),
+            gCell('مستوى المدرسة في نواتج التعلم في التقويم المدرسي ( آخر تقرير)', 5293),
+            dCell(d.outcomes_level, 2409, true),
+          ]})
         ]
       })
 
       const doc = new Document({ sections: [{ properties: landscapeProps, children: [
-        title('استمارة المدرسة (1): بناء خطة التحسين في مجالات الممارسات الإشرافية'),
+        title('استمارة المدرسة (1) : بناء خطة التحسين في مجالات الممارسات الإشرافية'),
         gap(),
         section('أولاً/ البيانات الأساسية:'),
         gap(),
         basicInfoTable(),
         gap(),
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({ children: [gCell('مستوى الأداء العام للمدرسة في التقويم المدرسي'), dCell(d.overall_level), gCell('مستوى المدرسة في نواتج التعلم'), dCell(d.outcomes_level)] })
-          ]
-        }),
+        levelTable(),
         gap(),
         section('ثانياً/ إجراءات خطة التحسين في مجالات الممارسات الإشرافية:'),
         gap(),
+        // Table 2: Indicators — 7 cols: 2198×6 + 2199 = 15387
         new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          columnWidths: [1700, 2000, 2000, 2200, 1800, 1600, 2100],
+          width: { size: 15374, type: WidthType.DXA },
+          columnWidths: [2198, 2198, 2198, 2198, 2198, 2199, 2199],
           rows: [
             new TableRow({ children: [
-              hCell('المجال'),
-              hCell('العنصر / المكون / العملية المراد تحسينها'),
-              hCell('وصف الاحتياج'),
-              hCell('إجراءات التحسين'),
-              hCell('أساليب وطرق التحسين'),
-              hCell('مدة الإنجاز'),
-              hCell('التنفيذ والمسؤولية'),
+              hCell('المجال', 2198),
+              hCell('العنصر / المكون/ العملية المراد تحسينها', 2198),
+              hCell('وصف الاحتياج', 2198),
+              hCell('إجراءات التحسين', 2198),
+              hCell('أساليب وطرق التحسين', 2198),
+              hCell('مدة الإنجاز', 2199),
+              hCell('التنفيذ والمسؤولية', 2199),
             ]}),
             ...d.weak_indicators.map(ind => new TableRow({ children: [
-              dCell(ind.domain),
-              dCell(`(${ind.id}) ${ind.name} - ${ind.score}%`),
-              dCell(ind.need),
-              dCell(ind.actions),
-              dCell(ind.methods),
-              dCell(ind.duration),
-              dCell(ind.responsible),
+              dCell(ind.domain, 2198),
+              dCell(`(${ind.id}) ${ind.name}\n${ind.score}%`, 2198),
+              dCell(ind.need, 2198),
+              dCell(ind.actions, 2198),
+              dCell(ind.methods, 2198),
+              dCell(ind.duration, 2199),
+              dCell(ind.responsible, 2199),
             ]}))
           ]
         }),
@@ -202,19 +240,31 @@ export default function ImprovementPlanPage() {
         section('ثالثاً/ التوصيات والمقترحات:'),
         gap(),
         new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [new TableRow({ children: [dCell(d.recommendations)] })]
+          width: { size: 15374, type: WidthType.DXA },
+          columnWidths: [15374],
+          rows: [new TableRow({ children: [dCell(d.recommendations, 15374)] })]
         }),
         gap(), gap(),
+        // Table 3: Signatures — 3592+2329+3125+3125+3217 = 15388
         new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [new TableRow({ children: [
-            gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
-            gCell('التوقيع'), dCell(''),
-            gCell('مقدم/ة خدمات دعم التميز المدرسي'), dCell(''),
-            gCell('التوقيع'), dCell(''),
-            gCell('الختم'), dCell(''),
-          ]})]
+          width: { size: 15374, type: WidthType.DXA },
+          columnWidths: [3592, 2329, 3125, 3125, 3217],
+          rows: [
+            new TableRow({ children: [
+              gCell('مدير/ة المدرسة', 3592),
+              dCell(d.principal_name || '', 2329),
+              gCell('التوقيع', 3125),
+              gCell('مقدم/ة خدمات دعم التميز المدرسي', 3125),
+              gCell('الختم', 3217),
+            ]}),
+            new TableRow({ children: [
+              dCell('', 3592),
+              dCell('', 2329),
+              dCell('', 3125),
+              dCell('', 3125),
+              dCell('', 3217),
+            ]}),
+          ]
         })
       ]}]})
 
