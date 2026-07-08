@@ -168,7 +168,7 @@ export default function ImprovementPlanPage() {
       }
 
       // Table 0: Basic info — 6 cols: 2562×5 + 2564 = 15374 total
-      const basicInfoTable = () => new Table({ bidiVisual: true,
+      const basicInfoTable = () => new Table({ visuallyRightToLeft: true,
         width: { size: 15374, type: WidthType.DXA },
         columnWidths: [2562, 2562, 2562, 2562, 2562, 2564],
         rows: [
@@ -191,7 +191,7 @@ export default function ImprovementPlanPage() {
       })
 
       // Table 1: Performance levels — 5482+2220+5293+2409 = 15404
-      const levelTable = () => new Table({ bidiVisual: true,
+      const levelTable = () => new Table({ visuallyRightToLeft: true,
         width: { size: 15374, type: WidthType.DXA },
         columnWidths: [5482, 2220, 5293, 2409],
         rows: [
@@ -216,7 +216,7 @@ export default function ImprovementPlanPage() {
         section('ثانياً/ إجراءات خطة التحسين في مجالات الممارسات الإشرافية:'),
         gap(),
         // Table 2: Indicators — 7 cols: 2198×6 + 2199 = 15387
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 15374, type: WidthType.DXA },
           columnWidths: [2198, 2198, 2198, 2198, 2198, 2199, 2199],
           rows: [
@@ -243,14 +243,14 @@ export default function ImprovementPlanPage() {
         gap(),
         section('ثالثاً/ التوصيات والمقترحات:'),
         gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 15374, type: WidthType.DXA },
           columnWidths: [15374],
           rows: [new TableRow({ children: [dCell(d.recommendations, 15374)] })]
         }),
         gap(), gap(),
         // Table 3: Signatures — 3592+2329+3125+3125+3217 = 15388
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 15374, type: WidthType.DXA },
           columnWidths: [3592, 2329, 3125, 3125, 3217],
           rows: [
@@ -296,7 +296,7 @@ export default function ImprovementPlanPage() {
         }
       }
 
-      const basicInfoTable = () => new Table({ bidiVisual: true,
+      const basicInfoTable = () => new Table({ visuallyRightToLeft: true,
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
           new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
@@ -314,7 +314,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('ثانياً/ إجراءات تنفيذ خطة التحسين في مجالات الممارسات الإشرافية:'),
         gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           columnWidths: [1700, 2200, 3500, 2000, 1800, 2200],
           rows: [
@@ -339,12 +339,12 @@ export default function ImprovementPlanPage() {
         gap(),
         section('ثالثاً/ التوصيات والمقترحات:'),
         gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [new TableRow({ children: [dCell('')] })]
         }),
         gap(), gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [new TableRow({ children: [
             gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
@@ -380,7 +380,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('البيانات الأساسية:'),
         gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, true), gCell('الرقم الوزاري'), dCell(d.ministry_number)] }),
@@ -392,7 +392,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('نتائج التقويم المدرسي (حسب أحدث تقرير صدر للمدرسة في منصة تميز الرقمية):'),
         gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({ children: [gCell('نوع تقرير التقويم المدرسي'), dCell('خارجي ✓'), gCell('تاريخ التقرير'), dCell(d.report_date || '')] }),
@@ -404,7 +404,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('تحليل الواقع للمدرسة المرتبط بالمجالات الأساسية:'),
         gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({ children: [gCell('نقاط القوة'), dCell(d.swot_strengths)] }),
@@ -417,7 +417,7 @@ export default function ImprovementPlanPage() {
         gap(),
         section('الأولويات العاجلة للتحسين في المدرسة وفق المجالات الأساسية:'),
         gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           columnWidths: [2500, 2000, 7740],
           rows: [
@@ -437,7 +437,7 @@ export default function ImprovementPlanPage() {
           ]
         }),
         gap(), gap(),
-        new Table({ bidiVisual: true,
+        new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [new TableRow({ children: [
             gCell('مدير/ة المدرسة'), dCell(d.principal_name || ''),
