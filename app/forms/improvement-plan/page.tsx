@@ -117,24 +117,24 @@ export default function ImprovementPlanPage() {
       })
 
     // Header cell — تركوازي + نص أبيض + محاذاة وسط عمودية
-    const hCell = (text: string, w?: number) => new TableCell({
+    const hCell = (text: string, w?: number | null) => new TableCell({
       shading: { type: ShadingType.CLEAR, fill: HEADER_COLOR }, borders,
       verticalAlign: VerticalAlign.CENTER,
-      width: w ? { size: w, type: WidthType.DXA } : undefined,
+      width: w ? { size: w as number, type: WidthType.DXA } : undefined,
       children: [p(text, true, 24, HEADER_TEXT, true)]
     })
     // Label cell — أخضر فاتح + نص عريض + محاذاة وسط عمودية
-    const gCell = (text: string, w?: number) => new TableCell({
+    const gCell = (text: string, w?: number | null) => new TableCell({
       shading: { type: ShadingType.CLEAR, fill: LABEL_COLOR }, borders,
       verticalAlign: VerticalAlign.CENTER,
-      width: w ? { size: w, type: WidthType.DXA } : undefined,
+      width: w ? { size: w as number, type: WidthType.DXA } : undefined,
       children: [p(text, true, 24, DARK_TEXT)]
     })
     // Data cell — أبيض + محاذاة وسط عمودية
-    const dCell = (text: string, w?: number, bold = false) => new TableCell({
+    const dCell = (text: string, w?: number | null, bold = false) => new TableCell({
       borders,
       verticalAlign: VerticalAlign.CENTER,
-      width: w ? { size: w, type: WidthType.DXA } : undefined,
+      width: w ? { size: w as number, type: WidthType.DXA } : undefined,
       children: [p(text || '', bold, 24, DARK_TEXT)]
     })
     const title = (text: string) => new Paragraph({
