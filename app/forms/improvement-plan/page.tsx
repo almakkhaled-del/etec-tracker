@@ -204,7 +204,7 @@ export default function ImprovementPlanPage() {
         ]
       })
 
-      const doc = new Document({ sections: [{ properties: landscapeProps, children: [
+      const doc = new Document({ styles: { default: { document: { run: { font: 'Sakkal Majalla', size: 24 } } } }, sections: [{ properties: landscapeProps, children: [
         title('استمارة المدرسة (1) : بناء خطة التحسين في مجالات الممارسات الإشرافية'),
         gap(),
         section('أولاً/ البيانات الأساسية:'),
@@ -231,7 +231,7 @@ export default function ImprovementPlanPage() {
             ]}),
             ...d.weak_indicators.map(ind => new TableRow({ children: [
               dCell(ind.domain, 2198),
-              dCell(`(${ind.id}) ${ind.name}\n${ind.score}%`, 2198),
+              dCell(`${ind.name} - ${ind.score}%`, 2198),
               dCell(ind.need, 2198),
               dCell(ind.actions, 2198),
               dCell(ind.methods, 2198),
@@ -291,17 +291,18 @@ export default function ImprovementPlanPage() {
       const d = result
       const landscapeProps = {
         page: {
-          size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
-          margin: { top: 720, bottom: 720, left: 900, right: 900 }
+          size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE },
+          margin: { top: 720, bottom: 720, left: 720, right: 720 }
         }
       }
 
       const basicInfoTable = () => new Table({ visuallyRightToLeft: true,
-        width: { size: 100, type: WidthType.PERCENTAGE },
+        width: { size: 15374, type: WidthType.DXA },
+        columnWidths: [2562, 2562, 2562, 2562, 2562, 2564],
         rows: [
-          new TableRow({ children: [gCell('اسم المدرسة'), dCell(d.school_name, undefined, true), gCell('المرحلة'), dCell(d.grade), gCell('جنس المدرسة'), dCell(d.gender)] }),
-          new TableRow({ children: [gCell('الرقم الوزاري'), dCell(d.ministry_number), gCell('نوع المبنى'), dCell(d.building_type), gCell('استقلالية المبنى'), dCell(d.building_independence || '')] }),
-          new TableRow({ children: [gCell('الفترة'), dCell(d.period || 'صباحي'), gCell('استقلالية الإدارة'), dCell(d.admin_independence || 'مستقلة'), gCell('المدرسة المشتركة في الإدارة'), dCell(d.shared_school || '—')] }),
+          new TableRow({ children: [gCell('اسم المدرسة', 2562), dCell(d.school_name, 2562, true), gCell('المرحلة', 2562), dCell(d.grade, 2562), gCell('جنس المدرسة', 2562), dCell(d.gender, 2564)] }),
+          new TableRow({ children: [gCell('الرقم الوزاري', 2562), dCell(d.ministry_number, 2562), gCell('نوع المبنى', 2562), dCell(d.building_type, 2562), gCell('استقلالية المبنى', 2562), dCell(d.building_independence || '', 2564)] }),
+          new TableRow({ children: [gCell('الفترة', 2562), dCell(d.period || 'صباحي', 2562), gCell('استقلالية الإدارة', 2562), dCell(d.admin_independence || 'مستقلة', 2562), gCell('المدرسة المشتركة في الإدارة', 2562), dCell(d.shared_school || '', 2564)] }),
         ]
       })
 
@@ -328,7 +329,7 @@ export default function ImprovementPlanPage() {
             ]}),
             ...d.weak_indicators.map(ind => new TableRow({ children: [
               dCell(ind.domain),
-              dCell(`(${ind.id}) ${ind.name}`),
+              dCell(ind.name),
               dCell(''),
               dCell(ind.methods),
               dCell(''),
@@ -373,9 +374,9 @@ export default function ImprovementPlanPage() {
               hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
 
       const d = result
-      const portraitProps = { page: { margin: { top: 900, bottom: 900, left: 900, right: 900 } } }
+      const landscapeProps3 = { page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }
 
-      const doc = new Document({ sections: [{ properties: portraitProps, children: [
+      const doc = new Document({ sections: [{ properties: landscapeProps3, children: [
         title('تقرير واقع المدرسة'),
         gap(),
         section('البيانات الأساسية:'),
