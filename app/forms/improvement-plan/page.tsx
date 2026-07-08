@@ -370,7 +370,7 @@ export default function ImprovementPlanPage() {
     if (!result) return
     setDocStatus(s => ({ ...s, doc3: 'generating' }))
     try {
-      const { Document, Packer, Table, TableRow, WidthType,
+      const { Document, Packer, Table, TableRow, WidthType, PageOrientation,
               hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
 
       const d = result
