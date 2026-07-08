@@ -50,7 +50,7 @@ Your task: extract EVERY indicator where BOTH conditions are true:
 Output a JSON array. Start with [ and end with ]. No markdown, no extra text.
 
 For each indicator output exactly this structure (all on one line per object):
-{"id":"X-X-X-X","name":"...","domain":"...","score":65.5,"level":"تهيئة","need":"...","actions":"...","methods":"...","duration":"فصل دراسي","responsible":"مدير المدرسة"}
+{"id":"X-X-X-X","name":"...","domain":"...","score":65.5,"level":"تهيئة","need":"...","actions":"...","methods":"...","duration":"فصل دراسي","responsible":"مدير المدرسة","executed_actions":"وصف الإجراءات المنفذة الفعلية من التقرير","school_committee":"لجنة التميز + المعلمون"}
 
 Rules:
 - score is a NUMBER not a string
