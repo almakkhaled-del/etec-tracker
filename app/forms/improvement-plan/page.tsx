@@ -25,6 +25,7 @@ interface Priority { level: string; justification: string }
 interface WeakIndicator {
   id: string; name: string; domain: string; score: number; level: string
   need: string; actions: string; methods: string; duration: string; responsible: string
+  executed_actions?: string; school_committee?: string
 }
 interface AnalysisResult {
   school_name: string; principal_name: string; grade: string; gender: string
@@ -143,6 +144,7 @@ export default function ImprovementPlanPage() {
     })
     const section = (text: string) => new Paragraph({
       bidirectional: true, alignment: AlignmentType.RIGHT,
+      rightTabStop: true,
       children: [new TextRun({ text, bold: true, size: 28, color: DARK_TEXT, font: 'Sakkal Majalla' })]
     })
     const gap = () => new Paragraph({ children: [] })
@@ -204,7 +206,7 @@ export default function ImprovementPlanPage() {
         ]
       })
 
-      const doc = new Document({ styles: { default: { document: { run: { font: 'Sakkal Majalla', size: 24 } } } }, sections: [{ properties: landscapeProps, children: [
+      const doc = new Document({ styles: { default: { document: { run: { font: 'Sakkal Majalla', size: 24 } } } }, sections: [{ properties: { ...landscapeProps, type: 'nextPage' }, children: [
         title('استمارة المدرسة (1) : بناء خطة التحسين في مجالات الممارسات الإشرافية'),
         gap(),
         section('أولاً/ البيانات الأساسية:'),
@@ -292,7 +294,8 @@ export default function ImprovementPlanPage() {
       const landscapeProps = {
         page: {
           size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE },
-          margin: { top: 720, bottom: 720, left: 720, right: 720 }
+          margin: { top: 720, bottom: 720, left: 720, right: 720 },
+          textDirection: 'rightToLeft' as const,
         }
       }
 
@@ -306,7 +309,7 @@ export default function ImprovementPlanPage() {
         ]
       })
 
-      const doc = new Document({ sections: [{ properties: landscapeProps, children: [
+      const doc = new Document({ sections: [{ properties: { ...landscapeProps, bidi: true }, children: [
         title('استمارة المدرسة (2): تنفيذ خطة التحسين في مجالات الممارسات الإشرافية'),
         gap(),
         section('أولاً/ البيانات الأساسية:'),
@@ -330,9 +333,9 @@ export default function ImprovementPlanPage() {
             ...d.weak_indicators.map(ind => new TableRow({ children: [
               dCell(ind.domain),
               dCell(ind.name),
-              dCell(''),
+              dCell(ind.executed_actions || ''),
               dCell(ind.methods),
-              dCell(''),
+              dCell(ind.school_committee || ''),
               dCell(''),
             ]}))
           ]
@@ -374,9 +377,9 @@ export default function ImprovementPlanPage() {
               hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
 
       const d = result
-      const landscapeProps3 = { page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }
+      const landscapeProps3 = { page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 }, textDirection: 'rightToLeft' as const } }
 
-      const doc = new Document({ sections: [{ properties: landscapeProps3, children: [
+      const doc = new Document({ sections: [{ properties: { ...landscapeProps3, bidi: true }, children: [
         title('تقرير واقع المدرسة'),
         gap(),
         section('البيانات الأساسية:'),
