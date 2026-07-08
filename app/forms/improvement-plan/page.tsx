@@ -205,7 +205,7 @@ export default function ImprovementPlanPage() {
         ]
       })
 
-      const doc = new Document({ styles: { default: { document: { run: { font: 'Sakkal Majalla', size: 24 } } } }, sections: [{ properties: { ...landscapeProps, type: 'nextPage' }, children: [
+      const doc = new Document({ styles: { default: { document: { run: { font: 'Sakkal Majalla', size: 24 } } } }, sections: [{ properties: landscapeProps, children: [
         title('استمارة المدرسة (1) : بناء خطة التحسين في مجالات الممارسات الإشرافية'),
         gap(),
         section('أولاً/ البيانات الأساسية:'),
@@ -293,8 +293,7 @@ export default function ImprovementPlanPage() {
       const landscapeProps = {
         page: {
           size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE },
-          margin: { top: 720, bottom: 720, left: 720, right: 720 },
-          textDirection: 'rightToLeft' as const,
+          margin: { top: 720, bottom: 720, left: 720, right: 720 }
         }
       }
 
@@ -308,7 +307,7 @@ export default function ImprovementPlanPage() {
         ]
       })
 
-      const doc = new Document({ sections: [{ properties: { ...landscapeProps, bidi: true }, children: [
+      const doc = new Document({ sections: [{ properties: landscapeProps, children: [
         title('استمارة المدرسة (2): تنفيذ خطة التحسين في مجالات الممارسات الإشرافية'),
         gap(),
         section('أولاً/ البيانات الأساسية:'),
@@ -376,9 +375,9 @@ export default function ImprovementPlanPage() {
               hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
 
       const d = result
-      const landscapeProps3 = { page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 }, textDirection: 'rightToLeft' as const } }
+      const landscapeProps3 = { page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }
 
-      const doc = new Document({ sections: [{ properties: { ...landscapeProps3, bidi: true }, children: [
+      const doc = new Document({ sections: [{ properties: landscapeProps3, children: [
         title('تقرير واقع المدرسة'),
         gap(),
         section('البيانات الأساسية:'),
