@@ -13,7 +13,7 @@ const GREEN_LIGHT = '#D9EAD3'
 export default function OperationalPlanPage() {
   const { school } = useSchool()
   const [pdfFile, setPdfFile] = useState<File | null>(null)
-  const [schoolName, setSchoolName] = useState('')
+  const [schoolName, setSchoolName] = useState('')  // will come from PDF
   const [principalName, setPrincipalName] = useState('')
   const [region, setRegion] = useState('')
   const [district, setDistrict] = useState('')
@@ -62,7 +62,7 @@ export default function OperationalPlanPage() {
       const response = await fetch('/api/generate-operational-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdfBase64: base64, schoolName, principalName, region, district })
+        body: JSON.stringify({ pdfBase64: base64, principalName, schoolName: '', region: '', district: '' })
       })
 
       if (!response.ok) throw new Error('فشل توليد الخطة')
