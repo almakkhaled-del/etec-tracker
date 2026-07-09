@@ -194,10 +194,12 @@ async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode:
       return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
     }
     if ((res.status === 503 || res.status === 429) && attempt < 3) {
-      await new Promise(r => setTimeout(r, attempt * 2000))
+      await new Promise(r => setTimeout(r, attempt * 6000))
       continue
     }
     const errText = await res.text()
+    const isDaily = errText.includes('PerDay') || errText.includes('limit: 20')
+    if (isDaily) throw new Error('تم استنفاد الحصة اليومية من Gemini. يرجى المحاولة غداً.')
     throw new Error(`Gemini error ${lastStatus}: ${errText.slice(0, 200)}`)
   }
   throw new Error(`Gemini failed after retries: ${lastStatus}`)
