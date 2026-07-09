@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function buildDocx(data: any, info: any): Promise<Buffer> {
+async function buildDocx(data: any, info: any): Promise<Uint8Array> {
   const {
     Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun,
     WidthType, BorderStyle, ShadingType, AlignmentType, PageOrientation,
@@ -288,5 +288,5 @@ async function buildDocx(data: any, info: any): Promise<Buffer> {
     }]
   })
 
-  return await Packer.toBuffer(doc)
+  const buf = await Packer.toBuffer(doc); return new Uint8Array(buf)
 }
