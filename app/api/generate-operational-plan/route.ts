@@ -21,11 +21,18 @@ const PROMPT = `أنت خبير في تحليل تقارير التقويم ال
    - برامج علاج نقاط الضعف مباشرة بإجراءات واقعية مرتبطة بالمؤشر الضعيف
    - كل برنامج مرتبط بواقع المدرسة الفعلي من التقرير
 
+استخرج أولاً من التقرير: اسم المدرسة، إدارة التعليم، مكتب التعليم.
+
 أجب بـ JSON فقط بالهيكل التالي بدون أي نص خارج الـ JSON:
 {
+  "school_info": {
+    "school_name": "اسم المدرسة من التقرير",
+    "region": "إدارة التعليم من التقرير",
+    "district": "مكتب التعليم من التقرير"
+  },
   "swot": {
-    "strengths": ["المؤشر واسمه ونسبته"],
-    "weaknesses": ["المؤشر واسمه ونسبته"],
+    "strengths": ["اسم المؤشر ونسبته"],
+    "weaknesses": ["اسم المؤشر ونسبته"],
     "opportunities": ["فرصة 1"],
     "threats": ["تهديد 1"]
   },
@@ -53,7 +60,7 @@ export async function POST(req: NextRequest) {
   try {
     const { pdfBase64, schoolName, principalName, region, district } = await req.json()
 
-    if (!pdfBase64 || !schoolName || !principalName) {
+    if (!pdfBase64 || !principalName) {
       return NextResponse.json({ error: 'بيانات ناقصة' }, { status: 400 })
     }
 
@@ -95,7 +102,14 @@ export async function POST(req: NextRequest) {
       planData = JSON.parse(match[0])
     }
 
-    const docxBuffer = await buildDocx(planData, { schoolName, principalName, region, district })
+    const si = planData.school_info || {}
+    const finalInfo = {
+      schoolName: si.school_name || schoolName || 'المدرسة',
+      principalName,
+      region: si.region || region || '',
+      district: si.district || district || ''
+    }
+    const docxBuffer = await buildDocx(planData, finalInfo)
 
     return new NextResponse(docxBuffer, {
       headers: {
