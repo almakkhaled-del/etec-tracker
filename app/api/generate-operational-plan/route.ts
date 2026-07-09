@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
     if (!apiKey) return NextResponse.json({ error: 'مفتاح API غير موجود' }, { status: 500 })
 
     async function callGemini(): Promise<string> {
-      const delays = [2000, 4000, 8000]
+      const delays = [6000, 12000, 20000]
       let lastErr = ''
       for (let i = 0; i <= delays.length; i++) {
         const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
@@ -244,6 +244,9 @@ export async function POST(req: NextRequest) {
           await new Promise(r => setTimeout(r, delays[i]))
           continue
         }
+        const errObj = JSON.parse(lastErr || '{}')
+        const isDaily = lastErr?.includes('PerDay') || lastErr?.includes('limit: 20')
+        if (isDaily) throw new Error('تم استنفاد الحصة اليومية من Gemini. يرجى المحاولة غداً أو التواصل مع الدعم الفني.')
         throw new Error(`Gemini error: ${lastErr}`)
       }
       throw new Error(`Gemini failed: ${lastErr}`)
