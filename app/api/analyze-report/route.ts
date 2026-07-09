@@ -175,7 +175,7 @@ async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode:
   let lastStatus = 0
   for (let attempt = 1; attempt <= 3; attempt++) {
     const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-latest:generateContent',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
