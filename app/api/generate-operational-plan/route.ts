@@ -236,7 +236,7 @@ async function buildDocx(data: any, info: any): Promise<ArrayBuffer> {
   const signW = Math.floor(PAGE_WIDTH / 3)
 
   const doc = new Document({
-    styles: { default: { document: { run: { font: 'Times New Roman', size: 20, rightToLeft: true }, paragraph: { alignment: AlignmentType.RIGHT, bidirectional: true } } } },
+    styles: { default: { document: { run: { font: 'Times New Roman', size: 20, rightToLeft: true }, paragraph: { alignment: AlignmentType.RIGHT } } } },
     sections: [{
       properties: {
         page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 } }
