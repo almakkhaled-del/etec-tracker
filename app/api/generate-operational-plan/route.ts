@@ -257,9 +257,20 @@ export async function POST(req: NextRequest) {
     try {
       aiData = JSON.parse(rawText)
     } catch {
-      const match = rawText.match(/\{[\s\S]*\}/)
-      if (!match) throw new Error('فشل تحليل استجابة النظام')
-      aiData = JSON.parse(match[0])
+      try {
+        // Try extracting JSON block
+        const match = rawText.match(/\{[\s\S]*\}/)
+        if (match) aiData = JSON.parse(match[0])
+      } catch {}
+      if (!aiData) {
+        // Build minimal structure from partial response
+        aiData = {
+          school_info: { school_name: '', region: '', district: '', stage: 'ابتدائية' },
+          swot: { strengths: [], weaknesses: [], opportunities: [], threats: [] },
+          main_issues: [],
+          custom_programs: {}
+        }
+      }
     }
 
     const si = aiData.school_info || {}
