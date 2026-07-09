@@ -1,238 +1,113 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 
 const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
+const GREEN = '#1F5C2E'
 const CREAM = '#FBF8F2'
-const GREEN_DARK = '#1F5C2E'
-const GREEN_LIGHT = '#D9EAD3'
 
 export default function OperationalPlanPage() {
   const { school } = useSchool()
   const [pdfFile, setPdfFile] = useState<File | null>(null)
-  const [schoolName, setSchoolName] = useState('')  // will come from PDF
   const [principalName, setPrincipalName] = useState('')
-  const [region, setRegion] = useState('')
-  const [district, setDistrict] = useState('')
   const [loading, setLoading] = useState(false)
   const [statusMsg, setStatusMsg] = useState('')
   const [error, setError] = useState('')
+  const [done, setDone] = useState(false)
 
-  // Auto-fill from school data
-  useState(() => {
-    if (school) {
-      setSchoolName(school.name || '')
-      setPrincipalName(school.principal_name || '')
-    }
-  })
+  useEffect(() => {
+    if (school?.principal_name) setPrincipalName(school.principal_name)
+  }, [school])
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file && file.type === 'application/pdf') {
-      setPdfFile(file)
-      setError('')
-    } else {
-      setError('يرجى رفع ملف PDF فقط')
-    }
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]
+    if (f?.type === 'application/pdf') { setPdfFile(f); setError('') }
+    else setError('يرجى رفع ملف PDF فقط')
   }
 
   async function handleGenerate() {
     if (!pdfFile) { setError('يرجى رفع تقرير التقويم الخارجي PDF'); return }
-    if (!schoolName) { setError('يرجى إدخال اسم المدرسة'); return }
-    if (!principalName) { setError('يرجى إدخال اسم المدير'); return }
-
-    setLoading(true)
-    setError('')
-    setStatusMsg('جاري قراءة تقرير التقويم...')
-
+    if (!principalName) { setError('يرجى إدخال اسم مدير المدرسة'); return }
+    setLoading(true); setError(''); setDone(false)
     try {
-      // Convert PDF to base64
       const base64 = await new Promise<string>((res, rej) => {
         const r = new FileReader()
         r.onload = () => res((r.result as string).split(',')[1])
         r.onerror = () => rej(new Error('فشل قراءة الملف'))
         r.readAsDataURL(pdfFile)
       })
-
-      setStatusMsg('يحلل النظام التقرير ويستخرج نقاط القوة والضعف...')
-
+      setStatusMsg('يحلل النظام التقرير ويستخرج البيانات...')
       const response = await fetch('/api/generate-operational-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdfBase64: base64, principalName, schoolName: '', region: '', district: '' })
+        body: JSON.stringify({ pdfBase64: base64, principalName })
       })
-
-      if (!response.ok) throw new Error('فشل توليد الخطة')
-
-      setStatusMsg('جاري بناء ملف Word الخطة التشغيلية...')
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'خطأ غير معروف' }))
+        throw new Error(err.error || 'فشل التوليد')
+      }
+      setStatusMsg('جاري بناء ملف الخطة التشغيلية...')
       const blob = await response.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = url
-      a.download = `الخطة التشغيلية - ${schoolName}.docx`
-      a.click()
+      a.href = url; a.download = 'الخطة_التشغيلية.docx'; a.click()
       URL.revokeObjectURL(url)
-      setStatusMsg('✅ تم توليد الخطة التشغيلية بنجاح!')
+      setDone(true); setStatusMsg('')
     } catch (err: any) {
       setError(err.message || 'حدث خطأ أثناء التوليد')
       setStatusMsg('')
-    } finally {
-      setLoading(false)
     }
+    setLoading(false)
   }
 
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
-
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
-
-          {/* Header */}
-          <header style={{
-            background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
-            padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14,
-            position: 'sticky', top: 0, zIndex: 50
-          }}>
-            <Link href="/forms" style={{
-              display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none',
-              background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px',
-              fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif'
-            }}>← النماذج</Link>
+          <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
+            <Link href="/forms" style={{ textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270' }}>← النماذج</Link>
             <div>
               <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>الخطة التشغيلية الذكية</p>
-              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                يحلل تقرير التقويم ويبني خطة تشغيلية كاملة تلقائياً
-              </p>
+              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic' }}>ارفع تقرير التقويم — النظام يبني الخطة كاملة تلقائياً</p>
             </div>
           </header>
-
-          <main style={{ padding: '28px', maxWidth: 700, margin: '0 auto' }}>
-
-            {/* Description box */}
-            <div style={{
-              background: `linear-gradient(135deg, ${GREEN_DARK}, #2d7a3f)`,
-              borderRadius: 16, padding: '20px 22px', marginBottom: 24, color: '#fff'
-            }}>
-              <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px' }}>📊 كيف تعمل الخطة الذكية؟</p>
-              <div style={{ fontFamily: 'IBM Plex Sans Arabic, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 2 }}>
-                <p style={{ margin: '0 0 4px' }}>📥 ارفع تقرير التقويم الخارجي PDF من هيئة تقويم التعليم</p>
-                <p style={{ margin: '0 0 4px' }}>🔍 يحلل النظام المؤشرات تلقائياً ويستخرج:</p>
-                <p style={{ margin: '0 0 4px', paddingRight: 16 }}>• <strong>نقاط القوة</strong> — المؤشرات التي حصلت على مستوى متميز</p>
-                <p style={{ margin: '0 0 4px', paddingRight: 16 }}>• <strong>نقاط الضعف</strong> — المؤشرات في مستوى تهيئة أو انطلاق</p>
-                <p style={{ margin: '0 0 4px' }}>📋 يبني خطة تشغيلية كاملة بـ 10 أهداف وبرامج مخصصة لواقع مدرستك</p>
-                <p style={{ margin: 0 }}>📄 ينتج ملف Word عرضي جاهز للطباعة والاعتماد</p>
-              </div>
+          <main style={{ padding: '28px', maxWidth: 600, margin: '0 auto' }}>
+            <div style={{ background: `linear-gradient(135deg, ${GREEN}, #2d7a3f)`, borderRadius: 16, padding: '18px 20px', marginBottom: 24, color: '#fff' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px' }}>📊 ما يتضمنه الملف المولّد:</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.88)', lineHeight: 1.9, margin: 0, fontFamily: 'IBM Plex Sans Arabic' }}>
+                غلاف رسمي · مقدمة · معلومات عامة · رؤية ورسالة وقيم · الأهداف الاستراتيجية · أهداف المرحلة · لجنة التميز · مصادر الخطة · تحليل SWOT من التقرير · أبرز القضايا · التعريفات · 10 أهداف بـ 64 برنامج + جداول متابعة · اللجنة الإدارية · الاعتماد · الختام
+              </p>
             </div>
-
-            {/* Form */}
-            <div style={{
-              background: '#fff', borderRadius: 18,
-              border: '1px solid rgba(11,31,58,0.07)',
-              padding: '1.6rem 1.8rem',
-              boxShadow: '0 4px 16px rgba(11,31,58,0.06)'
-            }}>
-
-              {/* PDF Upload */}
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.6rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 8 }}>
-                  📄 تقرير التقويم الخارجي *
-                </label>
-                <div
-                  onClick={() => document.getElementById('pdf-input')?.click()}
-                  style={{
-                    border: `2px dashed ${pdfFile ? GREEN_DARK : 'rgba(11,31,58,0.2)'}`,
-                    borderRadius: 12, padding: '24px 20px', textAlign: 'center',
-                    cursor: 'pointer', background: pdfFile ? '#f0fdf4' : '#FAFAF7',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <input id="pdf-input" type="file" accept=".pdf" onChange={handleFileChange} style={{ display: 'none' }} />
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 8 }}>📄 تقرير التقويم الخارجي *</label>
+                <div onClick={() => document.getElementById('pdf-in')?.click()} style={{ border: `2px dashed ${pdfFile ? GREEN : 'rgba(11,31,58,0.2)'}`, borderRadius: 12, padding: '24px 20px', textAlign: 'center', cursor: 'pointer', background: pdfFile ? '#f0fdf4' : '#FAFAF7' }}>
+                  <input id="pdf-in" type="file" accept=".pdf" onChange={handleFile} style={{ display: 'none' }} />
                   {pdfFile ? (
-                    <>
-                      <p style={{ fontSize: 24, margin: '0 0 8px' }}>✅</p>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: GREEN_DARK, margin: '0 0 4px' }}>{pdfFile.name}</p>
-                      <p style={{ fontSize: 12, color: '#6b7280', margin: 0 }}>اضغط للتغيير</p>
-                    </>
+                    <><p style={{ fontSize: 24, margin: '0 0 6px' }}>✅</p><p style={{ fontSize: 13, fontWeight: 700, color: GREEN, margin: 0 }}>{pdfFile.name}</p><p style={{ fontSize: 11, color: '#8A8270', margin: '4px 0 0' }}>اضغط للتغيير</p></>
                   ) : (
-                    <>
-                      <p style={{ fontSize: 32, margin: '0 0 8px' }}>📥</p>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, margin: '0 0 4px' }}>ارفع تقرير التقويم الخارجي</p>
-                      <p style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>PDF فقط • تقرير هيئة تقويم التعليم (إتقان)</p>
-                    </>
+                    <><p style={{ fontSize: 32, margin: '0 0 6px' }}>📥</p><p style={{ fontSize: 14, fontWeight: 600, color: NAVY, margin: '0 0 4px' }}>ارفع تقرير التقويم الخارجي</p><p style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>PDF فقط — تقرير هيئة تقويم التعليم (إتقان)</p></>
                   )}
                 </div>
               </div>
-
-              {/* School info */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-                <Field label="اسم المدرسة *" value={schoolName} onChange={setSchoolName} placeholder="ابتدائية ..." />
-                <Field label="اسم مدير المدرسة *" value={principalName} onChange={setPrincipalName} placeholder="الاسم الكامل" />
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 6 }}>👤 اسم مدير المدرسة *</label>
+                <input type="text" value={principalName} onChange={e => setPrincipalName(e.target.value)} placeholder="الاسم الكامل" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic', boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl', outline: 'none' }} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 24 }}>
-                <Field label="إدارة التعليم" value={region} onChange={setRegion} placeholder="إدارة تعليم الرياض" />
-                <Field label="مكتب التعليم" value={district} onChange={setDistrict} placeholder="مكتب تعليم ..." />
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div style={{ background: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
-                  <p style={{ fontSize: 13, color: '#dc2626', margin: 0 }}>⚠️ {error}</p>
-                </div>
-              )}
-
-              {/* Status */}
-              {statusMsg && !error && (
-                <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
-                  <p style={{ fontSize: 13, color: GREEN_DARK, margin: 0, fontWeight: 600 }}>
-                    {statusMsg.startsWith('✅') ? statusMsg : `⏳ ${statusMsg}`}
-                  </p>
-                </div>
-              )}
-
-              {/* Generate Button */}
-              <button
-                onClick={handleGenerate}
-                disabled={loading}
-                style={{
-                  width: '100%', padding: '16px', fontSize: 16, fontWeight: 800,
-                  background: loading ? '#9CA3AF' : `linear-gradient(135deg, #2d7a3f, ${GREEN_DARK})`,
-                  color: '#fff', border: 'none', borderRadius: 14,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  fontFamily: 'Tajawal, sans-serif',
-                  boxShadow: loading ? 'none' : '0 6px 20px rgba(31,92,46,0.30)',
-                  transition: 'all 0.2s'
-                }}
-              >
+              {error && <div style={{ background: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}><p style={{ fontSize: 13, color: '#dc2626', margin: 0 }}>⚠️ {error}</p></div>}
+              {statusMsg && <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}><p style={{ fontSize: 13, color: GREEN, margin: 0, fontWeight: 600 }}>⏳ {statusMsg}</p></div>}
+              {done && <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, padding: '16px', marginBottom: 16, textAlign: 'center' }}><p style={{ fontSize: 15, fontWeight: 700, color: GREEN, margin: 0 }}>✅ تم توليد الخطة التشغيلية بنجاح!</p></div>}
+              <button onClick={handleGenerate} disabled={loading} style={{ width: '100%', padding: 16, fontSize: 16, fontWeight: 800, background: loading ? '#9CA3AF' : `linear-gradient(135deg, #2d7a3f, ${GREEN})`, color: '#fff', border: 'none', borderRadius: 14, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal', boxShadow: loading ? 'none' : '0 6px 20px rgba(31,92,46,0.30)', transition: 'all 0.2s' }}>
                 {loading ? '⏳ جاري بناء الخطة...' : '📊 توليد الخطة التشغيلية ←'}
               </button>
             </div>
           </main>
         </div>
       </div>
-    </div>
-  )
-}
-
-function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
-  return (
-    <div>
-      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#0B1F3A', marginBottom: 5, fontFamily: 'Tajawal, sans-serif' }}>
-        {label}
-      </label>
-      <input
-        type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        style={{
-          width: '100%', padding: '10px 12px', border: '1.5px solid rgba(11,31,58,0.12)',
-          borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-          boxSizing: 'border-box', background: '#FAFAF7', color: '#0B1F3A', direction: 'rtl',
-          outline: 'none'
-        }}
-      />
     </div>
   )
 }
