@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent'
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-latest:generateContent'
 
 const PROMPT = `أنت خبير في تحليل تقارير التقويم المدرسي السعودي وفق إطار إتقان.
 
