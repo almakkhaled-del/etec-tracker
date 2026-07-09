@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
 
 const PROMPT = `أنت خبير في تحليل تقارير التقويم المدرسي السعودي وبناء الخطط التشغيلية.
 
@@ -9,27 +8,25 @@ const PROMPT = `أنت خبير في تحليل تقارير التقويم ال
 
 مهمتك:
 1. استخرج من التقرير المؤشرات حسب مستوياتها:
-   - المستوى "متميز" (≥90%) = نقاط قوة
-   - المستوى "متقدم" (75-89%) = نقاط قوة
-   - المستوى "انطلاق" (50-74%) = نقاط ضعف تحتاج علاجاً
-   - المستوى "تهيئة" (<50%) = نقاط ضعف تحتاج علاجاً عاجلاً
+   - المستوى متميز أو متقدم (75% وأعلى) = نقاط قوة
+   - المستوى انطلاق أو تهيئة (أقل من 75%) = نقاط ضعف تحتاج علاجاً
 
 2. استنتج من السياق:
-   - الفرص المتاحة (دعم خارجي، موارد، شراكات)
+   - الفرص المتاحة (دعم خارجي، موارد، شراكات مجتمعية)
    - التهديدات (تحديات بيئية، مجتمعية، مادية)
 
 3. ابنِ 10 أهداف عامة للخطة التشغيلية مع برامج مخصصة:
    - برامج استثمار نقاط القوة وتعزيزها
-   - برامج علاج نقاط الضعف مباشرة بإجراءات واقعية
-   - كل برنامج مرتبط بمؤشر محدد من التقرير
+   - برامج علاج نقاط الضعف مباشرة بإجراءات واقعية مرتبطة بالمؤشر الضعيف
+   - كل برنامج مرتبط بواقع المدرسة الفعلي من التقرير
 
 أجب بـ JSON فقط بالهيكل التالي بدون أي نص خارج الـ JSON:
 {
   "swot": {
-    "strengths": ["نقطة قوة 1 مع ذكر المؤشر ونسبته", "..."],
-    "weaknesses": ["نقطة ضعف 1 مع ذكر المؤشر ونسبته", "..."],
-    "opportunities": ["فرصة 1", "فرصة 2", "..."],
-    "threats": ["تهديد 1", "تهديد 2", "..."]
+    "strengths": ["المؤشر واسمه ونسبته"],
+    "weaknesses": ["المؤشر واسمه ونسبته"],
+    "opportunities": ["فرصة 1"],
+    "threats": ["تهديد 1"]
   },
   "goals": [
     {
@@ -49,13 +46,7 @@ const PROMPT = `أنت خبير في تحليل تقارير التقويم ال
       ]
     }
   ]
-}
-
-تأكد أن:
-- البرامج واقعية ومناسبة للمدارس السعودية
-- مؤشرات الإنجاز قابلة للقياس (نسب مئوية أو أعداد)
-- الأهداف تغطي جميع مجالات التقويم: الإدارة المدرسية، التعليم والتعلم، نواتج التعلم، البيئة المدرسية
-- برامج نقاط الضعف أكثر تفصيلاً وعلاجاً مباشراً للمؤشر المتأثر`
+}`
 
 export async function POST(req: NextRequest) {
   try {
@@ -65,27 +56,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'بيانات ناقصة' }, { status: 400 })
     }
 
-    // Call Gemini with PDF
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) return NextResponse.json({ error: 'مفتاح API غير موجود' }, { status: 500 })
 
-    const result = await model.generateContent({
-      contents: [{
-        role: 'user',
-        parts: [
-          { inlineData: { mimeType: 'application/pdf', data: pdfBase64 } },
-          { text: PROMPT }
-        ]
-      }],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 16000,
-        responseMimeType: 'application/json'
-      }
+    const geminiRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { inline_data: { mime_type: 'application/pdf', data: pdfBase64 } },
+            { text: PROMPT }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 16000,
+          responseMimeType: 'application/json'
+        }
+      })
     })
 
-    const rawText = result.response.text()
-    let planData: any
+    if (!geminiRes.ok) {
+      const err = await geminiRes.text()
+      throw new Error(`Gemini error: ${err}`)
+    }
 
+    const geminiData = await geminiRes.json()
+    const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+    let planData: any
     try {
       planData = JSON.parse(rawText)
     } catch {
@@ -94,7 +94,6 @@ export async function POST(req: NextRequest) {
       planData = JSON.parse(match[0])
     }
 
-    // Build DOCX
     const docxBuffer = await buildDocx(planData, { schoolName, principalName, region, district })
 
     return new NextResponse(docxBuffer, {
@@ -161,15 +160,13 @@ async function buildDocx(data: any, info: any): Promise<Buffer> {
   }
 
   function eC(w: number, cs = 1) { return dC('', w, cs) }
-
-  function title(text: string) {
-    return new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { before: 200, after: 120 }, children: [new TextRun({ text, bold: true, size: 28, color: GREEN_DARK, font: 'Times New Roman', rightToLeft: true })] })
-  }
-
   function sp(after = 150) { return new Paragraph({ spacing: { after } }) }
   function pb() { return new Paragraph({ children: [new PageBreak()] }) }
 
-  // Programs table
+  function ttl(text: string) {
+    return new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { before: 200, after: 120 }, children: [new TextRun({ text, bold: true, size: 28, color: GREEN_DARK, font: 'Times New Roman', rightToLeft: true })] })
+  }
+
   function progTable(programs: any[]) {
     const cols = [380, 2800, 750, 850, 1350, 1350, 1400, 1400, 4120]
     const hRow = new TableRow({ tableHeader: true, children: [
@@ -185,7 +182,6 @@ async function buildDocx(data: any, info: any): Promise<Buffer> {
     return tbl([hRow, ...dRows])
   }
 
-  // Followup table
   function followTable(programs: any[]) {
     const cols = [380, 3500, 1200, 1200, 2000, 6120]
     const hRow = new TableRow({ tableHeader: true, children: [
@@ -198,75 +194,45 @@ async function buildDocx(data: any, info: any): Promise<Buffer> {
     return tbl([hRow, ...dRows])
   }
 
-  // SWOT table
   const swot = data.swot || {}
-  const strengthsText = (swot.strengths || []).join('\n')
-  const weaknessesText = (swot.weaknesses || []).join('\n')
-  const opportunitiesText = (swot.opportunities || []).join('\n')
-  const threatsText = (swot.threats || []).join('\n')
+  const halfW = Math.floor(PAGE_WIDTH / 2)
 
-  function swotCell(text: string, w: number, fill: string) {
+  function swotCell(items: string[], w: number, fill: string) {
     return new TableCell({
       width: { size: w, type: WidthType.DXA }, verticalAlign: VerticalAlign.TOP,
       shading: { type: ShadingType.CLEAR, color: 'auto', fill },
-      children: text.split('\n').filter(Boolean).map(line =>
-        new Paragraph({ alignment: AlignmentType.RIGHT, bidirectional: true, spacing: { before: 40, after: 40 }, children: [new TextRun({ text: `• ${line}`, color: BLACK, size: 17, font: 'Times New Roman', rightToLeft: true })] })
+      children: (items || []).map((line: string) =>
+        new Paragraph({ alignment: AlignmentType.RIGHT, bidirectional: true, spacing: { before: 40, after: 40 },
+          children: [new TextRun({ text: `• ${line}`, color: BLACK, size: 17, font: 'Times New Roman', rightToLeft: true })] })
       )
     })
   }
 
-  const halfW = Math.floor(PAGE_WIDTH / 2)
-  const swotTable = tbl([
+  const swotTbl = tbl([
     new TableRow({ children: [ hC('نقاط القوة', halfW), hC('الفرص', PAGE_WIDTH - halfW) ] }),
-    new TableRow({ children: [ swotCell(strengthsText, halfW, 'F0FFF4'), swotCell(opportunitiesText, PAGE_WIDTH - halfW, 'EFF6FF') ] }),
+    new TableRow({ children: [ swotCell(swot.strengths || [], halfW, 'F0FFF4'), swotCell(swot.opportunities || [], PAGE_WIDTH - halfW, 'EFF6FF') ] }),
     new TableRow({ children: [ hC('نقاط الضعف', halfW), hC('التهديدات', PAGE_WIDTH - halfW) ] }),
-    new TableRow({ children: [ swotCell(weaknessesText, halfW, 'FFF7F0'), swotCell(threatsText, PAGE_WIDTH - halfW, 'FFF0F0') ] }),
+    new TableRow({ children: [ swotCell(swot.weaknesses || [], halfW, 'FFF7F0'), swotCell(swot.threats || [], PAGE_WIDTH - halfW, 'FFF0F0') ] }),
   ])
 
-  // Goal sections
-  const goalSections: any[] = []
   const goals = data.goals || []
+  const goalSections: any[] = []
   goals.forEach((goal: any, idx: number) => {
-    const n = idx + 1
     goalSections.push(
-      pb(),
-      title(`الهدف ${n}: ${goal.general}`),
-      sp(80),
+      pb(), ttl(`الهدف ${idx + 1}: ${goal.general}`), sp(80),
       tbl([
         new TableRow({ children: [ lC('الهدف العام', 2200), dC(goal.general, PAGE_WIDTH - 2200, 1, true) ] }),
         new TableRow({ children: [ lC('الهدف التفصيلي', 2200), dC(goal.specific, PAGE_WIDTH - 2200) ] }),
       ]),
-      sp(120),
-      progTable(goal.programs || []),
-      sp(200),
-      title('جدول متابعة البرامج'),
-      sp(80),
-      followTable(goal.programs || []),
+      sp(120), progTable(goal.programs || []),
+      sp(200), ttl('جدول متابعة البرامج'), sp(80), followTable(goal.programs || []),
     )
   })
 
-  // Members table
   const mCols = [500, 4500, 3500, 2400, PAGE_WIDTH - 10900]
   const roles = ['مدير المدرسة','وكيل الشؤون التعليمية','وكيل شؤون الطلاب','موجه طلابي','موجه طلابي','رائد النشاط','معلم','معلم','معلم']
   const positions = ['رئيساً','نائباً','عضواً','عضواً','عضواً','عضواً','عضواً','عضواً','عضواً']
-  const membersTable = tbl([
-    new TableRow({ tableHeader: true, children: [ hC('م', mCols[0]), hC('الاسم', mCols[1]), hC('الوظيفة', mCols[2]), hC('الصفة', mCols[3]), hC('التوقيع', mCols[4]) ] }),
-    ...[1,2,3,4,5,6,7,8,9].map((n: number, i: number) => new TableRow({ children: [ dC(String(n), mCols[0]), dC(`{{member_${n}}}`, mCols[1]), dC(roles[i], mCols[2]), dC(positions[i], mCols[3]), eC(mCols[4]) ] }))
-  ])
-
   const signW = Math.floor(PAGE_WIDTH / 3)
-  const signTable = tbl([
-    new TableRow({ children: [ hC('يعتمد مدير المدرسة', PAGE_WIDTH, 3) ] }),
-    new TableRow({ children: [ lC('الاسم', signW), lC('التوقيع', signW), lC('التاريخ', PAGE_WIDTH - signW * 2) ] }),
-    new TableRow({ children: [ dC(info.principalName, signW), eC(signW), eC(PAGE_WIDTH - signW * 2) ] }),
-  ])
-
-  // Info table
-  const infoTable = tbl([
-    new TableRow({ children: [ lC('اسم المدرسة', 2500), dC(info.schoolName, PAGE_WIDTH - 2500) ] }),
-    new TableRow({ children: [ lC('مدير المدرسة', 2500), dC(info.principalName, 3500), lC('إدارة التعليم', 2000), dC(info.region || '', PAGE_WIDTH - 8000) ] }),
-    new TableRow({ children: [ lC('مكتب التعليم', 2500), dC(info.district || '', PAGE_WIDTH - 2500) ] }),
-  ])
 
   const doc = new Document({
     styles: { default: { document: { run: { font: 'Times New Roman', size: 20, rightToLeft: true }, paragraph: { alignment: AlignmentType.RIGHT, bidirectional: true } } } },
@@ -275,53 +241,46 @@ async function buildDocx(data: any, info: any): Promise<Buffer> {
         page: { size: { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE }, margin: { top: 720, bottom: 720, left: 720, right: 720 } }
       },
       children: [
-        // Cover
         sp(200),
         new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 80 }, children: [new TextRun({ text: 'المملكة العربية السعودية — وزارة التعليم', bold: true, size: 24, font: 'Times New Roman', rightToLeft: true })] }),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 80 }, children: [new TextRun({ text: `${info.region || 'إدارة التعليم'} / ${info.district || 'مكتب التعليم'}`, bold: true, size: 22, font: 'Times New Roman', rightToLeft: true })] }),
-        sp(100),
+        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 200 }, children: [new TextRun({ text: `${info.region || 'إدارة التعليم'} / ${info.district || 'مكتب التعليم'}`, bold: true, size: 22, font: 'Times New Roman', rightToLeft: true })] }),
         new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { before: 100, after: 300 }, children: [new TextRun({ text: `الخطة التشغيلية لـ ${info.schoolName} — 1448هـ`, bold: true, size: 38, color: GREEN_DARK, font: 'Times New Roman', rightToLeft: true })] }),
         sp(100),
-        title('بيانات المدرسة'),
-        sp(80),
-        infoTable,
+        ttl('بيانات المدرسة'), sp(80),
+        tbl([
+          new TableRow({ children: [ lC('اسم المدرسة', 2500), dC(info.schoolName, PAGE_WIDTH - 2500) ] }),
+          new TableRow({ children: [ lC('مدير المدرسة', 2500), dC(info.principalName, 3500), lC('إدارة التعليم', 2500), dC(info.region || '', PAGE_WIDTH - 8500) ] }),
+        ]),
         sp(240),
-
-        // SWOT
-        title('تشخيص واقع المدرسة (تحليل SWOT من تقرير التقويم)'),
-        sp(80),
-        swotTable,
+        ttl('تشخيص واقع المدرسة من تقرير التقويم الخارجي'), sp(80),
+        swotTbl,
         sp(240),
-
-        // Members
         pb(),
-        title('أعضاء لجنة إعداد الخطة التشغيلية'),
-        sp(80),
-        membersTable,
+        ttl('أعضاء لجنة إعداد الخطة التشغيلية'), sp(80),
+        tbl([
+          new TableRow({ tableHeader: true, children: [ hC('م', mCols[0]), hC('الاسم', mCols[1]), hC('الوظيفة', mCols[2]), hC('الصفة', mCols[3]), hC('التوقيع', mCols[4]) ] }),
+          ...[1,2,3,4,5,6,7,8,9].map((n: number, i: number) => new TableRow({ children: [ dC(String(n), mCols[0]), eC(mCols[1]), dC(roles[i], mCols[2]), dC(positions[i], mCols[3]), eC(mCols[4]) ] }))
+        ]),
         sp(240),
-
-        // Goals summary
         pb(),
-        title('الأهداف الاستراتيجية العامة للخطة التشغيلية'),
-        sp(100),
+        ttl('الأهداف الاستراتيجية العامة للخطة التشغيلية'), sp(100),
         ...goals.map((g: any, i: number) => new Paragraph({
           alignment: AlignmentType.RIGHT, bidirectional: true, spacing: { before: 60, after: 60 },
           children: [new TextRun({ text: `${i + 1}. ${g.general}`, size: 20, font: 'Times New Roman', rightToLeft: true })]
         })),
-
-        // Goal sections
         ...goalSections,
-
-        // Approval
         pb(),
-        title('فريق إعداد الخطة التشغيلية'),
-        sp(80),
+        ttl('فريق إعداد الخطة التشغيلية'), sp(80),
         tbl([
           new TableRow({ tableHeader: true, children: [ hC('م', 500), hC('الاسم', 4500), hC('الوظيفة', 3500), hC('الصفة', 2400), hC('التوقيع', PAGE_WIDTH - 10900) ] }),
           ...[1,2,3,4,5,6,7,8,9].map((n: number) => new TableRow({ children: [ dC(String(n), 500), eC(4500), eC(3500), eC(2400), eC(PAGE_WIDTH - 10900) ] }))
         ]),
         sp(200),
-        signTable,
+        tbl([
+          new TableRow({ children: [ hC('يعتمد مدير المدرسة', PAGE_WIDTH, 3) ] }),
+          new TableRow({ children: [ lC('الاسم', signW), lC('التوقيع', signW), lC('التاريخ', PAGE_WIDTH - signW * 2) ] }),
+          new TableRow({ children: [ dC(info.principalName, signW), eC(signW), eC(PAGE_WIDTH - signW * 2) ] }),
+        ]),
         sp(200),
         new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, children: [new TextRun({ text: 'والله ولي التوفيق', bold: true, size: 28, color: GREEN_DARK, font: 'Times New Roman', rightToLeft: true })] }),
       ]
