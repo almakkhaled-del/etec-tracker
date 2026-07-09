@@ -67,31 +67,43 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) return NextResponse.json({ error: 'مفتاح API غير موجود' }, { status: 500 })
 
-    const geminiRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { inline_data: { mime_type: 'application/pdf', data: pdfBase64 } },
-            { text: PROMPT }
-          ]
-        }],
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 16000,
-          responseMimeType: 'application/json'
+    async function callGeminiWithRetry(): Promise<string> {
+      const delays = [2000, 4000, 8000]
+      let lastErr = ''
+      for (let i = 0; i <= delays.length; i++) {
+        const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { inline_data: { mime_type: 'application/pdf', data: pdfBase64 } },
+                { text: PROMPT }
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.3,
+              maxOutputTokens: 16000,
+              responseMimeType: 'application/json'
+            }
+          })
+        })
+        if (res.ok) {
+          const d = await res.json()
+          return d.candidates?.[0]?.content?.parts?.[0]?.text || ''
         }
-      })
-    })
-
-    if (!geminiRes.ok) {
-      const err = await geminiRes.text()
-      throw new Error(`Gemini error: ${err}`)
+        lastErr = await res.text()
+        const status = res.status
+        if ((status === 503 || status === 429) && i < delays.length) {
+          await new Promise(r => setTimeout(r, delays[i]))
+          continue
+        }
+        throw new Error(`Gemini error: ${lastErr}`)
+      }
+      throw new Error(`Gemini failed after retries: ${lastErr}`)
     }
 
-    const geminiData = await geminiRes.json()
-    const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    const rawText = await callGeminiWithRetry()
 
     let planData: any
     try {
