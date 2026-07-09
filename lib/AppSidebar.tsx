@@ -166,6 +166,16 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span style={{ fontSize: 14, fontWeight: 500 }}>بناء خطة التحسين والتنفيذ وواقع المدرسة</span>
         </Link>
 
+        <Link href="/forms/operational-plan" className="sidebar-link" style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
+          textDecoration: 'none', marginBottom: 2,
+          background: pathname === '/forms/operational-plan' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          color: pathname === '/forms/operational-plan' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
+        }}>
+          <span style={{ fontSize: 16 }}>📊</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>الخطة التشغيلية الذكية</span>
+        </Link>
+
         <Link href="/print" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
