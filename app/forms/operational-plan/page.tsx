@@ -177,7 +177,7 @@ const STAGE_GOALS: Record<string, string[]> = {
 type Step = 'idle' | 'analyzing' | 'building' | 'done' | 'error'
 
 export default function OperationalPlanPage() {
-  const { school } = useSchool()
+  const { school, isTrial, loading: schoolLoading } = useSchool()
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [principalName, setPrincipalName] = useState('')
   const [step, setStep] = useState<Step>('idle')
@@ -694,6 +694,34 @@ export default function OperationalPlanPage() {
     building: { msg: '📄 جاري بناء ملف الخطة التشغيلية...', color: GREEN },
     done: { msg: '✅ تم توليد الخطة التشغيلية بنجاح!', color: GREEN },
     error: { msg: '', color: '' },
+  }
+
+  // شاشة قفل الخطة التشغيلية الذكية للحساب المجاني — نفس نمط /forms
+  // و/forms/generator، لمنع الوصول المباشر عبر الرابط بدون المرور بالبوابة
+  if (!schoolLoading && isTrial) {
+    return (
+      <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
+        <div style={{ display: 'flex', minHeight: '100vh' }}>
+          <AppSidebar />
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
+              <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
+              <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>الخطة التشغيلية الذكية تتطلب الاشتراك</p>
+              <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                هذه الميزة متاحة في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
+              </p>
+              <a href="https://wa.me/00966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GREEN})`, color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+              </a>
+              <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

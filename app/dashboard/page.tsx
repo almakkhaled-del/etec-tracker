@@ -421,7 +421,7 @@ function DashboardInner() {
             <p style={{ fontSize: 13, color: '#8A8270', margin: '0 0 20px', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               في النسخة التجريبية يتاح مجال <b>البيئة المدرسية</b> فقط. اشترك الآن لفتح المجالات الأربعة كاملة.
             </p>
-            <a href="https://wa.me/00966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+            <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
               <button style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 10 }}>💬 تواصل للاشتراك</button>
             </a>
             <button onClick={() => setShowUpgrade(false)} style={{ width: '100%', padding: '11px', fontSize: 13, fontWeight: 600, background: 'transparent', color: '#8A8270', border: 'none', cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>لاحقاً</button>
@@ -462,7 +462,7 @@ function DashboardInner() {
             { href: '/dashboard', icon: '🏠', label: 'الرئيسية' },
             { href: '/forms', icon: '📋', label: 'النماذج' },
             { href: '/print', icon: '🖨️', label: 'التقرير' },
-            { href: 'https://wa.me/00966555826838', icon: '💬', label: 'الدعم', external: true },
+            { href: 'https://wa.me/966555826838', icon: '💬', label: 'الدعم', external: true },
           ].map(item => (
             <a key={item.href} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none', flex: 1 }}>

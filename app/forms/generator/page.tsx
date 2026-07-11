@@ -25,7 +25,7 @@ export default function Page() {
               <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 مولّد الخطة التشغيلية والنماذج التلقائية متاح في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
-              <a href="https://wa.me/00966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
