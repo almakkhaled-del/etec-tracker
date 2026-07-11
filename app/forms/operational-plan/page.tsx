@@ -690,8 +690,7 @@ export default function OperationalPlanPage() {
       }
     }
 
-    const fixedBuf = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
-    const blob = new Blob([fixedBuf], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
     saveAs(blob, `الخطة_التشغيلية_${info.schoolName}.docx`)
   }
 
