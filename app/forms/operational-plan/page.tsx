@@ -696,8 +696,8 @@ export default function OperationalPlanPage() {
     error: { msg: '', color: '' },
   }
 
-  // شاشة قفل الخطة التشغيلية الذكية للحساب المجاني — نفس نمط /forms
-  // و/forms/generator، لمنع الوصول المباشر عبر الرابط بدون المرور بالبوابة
+  // قفل الباقة المجانية: مولّد الخطة التشغيلية متاح بالاشتراك المدفوع فقط،
+  // وبدون هذا الفحص يقدر أي حساب تجريبي يدخل مباشرة برابط الصفحة ويولّدها.
   if (!schoolLoading && isTrial) {
     return (
       <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
@@ -707,12 +707,12 @@ export default function OperationalPlanPage() {
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
             <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
-              <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>الخطة التشغيلية الذكية تتطلب الاشتراك</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>مولّد الخطة التشغيلية يتطلب الاشتراك</p>
               <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 هذه الميزة متاحة في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
-              <a href="https://wa.me/00966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GREEN})`, color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+              <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, #C28A1F)`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
                 <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
@@ -764,6 +764,13 @@ export default function OperationalPlanPage() {
               {step !== 'idle' && step !== 'error' && (
                 <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
                   <p style={{ fontSize: 13, color: GREEN, margin: 0, fontWeight: 600 }}>{statusMap[step].msg}</p>
+                </div>
+              )}
+              {step === 'done' && (
+                <div style={{ background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 10, padding: '10px 14px', marginBottom: 16 }}>
+                  <p style={{ fontSize: 12.5, color: '#92400E', margin: 0, fontFamily: 'IBM Plex Sans Arabic', lineHeight: 1.8 }}>
+                    ⚠️ بعد التعديل والتأكد من الملف، يرجى حفظه بصيغة PDF (حفظ باسم ← PDF) قبل رفعه كشاهد.
+                  </p>
                 </div>
               )}
               <button onClick={handleGenerate} disabled={step === 'analyzing' || step === 'building'}

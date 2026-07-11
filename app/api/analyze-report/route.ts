@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// بدون هذا، Vercel يقطع الدالة قبل ما يخلص التحليل (3 طلبات جيمناي متوازية
+// على تقرير طويل) فيرجع رد فاضي/HTML بدل JSON ويطيح بخطأ "Unexpected token".
+export const maxDuration = 60
+
 const PROMPT_INFO = `Return ONLY valid JSON object. No markdown. No text before or after. Start with { end with }.
 
 Extract from this Saudi school external evaluation report:

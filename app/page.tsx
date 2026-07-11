@@ -424,9 +424,13 @@ export default function Landing() {
       <footer style={{ borderTop: '1px solid rgba(11,31,58,0.08)', background: '#fff', padding: '2.5rem 1.5rem 1.8rem' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 42, marginBottom: 16 }} />
-          <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 20px' }}>
+          <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 16px' }}>
             shawahede.com · منصة مستقلة لدعم المدارس · غير مرتبطة بهيئة تقويم التعليم والتدريب
           </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginBottom: 20 }}>
+            <Link href="/privacy" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>سياسة الخصوصية</Link>
+            <Link href="/terms" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>الشروط والأحكام</Link>
+          </div>
           <div style={{ width: 60, height: 1, background: 'rgba(11,31,58,0.1)', margin: '0 auto 20px' }} />
           <a href="https://khaleddev.online" target="_blank" rel="noreferrer" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none'

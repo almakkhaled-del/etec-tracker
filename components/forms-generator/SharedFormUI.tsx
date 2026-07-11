@@ -97,6 +97,11 @@ export function SuccessBox({ fileName }: { fileName: string }) {
       <p style={{ fontSize: 15, fontWeight: 700, color: '#15803D', margin: '0 0 6px' }}>✅ تم إنشاء الملف بنجاح!</p>
       <p style={{ fontSize: 13, color: '#166534', margin: '0 0 10px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الملف تم تحميله: {fileName}</p>
       <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>💡 يمكنك فتح الملف وتعديل أي تفاصيل إضافية</p>
+      <div style={{ marginTop: 12, background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 10, padding: '10px 12px' }}>
+        <p style={{ fontSize: 12.5, color: '#92400E', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif', lineHeight: 1.8 }}>
+          ⚠️ بعد التعديل والتأكد من الملف، يرجى حفظه بصيغة PDF (حفظ باسم ← PDF) قبل رفعه كشاهد.
+        </p>
+      </div>
     </div>
   )
 }

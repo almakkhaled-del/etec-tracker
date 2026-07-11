@@ -80,11 +80,28 @@ export default function ImprovementPlanPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ base64 })
       })
+      // نقرأ الرد كنص أولاً بدل JSON.parse مباشر: لو انتهت مهلة الخادم (Vercel
+      // timeout) أو صار خطأ 502/504، الرد يرجع HTML/نص غير JSON ويطيح
+      // JSON.parse بخطأ غامض "Unexpected token 'A'... is not valid JSON".
+      // قراءة النص أولاً تتيح لنا نعطي المستخدم رسالة عربية واضحة بدل الكراش.
+      const raw = await response.text()
       if (!response.ok) {
-        const err = await response.json()
-        throw new Error(err.error || `Server error: ${response.status}`)
+        if (response.status === 504 || response.status === 502) {
+          throw new Error('انتهت مهلة الخادم أثناء تحليل التقرير — التقرير طويل جداً أو الخدمة مزدحمة، حاول مرة أخرى بعد قليل')
+        }
+        try {
+          const err = JSON.parse(raw)
+          throw new Error(err.error || `Server error: ${response.status}`)
+        } catch {
+          throw new Error(`حدث خطأ من الخادم (${response.status})، حاول مرة أخرى`)
+        }
       }
-      const parsed: AnalysisResult = await response.json()
+      let parsed: AnalysisResult
+      try {
+        parsed = JSON.parse(raw)
+      } catch {
+        throw new Error('تعذّر قراءة نتيجة التحليل — استجابة غير صالحة من الخادم، حاول مرة أخرى')
+      }
       setResult(parsed)
       setStep('ready')
     } catch (err: any) {
@@ -500,8 +517,8 @@ export default function ImprovementPlanPage() {
     },
   ]
 
-  // شاشة قفل بناء خطة التحسين/التنفيذ/واقع المدرسة للحساب المجاني — يغطي
-  // الملفات الثلاثة لأنها بنفس الصفحة، ويمنع الوصول المباشر عبر الرابط
+  // قفل الباقة المجانية: بناء خطة التحسين متاح بالاشتراك المدفوع فقط،
+  // وبدون هذا الفحص يقدر أي حساب تجريبي يدخل مباشرة برابط الصفحة ويستخدمها.
   if (!schoolLoading && isTrial) {
     return (
       <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
@@ -513,9 +530,9 @@ export default function ImprovementPlanPage() {
               <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
               <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>بناء خطة التحسين يتطلب الاشتراك</p>
               <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                بناء خطة التحسين وتنفيذها وتقرير واقع المدرسة متاحة في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
+                هذه الميزة متاحة في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
-              <a href="https://wa.me/00966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
@@ -681,6 +698,12 @@ export default function ImprovementPlanPage() {
                       </div>
                     )
                   })}
+                </div>
+
+                <div style={{ background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 10, padding: '10px 14px', marginBottom: 16 }}>
+                  <p className="body-font" style={{ fontSize: 12.5, color: '#92400E', margin: 0, lineHeight: 1.8 }}>
+                    ⚠️ بعد التعديل والتأكد من كل ملف، يرجى حفظه بصيغة PDF (حفظ باسم ← PDF) قبل رفعه كشاهد.
+                  </p>
                 </div>
 
                 <button onClick={() => { setStep('upload'); setFile(null); setResult(null); setDocStatus({ doc1: 'idle', doc2: 'idle', doc3: 'idle' }) }}
