@@ -252,7 +252,7 @@ export default function OperationalPlanPage() {
     const borders = { top: B, bottom: B, left: B, right: B, insideHorizontal: B, insideVertical: B }
 
     // ====== Helper functions ======
-    function p(text: string, bold = false, size = 20, align = AlignmentType.CENTER) {
+    function p(text: string, bold = false, size = 20, align: (typeof AlignmentType)[keyof typeof AlignmentType] = AlignmentType.CENTER) {
       return new Paragraph({
         bidirectional: true,
         alignment: align,
