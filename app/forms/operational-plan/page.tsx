@@ -326,7 +326,7 @@ export default function OperationalPlanPage() {
           hC('م', cols[0]), hC('اسم البرنامج', cols[1]), hC('الفصل', cols[2]),
           hC('الأسبوع', cols[3]), hC('المستهدفون', cols[4]), hC('أسلوب التنفيذ', cols[5]),
           hC('رئيس', cols[6]), hC('مساند', cols[7]), hC('مؤشر الإنجاز', cols[8]),
-        ]},
+        ]}),
         ...programs.map((prog: any, i: number) => new TableRow({ children: [
           dC(String(i + 1), cols[0]), dC(prog.name, cols[1]), dC(prog.term || '', cols[2]),
           dC(prog.week || '', cols[3]), dC(prog.target || '', cols[4]), dC(prog.req || '', cols[5]),
