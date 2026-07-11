@@ -261,7 +261,12 @@ export default function OperationalPlanPage() {
     }
 
     function pRight(text: string, bold = false, size = 20) {
-      return p(text, bold, size, AlignmentType.RIGHT)
+      return new Paragraph({
+        bidirectional: true,
+        alignment: AlignmentType.RIGHT,
+        spacing: { before: 60, after: 60 },
+        children: [new TextRun({ text: text || '', bold, size, font: 'Times New Roman', rightToLeft: true })]
+      })
     }
 
     function pGreen(text: string, size = 26) {
