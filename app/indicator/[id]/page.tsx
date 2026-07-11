@@ -18,7 +18,7 @@ type Evidence = {
 
 export default function IndicatorPage() {
   const { id } = useParams()
-  const { school, loading: schoolLoading } = useSchool()
+  const { school, loading: schoolLoading, isTrial, allowedDomains } = useSchool()
   const [indicator, setIndicator] = useState<any>(null)
   const [standard, setStandard] = useState<any>(null)
   const [domain, setDomain] = useState<any>(null)
@@ -172,6 +172,35 @@ export default function IndicatorPage() {
   if (schoolLoading || loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
       <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
+    </div>
+  )
+
+  // حماية فعلية ضد تجاوز قفل المجالات بالحساب المجاني: لوحة التحكم تمنع
+  // الدخول لمجال مقفول عبر الواجهة فقط، لكن بدون هذا الفحص هنا كان أي حساب
+  // تجريبي يقدر يدخل مباشرة برابط /indicator/<id> من مجال غير المسموح
+  // ويرفع شواهد بحرية تامة رغم القفل. هذا الفحص يمنع الوصول فعلياً.
+  const domainLocked = isTrial && allowedDomains != null && domain && !allowedDomains.includes(domain.id)
+  if (domainLocked) return (
+    <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
+      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <AppSidebar activeDomainId={domain?.id} />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
+            <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
+            <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>هذا المجال يتطلب الاشتراك</p>
+            <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              الحساب المجاني يتيح مجال "البيئة المدرسية" فقط. اشترك للوصول لبقية المجالات ورفع الشواهد فيها.
+            </p>
+            <a href="https://wa.me/00966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+            </a>
+            <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   )
 
