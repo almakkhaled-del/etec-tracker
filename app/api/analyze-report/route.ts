@@ -41,8 +41,11 @@ Extract from this Saudi school external evaluation report:
 
 Rules:
 - all string values single line only, max 80 chars per field (except the swot_* arrays below)
-- swot_strengths, swot_weaknesses, swot_opportunities, swot_challenges, swot_solutions يجب أن تكون مصفوفة (array) من نقاط منفصلة قصيرة، كل نقطة عنصر مستقل بالمصفوفة (سطر واحد لكل نقطة، بدون ترقيم أو رموز نقطية داخل النص نفسه) — استخرج كل النقاط الفعلية الواردة بالتقرير دون دمجها بسطر واحد
-- إذا لم يوجد أي نقاط لحقل معين، أرجع مصفوفة فارغة []`
+- swot_strengths, swot_weaknesses, swot_opportunities, swot_challenges, swot_solutions يجب أن تكون مصفوفة (array) من نقاط منفصلة قصيرة، كل نقطة عنصر مستقل بالمصفوفة (سطر واحد لكل نقطة، بدون ترقيم أو رموز نقطية داخل النص نفسه)
+- swot_strengths و swot_weaknesses: استخرجها مباشرة من نص التقرير (المؤشرات والملاحظات الصريحة)
+- swot_opportunities و swot_challenges: تقارير التقويم الخارجي غالباً لا تذكر "الفرص" أو "التحديات" بالاسم صراحةً — لذلك استنتجها من سياق التقرير (نوع المدرسة، الموقع، النطاق، الإدارة، البيئة المحيطة، الشراكات المحتملة، المخاطر البيئية أو المجتمعية المحتملة) حتى لو لم تُذكر حرفياً. لا ترجعها فارغة إلا في حالة استحالة الاستنتاج التام
+- swot_solutions: لكل نقطة في swot_weaknesses اقترح آلية معالجة عملية ومحددة مقابلة لها — يجب أن يكون عدد عناصر swot_solutions قريباً من عدد عناصر swot_weaknesses، ولا تتركها فارغة طالما توجد نقاط ضعف
+- أرجع مصفوفة فارغة [] فقط إذا لم يوجد أي أساس منطقي للاستنتاج (نادر الحدوث)`
 
 // Professional prompt template — called twice with different domain groups
 function buildIndicatorsPrompt(domainGroup: 'group1' | 'group2'): string {
