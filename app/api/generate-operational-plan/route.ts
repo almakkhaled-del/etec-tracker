@@ -9,8 +9,8 @@ const PROMPT = `أنت خبير في تحليل تقارير التقويم ال
 1. بيانات المدرسة من التقرير: اسم المدرسة، إدارة التعليم، نطاق التعليم، المرحلة الدراسية (ابتدائية/متوسطة/ثانوية)
 
 2. SWOT من المؤشرات:
-   - نقاط القوة: المؤشرات بمستوى متميز أو متقدم (75% وأعلى) — اذكر اسم المؤشر ونسبته
-   - نقاط الضعف: المؤشرات بمستوى انطلاق أو تهيئة (أقل من 75%) — اذكر اسم المؤشر ونسبته
+   - نقاط القوة: المؤشرات بمستوى متميز أو متقدم (75% وأعلى) — اذكر اسم المؤشر فقط بدون نسبة
+   - نقاط الضعف: المؤشرات بمستوى انطلاق أو تهيئة (أقل من 75%) — اذكر اسم المؤشر فقط بدون نسبة
    - الفرص: استنتجها من السياق (دعم خارجي، موارد، شراكات)
    - التهديدات: استنتجها من السياق (تحديات بيئية أو مجتمعية)
 
@@ -29,8 +29,8 @@ const PROMPT = `أنت خبير في تحليل تقارير التقويم ال
     "stage": "ابتدائية أو متوسطة أو ثانوية"
   },
   "swot": {
-    "strengths": ["المؤشر ونسبته"],
-    "weaknesses": ["المؤشر ونسبته"],
+    "strengths": ["اسم المؤشر فقط"],
+    "weaknesses": ["اسم المؤشر فقط"],
     "opportunities": ["فرصة"],
     "threats": ["تهديد"]
   },
@@ -339,7 +339,7 @@ async function buildDocx(aiData: any, info: any): Promise<ArrayBuffer> {
     return new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { before: 200, after: 120 }, children: [new TextRun({ text: t, bold: true, size, color: G, font: 'Times New Roman', rightToLeft: true })] })
   }
   function rtxt(t: string, bold = false, size = 20) {
-    return new Paragraph({ alignment: AlignmentType.END, bidirectional: true, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: t, bold, size, font: 'Times New Roman', rightToLeft: true })] })
+    return new Paragraph({ alignment: AlignmentType.RIGHT, bidirectional: true, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: t, bold, size, font: 'Times New Roman', rightToLeft: true })] })
   }
 
   function progTable(programs: any[]) {
@@ -477,7 +477,7 @@ async function buildDocx(aiData: any, info: any): Promise<ArrayBuffer> {
   ])
 
   const doc = new Document({
-    styles: { default: { document: { run: { font: 'Times New Roman', size: 20, rightToLeft: true }, paragraph: { alignment: AlignmentType.RIGHT } } } },
+    styles: { default: { document: { run: { font: 'Times New Roman', size: 20, rightToLeft: true }, paragraph: { alignment: AlignmentType.RIGHT, bidirectional: true } } } },
     sections: [{
       properties: { page: { size: { width: 16838, height: 11906 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
       children: [
