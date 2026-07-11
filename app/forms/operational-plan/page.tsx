@@ -341,7 +341,7 @@ export default function OperationalPlanPage() {
         new TableRow({ tableHeader: true, children: [
           hC('م', cols[0]), hC('اسم البرنامج', cols[1]), hC('نعم', cols[2]),
           hC('لا', cols[3]), hC('تاريخ المتابعة', cols[4]), hC('إجراءات التحسين', cols[5]),
-        ]},
+        ]}),
         ...programs.map((prog: any, i: number) => new TableRow({ children: [
           dC(String(i + 1), cols[0]), dC(prog.name, cols[1]),
           eC(cols[2]), eC(cols[3]), eC(cols[4]), eC(cols[5]),
