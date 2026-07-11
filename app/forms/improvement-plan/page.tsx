@@ -33,8 +33,8 @@ interface AnalysisResult {
   period: string; admin_independence: string; shared_school: string; scope: string; phone: string
   overall_level: string; outcomes_level: string; report_date: string; overall_avg: string
   domain_admin: string; domain_teaching: string; domain_outcomes: string; domain_env: string
-  swot_strengths: string; swot_weaknesses: string; swot_opportunities: string
-  swot_challenges: string; swot_solutions: string
+  swot_strengths: string[]; swot_weaknesses: string[]; swot_opportunities: string[]
+  swot_challenges: string[]; swot_solutions: string[]
   priority_admin: Priority; priority_guidance: Priority; priority_activities: Priority
   priority_outcomes: Priority; priority_teaching: Priority; priority_env: Priority
   recommendations: string; weak_indicators: WeakIndicator[]
@@ -138,6 +138,24 @@ export default function ImprovementPlanPage() {
       width: w ? { size: w as number, type: WidthType.DXA } : undefined,
       children: [p(text || '', bold, 24, DARK_TEXT)]
     })
+    // Bullet cell — كل عنصر بالمصفوفة بسطر مستقل بدل سرد الكل بسطر واحد
+    // (نفس معكوس RIGHT<->LEFT مع bidi، ونستخدم LEFT هنا للسبب نفسه)
+    const bulletCell = (items: string[] | string | undefined, w?: number | null) => {
+      const list = Array.isArray(items) ? items : (items ? [items] : [])
+      return new TableCell({
+        borders,
+        verticalAlign: VerticalAlign.TOP,
+        width: w ? { size: w as number, type: WidthType.DXA } : undefined,
+        children: list.length > 0
+          ? list.map(line => new Paragraph({
+              bidirectional: true,
+              alignment: AlignmentType.LEFT,
+              spacing: { before: 40, after: 40 },
+              children: [new TextRun({ text: `• ${line}`, size: 24, color: DARK_TEXT, font: 'Sakkal Majalla' })]
+            }))
+          : [p('', false, 24, DARK_TEXT)]
+      })
+    }
     const title = (text: string) => new Paragraph({
       bidirectional: true, alignment: AlignmentType.CENTER,
       children: [new TextRun({ text, bold: true, size: 32, color: DARK_TEXT, font: 'Sakkal Majalla' })]
@@ -151,7 +169,7 @@ export default function ImprovementPlanPage() {
     const gap = () => new Paragraph({ children: [] })
 
     return { Document, Packer, Table, TableRow, TableCell, WidthType, PageOrientation,
-             p, hCell, gCell, dCell, title, section, gap, saveAs, VerticalAlign }
+             p, hCell, gCell, dCell, bulletCell, title, section, gap, saveAs, VerticalAlign }
   }
 
   async function downloadDoc1() {
@@ -374,12 +392,13 @@ export default function ImprovementPlanPage() {
     setDocStatus(s => ({ ...s, doc3: 'generating' }))
     try {
       const { Document, Packer, Table, TableRow, WidthType, PageOrientation,
-              hCell, gCell, dCell, title, section, gap, saveAs } = await buildDocxHelpers()
+              hCell, gCell, dCell, bulletCell, title, section, gap, saveAs } = await buildDocxHelpers()
 
       const d = result
-      const landscapeProps3 = { page: { size: { width: 16838, height: 11906 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }
+      // طولية (Portrait A4) بدل العرضية اللي كانت بالغلط
+      const portraitProps3 = { page: { size: { width: 11906, height: 16838 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }
 
-      const doc = new Document({ sections: [{ properties: landscapeProps3, children: [
+      const doc = new Document({ sections: [{ properties: portraitProps3, children: [
         title('تقرير واقع المدرسة'),
         gap(),
         section('البيانات الأساسية:'),
@@ -411,11 +430,11 @@ export default function ImprovementPlanPage() {
         new Table({ visuallyRightToLeft: true,
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
-            new TableRow({ children: [gCell('نقاط القوة'), dCell(d.swot_strengths)] }),
-            new TableRow({ children: [gCell('نقاط الضعف'), dCell(d.swot_weaknesses)] }),
-            new TableRow({ children: [gCell('الفرص'), dCell(d.swot_opportunities)] }),
-            new TableRow({ children: [gCell('التحديات'), dCell(d.swot_challenges)] }),
-            new TableRow({ children: [gCell('آلية معالجة نقاط الضعف'), dCell(d.swot_solutions)] }),
+            new TableRow({ children: [gCell('نقاط القوة'), bulletCell(d.swot_strengths)] }),
+            new TableRow({ children: [gCell('نقاط الضعف'), bulletCell(d.swot_weaknesses)] }),
+            new TableRow({ children: [gCell('الفرص'), bulletCell(d.swot_opportunities)] }),
+            new TableRow({ children: [gCell('التحديات'), bulletCell(d.swot_challenges)] }),
+            new TableRow({ children: [gCell('آلية معالجة نقاط الضعف'), bulletCell(d.swot_solutions)] }),
           ]
         }),
         gap(),

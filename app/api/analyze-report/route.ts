@@ -25,11 +25,11 @@ Extract from this Saudi school external evaluation report:
   "domain_env": "",
   "scope": "",
   "phone": "",
-  "swot_strengths": "",
-  "swot_weaknesses": "",
-  "swot_opportunities": "",
-  "swot_challenges": "",
-  "swot_solutions": "",
+  "swot_strengths": ["نقطة قوة 1", "نقطة قوة 2"],
+  "swot_weaknesses": ["نقطة ضعف 1", "نقطة ضعف 2"],
+  "swot_opportunities": ["فرصة 1", "فرصة 2"],
+  "swot_challenges": ["تحدٍ 1", "تحدٍ 2"],
+  "swot_solutions": ["آلية معالجة 1", "آلية معالجة 2"],
   "priority_admin": { "level": "عالي", "justification": "" },
   "priority_guidance": { "level": "متوسط", "justification": "" },
   "priority_activities": { "level": "متوسط", "justification": "" },
@@ -39,7 +39,10 @@ Extract from this Saudi school external evaluation report:
   "recommendations": ""
 }
 
-Rules: all string values single line only, max 80 chars per field.`
+Rules:
+- all string values single line only, max 80 chars per field (except the swot_* arrays below)
+- swot_strengths, swot_weaknesses, swot_opportunities, swot_challenges, swot_solutions يجب أن تكون مصفوفة (array) من نقاط منفصلة قصيرة، كل نقطة عنصر مستقل بالمصفوفة (سطر واحد لكل نقطة، بدون ترقيم أو رموز نقطية داخل النص نفسه) — استخرج كل النقاط الفعلية الواردة بالتقرير دون دمجها بسطر واحد
+- إذا لم يوجد أي نقاط لحقل معين، أرجع مصفوفة فارغة []`
 
 // Professional prompt template — called twice with different domain groups
 function buildIndicatorsPrompt(domainGroup: 'group1' | 'group2'): string {
