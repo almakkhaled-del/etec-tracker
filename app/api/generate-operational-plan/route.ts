@@ -339,7 +339,7 @@ async function buildDocx(aiData: any, info: any): Promise<ArrayBuffer> {
     return new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { before: 200, after: 120 }, children: [new TextRun({ text: t, bold: true, size, color: G, font: 'Times New Roman', rightToLeft: true })] })
   }
   function rtxt(t: string, bold = false, size = 20) {
-    return new Paragraph({ alignment: AlignmentType.RIGHT, bidirectional: true, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: t, bold, size, font: 'Times New Roman', rightToLeft: true })] })
+    return new Paragraph({ alignment: AlignmentType.END, bidirectional: true, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: t, bold, size, font: 'Times New Roman', rightToLeft: true })] })
   }
 
   function progTable(programs: any[]) {
