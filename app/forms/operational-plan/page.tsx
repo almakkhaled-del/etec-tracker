@@ -479,6 +479,7 @@ export default function OperationalPlanPage() {
           }
         }
       },
+
       sections: [{
         properties: {
           page: {
@@ -673,7 +674,24 @@ export default function OperationalPlanPage() {
     })
 
     const buf = await Packer.toBuffer(doc)
-    const blob = new Blob([new Uint8Array(buf)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+
+    // Fix RTL direction by patching settings.xml in the ZIP
+    const { default: JSZip } = await import('jszip')
+    const zip = await JSZip.loadAsync(buf)
+
+    // Patch word/settings.xml to add RTL bidi flag
+    const settingsFile = zip.file('word/settings.xml')
+    if (settingsFile) {
+      let settingsXml = await settingsFile.async('string')
+      // Add <w:bidi/> before </w:settings> to force RTL document direction
+      if (!settingsXml.includes('<w:bidi/>')) {
+        settingsXml = settingsXml.replace('</w:settings>', '<w:bidi/></w:settings>')
+        zip.file('word/settings.xml', settingsXml)
+      }
+    }
+
+    const fixedBuf = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
+    const blob = new Blob([fixedBuf], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
     saveAs(blob, `الخطة_التشغيلية_${info.schoolName}.docx`)
   }
 
