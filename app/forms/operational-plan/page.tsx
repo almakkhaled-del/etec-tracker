@@ -668,7 +668,7 @@ export default function OperationalPlanPage() {
     })
 
     const buf = await Packer.toBuffer(doc)
-    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    const blob = new Blob([new Uint8Array(buf)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
     saveAs(blob, `الخطة_التشغيلية_${info.schoolName}.docx`)
   }
 
