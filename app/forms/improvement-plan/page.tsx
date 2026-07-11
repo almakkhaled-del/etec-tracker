@@ -142,8 +142,10 @@ export default function ImprovementPlanPage() {
       bidirectional: true, alignment: AlignmentType.CENTER,
       children: [new TextRun({ text, bold: true, size: 32, color: DARK_TEXT, font: 'Sakkal Majalla' })]
     })
+    // AlignmentType.LEFT هنا مقصودة وليست خطأ: مع bidirectional:true ينعكس
+    // المعنى البصري لـ jc (نفس خلل تم اكتشافه وتأكيده بالخطة التشغيلية RIGHT<->LEFT)
     const section = (text: string) => new Paragraph({
-      bidirectional: true, alignment: AlignmentType.RIGHT,
+      bidirectional: true, alignment: AlignmentType.LEFT,
       children: [new TextRun({ text, bold: true, size: 28, color: DARK_TEXT, font: 'Sakkal Majalla' })]
     })
     const gap = () => new Paragraph({ children: [] })

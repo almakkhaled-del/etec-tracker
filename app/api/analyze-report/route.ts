@@ -168,9 +168,14 @@ function repairAndParseObject(raw: string): any {
   return JSON.parse(result)
 }
 
-async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode: boolean): Promise<string> {
-  const genConfig: any = { temperature: 0.1, maxOutputTokens: 16000 }
-  if (jsonMode) genConfig.responseMimeType = 'application/json'
+// يرجع النص + finishReason عشان نقدر نكتشف القطع (truncation) بدل ما يضيع بصمت
+async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode: boolean): Promise<{ text: string; finishReason: string }> {
+  // رفعنا الحد من 16000 إلى 32768: الحقول المطلوبة لكل مؤشر مفصّلة جداً
+  // (executed_actions بـ4 إجراءات مع أسابيع + actions + methods + school_committee)
+  // وإذا كان المجال يحتوي عدد مؤشرات أكبر من المتوقع، يوصل الرد لحد الـ16000
+  // القديم ويُقطع Gemini منتصف الـ JSON — فيروح آخر مؤشر أو مؤشرين بصمت دون أي خطأ
+  // لأن repairAndParseArray يتجاهل أي object غير مكتمل بالـ regex fallback.
+  const genConfig: any = { temperature: 0.1, maxOutputTokens: 32768, responseMimeType: 'application/json' }
 
   let lastStatus = 0
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -191,7 +196,12 @@ async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode:
     lastStatus = res.status
     if (res.ok) {
       const data = await res.json()
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      const finishReason = data.candidates?.[0]?.finishReason || 'UNKNOWN'
+      if (finishReason === 'MAX_TOKENS') {
+        console.warn('[analyze-report] Gemini response truncated (MAX_TOKENS) — some indicators may be cut off. Prompt head:', prompt.slice(0, 60))
+      }
+      return { text, finishReason }
     }
     if ((res.status === 503 || res.status === 429) && attempt < 3) {
       await new Promise(r => setTimeout(r, attempt * 6000))
@@ -212,11 +222,14 @@ export async function POST(req: NextRequest) {
     if (!apiKey) return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 })
 
     // 3 parallel calls: info + indicators group1 (admin+teaching) + group2 (outcomes+env+others)
-    const [rawInfo, rawInd1, rawInd2] = await Promise.all([
+    const [info1, ind1Res, ind2Res] = await Promise.all([
       callGemini(base64, apiKey, PROMPT_INFO, true),
-      callGemini(base64, apiKey, buildIndicatorsPrompt('group1'), false),
-      callGemini(base64, apiKey, buildIndicatorsPrompt('group2'), false),
+      callGemini(base64, apiKey, buildIndicatorsPrompt('group1'), true),
+      callGemini(base64, apiKey, buildIndicatorsPrompt('group2'), true),
     ])
+    const rawInfo = info1.text
+    const rawInd1 = ind1Res.text
+    const rawInd2 = ind2Res.text
 
     // Parse info object
     let info: any
@@ -229,25 +242,44 @@ export async function POST(req: NextRequest) {
     try { indicators1 = repairAndParseArray(rawInd1) } catch {}
     try { indicators2 = repairAndParseArray(rawInd2) } catch {}
 
-    // Merge and deduplicate by id
+    // Merge وإزالة التكرار: نعتمد على مفتاح domain+name وليس id فقط، لأن id
+    // يولّده Gemini بنفسه (يقلّد الصيغة المثال "X-X-X-X") وممكن يكرر نفس الـ id
+    // لمؤشرين مختلفين فعلياً بين group1 وgroup2، فيروح أحدهما بالغلط ظناً أنه تكرار.
+    // كما لا نستبعد أي مؤشر لمجرد أن حقل id ناقص — نولّد له id بديل بدل إسقاطه.
     const allIndicators = [...indicators1, ...indicators2]
     const seen = new Set<string>()
-    const indicators = allIndicators.filter(ind => {
-      if (!ind.id || seen.has(ind.id)) return false
-      seen.add(ind.id)
+    const indicators = allIndicators.filter((ind, i) => {
+      if (!ind || !ind.name) return false
+      if (!ind.id) ind.id = `auto-${i}`
+      const key = `${(ind.domain || '').trim()}::${(ind.name || '').trim()}`
+      if (seen.has(key)) return false
+      seen.add(key)
       return true
     })
+
+    // تحذير تشخيصي: إذا انقطع الرد بسبب حد التوكنز، نرجّعه ضمن الاستجابة
+    // عشان تقدر تتأكد فوراً وقت الاختبار بدل ما تكتشفها بعد أسابيع
+    const truncationWarning =
+      ind1Res.finishReason === 'MAX_TOKENS' || ind2Res.finishReason === 'MAX_TOKENS'
+        ? 'تحذير: رد Gemini انقطع بسبب حد التوكنز (MAX_TOKENS) — من المحتمل أن بعض المؤشرات لم تكتمل. راجع اللوقز.'
+        : undefined
 
     if (indicators.length === 0) {
       return NextResponse.json({
         error: 'JSON parse failed (indicators)',
         detail: 'Both groups returned empty',
         raw1: rawInd1.slice(0, 300),
-        raw2: rawInd2.slice(0, 300)
+        raw2: rawInd2.slice(0, 300),
+        finishReason1: ind1Res.finishReason,
+        finishReason2: ind2Res.finishReason
       }, { status: 500 })
     }
 
-    return NextResponse.json({ ...info, weak_indicators: indicators })
+    return NextResponse.json({
+      ...info,
+      weak_indicators: indicators,
+      _debug: { finishReason1: ind1Res.finishReason, finishReason2: ind2Res.finishReason, truncationWarning }
+    })
 
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 })
