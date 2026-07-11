@@ -260,10 +260,14 @@ export default function OperationalPlanPage() {
       })
     }
 
+    // ملاحظة مهمة: عند تفعيل bidirectional (RTL)، يقوم Word/LibreOffice بعكس
+    // المعنى البصري لقيم jc "right"/"left" (خاصية موروثة من صيغة .doc القديمة).
+    // لذلك للحصول على محاذاة يمين بصرية فعلية مع فقرة RTL، يجب استخدام
+    // AlignmentType.LEFT وليس RIGHT. تم التحقق من هذا فعلياً بمقارنة عرض الملف.
     function pRight(text: string, bold = false, size = 20) {
       return new Paragraph({
         bidirectional: true,
-        alignment: AlignmentType.RIGHT,
+        alignment: AlignmentType.LEFT,
         spacing: { before: 60, after: 60 },
         children: [new TextRun({ text: text || '', bold, size, font: 'Times New Roman', rightToLeft: true })]
       })
@@ -368,7 +372,7 @@ export default function OperationalPlanPage() {
           ? (items || []).map((line: string) =>
               new Paragraph({
                 bidirectional: true,
-                alignment: AlignmentType.RIGHT,
+                alignment: AlignmentType.LEFT, // انظر ملاحظة عكس jc مع bidi أعلى الملف
                 spacing: { before: 40, after: 40 },
                 children: [new TextRun({ text: `• ${line}`, size: 18, font: 'Times New Roman', rightToLeft: true })]
               })
@@ -673,24 +677,14 @@ export default function OperationalPlanPage() {
       }]
     })
 
-    const buf = await Packer.toBuffer(doc)
-
-    // Fix RTL direction by patching settings.xml in the ZIP
-    const { default: JSZip } = await import('jszip')
-    const zip = await JSZip.loadAsync(buf)
-
-    // Patch word/settings.xml to add RTL bidi flag
-    const settingsFile = zip.file('word/settings.xml')
-    if (settingsFile) {
-      let settingsXml = await settingsFile.async('string')
-      // Add <w:bidi/> before </w:settings> to force RTL document direction
-      if (!settingsXml.includes('<w:bidi/>')) {
-        settingsXml = settingsXml.replace('</w:settings>', '<w:bidi/></w:settings>')
-        zip.file('word/settings.xml', settingsXml)
-      }
-    }
-
-    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    // لم نعد بحاجة لتعديل word/settings.xml عبر JSZip: المشكلة الحقيقية لم تكن
+    // غياب <w:bidi/> على مستوى المستند، بل انعكاس معنى jc="right" بصرياً حين
+    // تكون الفقرة bidirectional (مؤكدة بالاختبار الفعلي أعلاه). كما أن الإضافة
+    // كانت تُدرج <w:bidi/> في نهاية settings.xml بعد <w:compat/>، وهو ترتيب
+    // يخالف تسلسل عناصر CT_Settings المطلوب من مخطط OOXML — ما قد يجعل Word
+    // يتجاهله بصمت أو حتى يطلب "إصلاح" الملف عند فتحه. الاعتماد على مخرجات
+    // Packer مباشرة أبسط وأصح.
+    const blob = await Packer.toBlob(doc)
     saveAs(blob, `الخطة_التشغيلية_${info.schoolName}.docx`)
   }
 
