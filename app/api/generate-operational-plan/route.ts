@@ -9,8 +9,8 @@ const PROMPT = `أنت خبير في تحليل تقارير التقويم ال
 1. بيانات المدرسة من التقرير: اسم المدرسة، إدارة التعليم، نطاق التعليم، المرحلة الدراسية (ابتدائية/متوسطة/ثانوية)
 
 2. SWOT من المؤشرات:
-   - نقاط القوة: المؤشرات بمستوى متميز أو متقدم (75% وأعلى) — اذكر اسم المؤشر فقط بدون نسبة
-   - نقاط الضعف: المؤشرات بمستوى انطلاق أو تهيئة (أقل من 75%) — اذكر اسم المؤشر فقط بدون نسبة
+   - نقاط القوة: المؤشرات التي حصلت على مستوى متميز أو متقدم — اكتب اسم المؤشر فقط بدون نسبة مئوية
+   - نقاط الضعف: المؤشرات التي حصلت على مستوى انطلاق أو تهيئة — اكتب اسم المؤشر فقط بدون نسبة مئوية
    - الفرص: استنتجها من السياق (دعم خارجي، موارد، شراكات)
    - التهديدات: استنتجها من السياق (تحديات بيئية أو مجتمعية)
 
@@ -29,8 +29,8 @@ const PROMPT = `أنت خبير في تحليل تقارير التقويم ال
     "stage": "ابتدائية أو متوسطة أو ثانوية"
   },
   "swot": {
-    "strengths": ["اسم المؤشر فقط"],
-    "weaknesses": ["اسم المؤشر فقط"],
+    "strengths": ["تلتزم المدرسة بقيم مهنة التعليم وأخلاقياتها", "يظهر المتعلمون اعتزازاً بالقيم والهوية الوطنية"],
+    "weaknesses": ["تنفذ المدرسة خطة للتحسين بناءً على نتائج التقويم المدرسي", "تحلل المدرسة نتائج التقويم وتوظفها في تحسين نواتج التعلم"],
     "opportunities": ["فرصة"],
     "threats": ["تهديد"]
   },
@@ -324,22 +324,22 @@ async function buildDocx(aiData: any, info: any): Promise<ArrayBuffer> {
     return new Table({ width: { size: w, type: WidthType.DXA }, layout: TableLayoutType.FIXED, borders: BORD, rows, visuallyRightToLeft: true })
   }
   function hC(t: string, w: number, cs = 1) {
-    return new TableCell({ width: { size: w, type: WidthType.DXA }, columnSpan: cs, verticalAlign: VerticalAlign.CENTER, shading: { type: ShadingType.CLEAR, color: 'auto', fill: G }, children: [new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, children: [new TextRun({ text: t, bold: true, color: W, size: 18, font: 'Times New Roman', rightToLeft: true })] })] })
+    return new TableCell({ width: { size: w, type: WidthType.DXA }, columnSpan: cs, verticalAlign: VerticalAlign.CENTER, shading: { type: ShadingType.CLEAR, color: 'auto', fill: G }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: t, bold: true, color: W, size: 18, font: 'Times New Roman', rightToLeft: true })] })] })
   }
   function lC(t: string, w: number, cs = 1) {
-    return new TableCell({ width: { size: w, type: WidthType.DXA }, columnSpan: cs, verticalAlign: VerticalAlign.CENTER, shading: { type: ShadingType.CLEAR, color: 'auto', fill: GL }, children: [new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, children: [new TextRun({ text: t, bold: true, color: B, size: 18, font: 'Times New Roman', rightToLeft: true })] })] })
+    return new TableCell({ width: { size: w, type: WidthType.DXA }, columnSpan: cs, verticalAlign: VerticalAlign.CENTER, shading: { type: ShadingType.CLEAR, color: 'auto', fill: GL }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: t, bold: true, color: B, size: 18, font: 'Times New Roman', rightToLeft: true })] })] })
   }
   function dC(t: string, w: number, cs = 1, bold = false) {
-    return new TableCell({ width: { size: w, type: WidthType.DXA }, columnSpan: cs, verticalAlign: VerticalAlign.CENTER, children: [new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, children: [new TextRun({ text: t || '', bold, color: B, size: 17, font: 'Times New Roman', rightToLeft: true })] })] })
+    return new TableCell({ width: { size: w, type: WidthType.DXA }, columnSpan: cs, verticalAlign: VerticalAlign.CENTER, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: t || '', bold, color: B, size: 17, font: 'Times New Roman', rightToLeft: true })] })] })
   }
   function eC(w: number, cs = 1) { return dC('', w, cs) }
   function sp(after = 150) { return new Paragraph({ spacing: { after } }) }
   function pb() { return new Paragraph({ children: [new PageBreak()] }) }
   function ttl(t: string, size = 28) {
-    return new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { before: 200, after: 120 }, children: [new TextRun({ text: t, bold: true, size, color: G, font: 'Times New Roman', rightToLeft: true })] })
+    return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 200, after: 120 }, children: [new TextRun({ text: t, bold: true, size, color: G, font: 'Times New Roman', rightToLeft: true })] })
   }
   function rtxt(t: string, bold = false, size = 20) {
-    return new Paragraph({ alignment: AlignmentType.RIGHT, bidirectional: true, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: t, bold, size, font: 'Times New Roman', rightToLeft: true })] })
+    return new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: t, bold, size, font: 'Times New Roman', rightToLeft: true })] })
   }
 
   function progTable(programs: any[]) {
@@ -377,7 +377,7 @@ async function buildDocx(aiData: any, info: any): Promise<ArrayBuffer> {
       width: { size: w, type: WidthType.DXA }, verticalAlign: VerticalAlign.TOP,
       shading: { type: ShadingType.CLEAR, color: 'auto', fill },
       children: (items || []).map((line: string) =>
-        new Paragraph({ alignment: AlignmentType.RIGHT, bidirectional: true, spacing: { before: 40, after: 40 },
+        new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 40, after: 40 },
           children: [new TextRun({ text: `• ${line}`, color: B, size: 18, font: 'Times New Roman', rightToLeft: true })] })
       )
     })
@@ -483,14 +483,14 @@ async function buildDocx(aiData: any, info: any): Promise<ArrayBuffer> {
       children: [
         // === غلاف ===
         sp(300),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 80 }, children: [new TextRun({ text: 'المملكة العربية السعودية', bold: true, size: 26, font: 'Times New Roman', rightToLeft: true })] }),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 80 }, children: [new TextRun({ text: 'وزارة التعليم', bold: true, size: 24, font: 'Times New Roman', rightToLeft: true })] }),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 80 }, children: [new TextRun({ text: `${info.region} / ${info.district}`, bold: true, size: 22, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: 'المملكة العربية السعودية', bold: true, size: 26, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: 'وزارة التعليم', bold: true, size: 24, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: `${info.region} / ${info.district}`, bold: true, size: 22, font: 'Times New Roman', rightToLeft: true })] }),
         sp(200),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { before: 100, after: 400 }, children: [new TextRun({ text: `الخطة التشغيلية للعام الدراسي 1448هـ`, bold: true, size: 42, color: G, font: 'Times New Roman', rightToLeft: true })] }),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 60 }, children: [new TextRun({ text: info.schoolName, bold: true, size: 30, font: 'Times New Roman', rightToLeft: true })] }),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 60 }, children: [new TextRun({ text: 'مدير المدرسة', bold: true, size: 24, font: 'Times New Roman', rightToLeft: true })] }),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, spacing: { after: 60 }, children: [new TextRun({ text: info.principalName, bold: true, size: 24, color: G, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 100, after: 400 }, children: [new TextRun({ text: `الخطة التشغيلية للعام الدراسي 1448هـ`, bold: true, size: 42, color: G, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: info.schoolName, bold: true, size: 30, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: 'مدير المدرسة', bold: true, size: 24, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: info.principalName, bold: true, size: 24, color: G, font: 'Times New Roman', rightToLeft: true })] }),
 
         // === مقدمة ===
         pb(),
@@ -645,7 +645,7 @@ async function buildDocx(aiData: any, info: any): Promise<ArrayBuffer> {
         rtxt('إن النجاح في تنفيذ هذه الخطة يعتمد بشكل كبير على تكاتف جهود الجميع، من قيادة مدرسية ومعلمين وطلاب وأولياء أمور وشركاء مجتمع. وبتعاوننا وتفانينا، سنسعى جاهدين لتحويل كل هدف إلى إنجاز ملموس، وكل مبادرة إلى قصة نجاح تضاف إلى مسيرة مدرستنا الحافلة.'),
         rtxt('نتطلع إلى عام دراسي مثمر ومليء بالإنجازات، يرسخ مكانتنا كصرح تعليمي رائد، يسهم بفاعلية في بناء جيل واعٍ ومسؤول ومستقبل مشرق لوطننا الغالي.'),
         sp(200),
-        new Paragraph({ alignment: AlignmentType.CENTER, bidirectional: true, children: [new TextRun({ text: 'والله ولي التوفيق', bold: true, size: 32, color: G, font: 'Times New Roman', rightToLeft: true })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'والله ولي التوفيق', bold: true, size: 32, color: G, font: 'Times New Roman', rightToLeft: true })] }),
       ]
     }]
   })
