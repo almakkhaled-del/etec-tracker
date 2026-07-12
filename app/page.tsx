@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-const NAVY = '#1E3A5C'
-const GOLD = '#D9A441'
-const GOLD_LIGHT = '#F0D9A0'
+const NAVY = '#005448'
+const GOLD = '#2FAB99'
+const GOLD_LIGHT = '#8AD4C4'
 const CREAM = '#FBF8F2'
 
 export default function Landing() {
@@ -46,7 +46,7 @@ export default function Landing() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FBF8F2', fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: '#1E3A5C' }}>
+    <div style={{ minHeight: '100vh', background: '#FBF8F2', fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: '#005448' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
 
       <style>{`
@@ -58,7 +58,7 @@ export default function Landing() {
         @media (prefers-reduced-motion: reduce) { .hero-bg { animation: none; } }
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
         .cta-gold:hover { filter: brightness(1.08); }
-        .login-input:focus { border-color: #D9A441 !important; outline: none; }
+        .login-input:focus { border-color: #2FAB99 !important; outline: none; }
         .login-btn:hover { background: #0a1830 !important; }
 
         .hero-split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
@@ -83,7 +83,7 @@ export default function Landing() {
       {/* ============ NAV (مبسّط - شعار فقط) ============ */}
       <nav style={{
         background: 'rgba(251,248,242,0.92)', backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(30,58,92,0.08)', padding: '0 28px',
+        borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '0 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: 76, position: 'sticky', top: 0, zIndex: 100,
       }}>
@@ -104,7 +104,7 @@ export default function Landing() {
         }} />
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(30,58,92,0.05) 0%, rgba(30,58,92,0.0) 50%, rgba(251,248,242,1) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,84,72,0.05) 0%, rgba(0,84,72,0.0) 50%, rgba(251,248,242,1) 100%)',
           zIndex: 1,
         }} />
       </section>
@@ -117,19 +117,19 @@ export default function Landing() {
           <div style={{ textAlign: 'right' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(229,188,107,0.14)', border: '1px solid rgba(217,164,65,0.35)',
-              color: '#B8862B', fontSize: 12, fontWeight: 600, padding: '6px 16px',
+              background: 'rgba(95,194,172,0.14)', border: '1px solid rgba(47,171,153,0.35)',
+              color: '#1B7A66', fontSize: 12, fontWeight: 600, padding: '6px 16px',
               borderRadius: 30, marginBottom: 26, letterSpacing: 0.3
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#D9A441', display: 'inline-block' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2FAB99', display: 'inline-block' }} />
               متوافق مع معايير هيئة تقويم التعليم والتدريب
             </div>
 
-            <h1 className="hero-title" style={{ fontWeight: 900, color: '#1E3A5C', marginBottom: 22 }}>
+            <h1 className="hero-title" style={{ fontWeight: 900, color: '#005448', marginBottom: 22 }}>
               <span style={{ display: 'block', marginBottom: 6 }}>لا تبحث عن الشاهد المناسب</span>
               <span style={{
                 display: 'block',
-                background: 'linear-gradient(135deg, #D9A441, #B8862B)',
+                background: 'linear-gradient(135deg, #2FAB99, #1B7A66)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>شواهدي يرشدك إليه، وينشئه لك</span>
             </h1>
@@ -140,9 +140,9 @@ export default function Landing() {
 
             <Link href="#login-box" className="cta-gold" style={{
               display: 'inline-block', padding: '15px 38px', fontSize: 16, fontWeight: 700,
-              background: 'linear-gradient(135deg, #E5BC6B, #D9A441)', color: '#1E3A5C',
+              background: 'linear-gradient(135deg, #5FC2AC, #2FAB99)', color: '#005448',
               borderRadius: 10, textDecoration: 'none',
-              boxShadow: '0 8px 24px rgba(217,164,65,0.28)', transition: 'filter 0.2s'
+              boxShadow: '0 8px 24px rgba(47,171,153,0.28)', transition: 'filter 0.2s'
             }}>
               سجّل مدرستك الآن ←
             </Link>
@@ -151,7 +151,7 @@ export default function Landing() {
           {/* مربع الدخول - يسار */}
           <div id="login-box" style={{
             background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
-            border: '1px solid rgba(30,58,92,0.07)', boxShadow: '0 16px 44px rgba(30,58,92,0.10)',
+            border: '1px solid rgba(0,84,72,0.07)', boxShadow: '0 16px 44px rgba(0,84,72,0.10)',
             scrollMarginTop: 100
           }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: NAVY, marginBottom: 6, textAlign: 'center' }}>تسجيل الدخول</h2>
@@ -167,7 +167,7 @@ export default function Landing() {
               placeholder="example@school.edu.sa" className="login-input"
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
               style={{
-                width: '100%', padding: '12px 16px', border: '1px solid rgba(30,58,92,0.15)',
+                width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
                 borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
                 boxSizing: 'border-box', marginBottom: 16, background: '#FBF8F2', color: NAVY
               }}
@@ -181,7 +181,7 @@ export default function Landing() {
               placeholder="••••••••" className="login-input"
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
               style={{
-                width: '100%', padding: '12px 16px', border: '1px solid rgba(30,58,92,0.15)',
+                width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
                 borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
                 boxSizing: 'border-box', marginBottom: 20, background: '#FBF8F2', color: NAVY
               }}
@@ -218,7 +218,7 @@ export default function Landing() {
       </section>
 
       {/* ============ نبذة عن شواهدي ============ */}
-      <section style={{ background: '#fff', borderTop: '1px solid rgba(30,58,92,0.08)', borderBottom: '1px solid rgba(30,58,92,0.08)', padding: '5rem 1.5rem' }}>
+      <section style={{ background: '#fff', borderTop: '1px solid rgba(0,84,72,0.08)', borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
@@ -238,7 +238,7 @@ export default function Landing() {
           </div>
 
           <div style={{
-            background: 'linear-gradient(135deg, #1E3A5C, #2A4E78)', borderRadius: 20,
+            background: 'linear-gradient(135deg, #005448, #0A6B5A)', borderRadius: 20,
             padding: '2.4rem 2rem', textAlign: 'center'
           }}>
             <p style={{ fontSize: 13, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>
@@ -253,7 +253,7 @@ export default function Landing() {
       </section>
 
       {/* ============ المجالات ============ */}
-      <section style={{ background: '#fff', borderBottom: '1px solid rgba(30,58,92,0.08)', padding: '3rem 1.5rem' }}>
+      <section style={{ background: '#fff', borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '3rem 1.5rem' }}>
         <p className="body-font" style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', marginBottom: 22, fontWeight: 600, letterSpacing: 1 }}>
           يغطي المجالات الأربعة لمعايير إتقان — 47 مؤشراً
         </p>
@@ -266,7 +266,7 @@ export default function Landing() {
           ].map(d => (
             <div key={d.label} style={{
               background: '#FBF8F2', borderRadius: 14, padding: '22px 12px', textAlign: 'center',
-              border: '1px solid rgba(30,58,92,0.06)'
+              border: '1px solid rgba(0,84,72,0.06)'
             }}>
               <p style={{ fontSize: 32, margin: '0 0 10px' }}>{d.emoji}</p>
               <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{d.label}</p>
@@ -291,7 +291,7 @@ export default function Landing() {
           ].map(p => (
             <div key={p.title} style={{
               display: 'flex', gap: 18, padding: '1.4rem 1.6rem',
-              background: '#fff', borderRadius: 14, border: '1px solid rgba(30,58,92,0.08)'
+              background: '#fff', borderRadius: 14, border: '1px solid rgba(0,84,72,0.08)'
             }}>
               <span style={{ fontSize: 30, flexShrink: 0 }}>{p.icon}</span>
               <div>
@@ -320,7 +320,7 @@ export default function Landing() {
             ].map(f => (
               <div key={f.title} style={{
                 padding: '1.5rem 1.6rem', background: 'rgba(255,255,255,0.04)',
-                borderRadius: 14, border: '1px solid rgba(240,217,160,0.2)'
+                borderRadius: 14, border: '1px solid rgba(138,212,196,0.2)'
               }}>
                 <p style={{ fontSize: 32, margin: '0 0 12px' }}>{f.icon}</p>
                 <p style={{ fontWeight: 700, fontSize: 15, color: '#fff', margin: '0 0 8px' }}>{f.title}</p>
@@ -336,7 +336,7 @@ export default function Landing() {
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{
-              display: 'inline-block', background: 'rgba(229,188,107,0.12)', color: '#B8862B',
+              display: 'inline-block', background: 'rgba(95,194,172,0.12)', color: '#1B7A66',
               fontSize: 13.5, fontWeight: 700, padding: '7px 18px', borderRadius: 20, marginBottom: 24
             }}>
               الإطلاق الرسمي — بداية العام الدراسي 1448هـ
@@ -348,7 +348,7 @@ export default function Landing() {
 
             {/* الباقة التجريبية */}
             <div style={{
-              background: CREAM, border: '2px solid rgba(30,58,92,0.1)', borderRadius: 24,
+              background: CREAM, border: '2px solid rgba(0,84,72,0.1)', borderRadius: 24,
               padding: '3rem 2.6rem', display: 'flex', flexDirection: 'column'
             }}>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#8A8270', marginBottom: 14 }}>🆓 تجريبية</p>
@@ -363,7 +363,7 @@ export default function Landing() {
               </div>
               <a href="/register" style={{
                 display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
-                background: 'rgba(30,58,92,0.06)', color: NAVY, borderRadius: 12, textDecoration: 'none'
+                background: 'rgba(0,84,72,0.06)', color: NAVY, borderRadius: 12, textDecoration: 'none'
               }}>
                 ابدأ مجاناً ←
               </a>
@@ -373,13 +373,13 @@ export default function Landing() {
             <div style={{
               background: NAVY, borderRadius: 24, position: 'relative',
               padding: '3rem 2.6rem', display: 'flex', flexDirection: 'column',
-              boxShadow: '0 20px 52px rgba(30,58,92,0.24)'
+              boxShadow: '0 20px 52px rgba(0,84,72,0.24)'
             }}>
               <div style={{
                 position: 'absolute', top: -17, left: '50%', transform: 'translateX(-50%)',
-                background: `linear-gradient(135deg, #E5BC6B, ${GOLD})`, color: NAVY,
+                background: `linear-gradient(135deg, #5FC2AC, ${GOLD})`, color: NAVY,
                 fontSize: 13, fontWeight: 800, padding: '7px 20px', borderRadius: 20,
-                whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(217,164,65,0.35)'
+                whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(47,171,153,0.35)'
               }}>
                 🎉 عرض تدشين المنصة
               </div>
@@ -421,7 +421,7 @@ export default function Landing() {
               </div>
               <a href="https://wa.me/966555826838?text=أبي أشترك بالباقة المتكاملة" target="_blank" rel="noreferrer" style={{
                 display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
-                background: `linear-gradient(135deg, #E5BC6B, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none'
+                background: `linear-gradient(135deg, #5FC2AC, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none'
               }}>
                 اشترك الآن ←
               </a>
@@ -432,7 +432,7 @@ export default function Landing() {
       </section>
 
       {/* ============ الفوتر ============ */}
-      <footer style={{ borderTop: '1px solid rgba(30,58,92,0.08)', background: '#fff', padding: '4rem 2rem 2.8rem' }}>
+      <footer style={{ borderTop: '1px solid rgba(0,84,72,0.08)', background: '#fff', padding: '4rem 2rem 2.8rem' }}>
         <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 56, marginBottom: 20 }} />
           <p className="body-font" style={{ fontSize: 14, color: '#8A8270', margin: '0 0 20px' }}>
@@ -451,7 +451,7 @@ export default function Landing() {
             {/* توثيق التجارة الإلكترونية - وزارة التجارة + المركز السعودي للأعمال */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 18, background: '#FAFAF7',
-              border: '1px solid rgba(30,58,92,0.08)', borderRadius: 16, padding: '18px 26px'
+              border: '1px solid rgba(0,84,72,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
               <img src="/ecommerce-auth-qr.png" alt="باركود توثيق التجارة الإلكترونية" style={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
@@ -466,7 +466,7 @@ export default function Landing() {
             {/* وثيقة العمل الحر */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 18, background: '#FAFAF7',
-              border: '1px solid rgba(30,58,92,0.08)', borderRadius: 16, padding: '18px 26px'
+              border: '1px solid rgba(0,84,72,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
               <img src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 68, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
@@ -476,7 +476,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div style={{ width: 60, height: 1, background: 'rgba(30,58,92,0.1)', margin: '0 auto 24px' }} />
+          <div style={{ width: 60, height: 1, background: 'rgba(0,84,72,0.1)', margin: '0 auto 24px' }} />
           <a href="https://khaleddev.online" target="_blank" rel="noreferrer" style={{
             display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none'
           }}>
