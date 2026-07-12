@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 const NAVY = '#005448'
 const GOLD = '#2FAB99'
 const GOLD_LIGHT = '#8AD4C4'
-const CREAM = '#EAF7F4'
+const CREAM = '#F6F7F6'
 
 export default function Landing() {
   const router = useRouter()
@@ -46,7 +46,7 @@ export default function Landing() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#EAF7F4', fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: '#005448' }}>
+    <div style={{ minHeight: '100vh', background: '#F6F7F6', fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: '#005448' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
 
       <style>{`
@@ -82,7 +82,7 @@ export default function Landing() {
 
       {/* ============ NAV (مبسّط - شعار فقط) ============ */}
       <nav style={{
-        background: 'rgba(234,247,244,0.92)', backdropFilter: 'blur(8px)',
+        background: 'rgba(246,247,246,0.92)', backdropFilter: 'blur(8px)',
         borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '0 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: 76, position: 'sticky', top: 0, zIndex: 100,
@@ -104,7 +104,7 @@ export default function Landing() {
         }} />
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(0,84,72,0.05) 0%, rgba(0,84,72,0.0) 50%, rgba(234,247,244,1) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,84,72,0.05) 0%, rgba(0,84,72,0.0) 50%, rgba(246,247,246,1) 100%)',
           zIndex: 1,
         }} />
       </section>
@@ -169,7 +169,7 @@ export default function Landing() {
               style={{
                 width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
                 borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                boxSizing: 'border-box', marginBottom: 16, background: '#EAF7F4', color: NAVY
+                boxSizing: 'border-box', marginBottom: 16, background: '#F6F7F6', color: NAVY
               }}
             />
 
@@ -183,7 +183,7 @@ export default function Landing() {
               style={{
                 width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
                 borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                boxSizing: 'border-box', marginBottom: 20, background: '#EAF7F4', color: NAVY
+                boxSizing: 'border-box', marginBottom: 20, background: '#F6F7F6', color: NAVY
               }}
             />
 
@@ -265,7 +265,7 @@ export default function Landing() {
             { emoji: '🏢', label: 'البيئة المدرسية', sub: '6 مؤشرات' },
           ].map(d => (
             <div key={d.label} style={{
-              background: '#EAF7F4', borderRadius: 14, padding: '22px 12px', textAlign: 'center',
+              background: '#F6F7F6', borderRadius: 14, padding: '22px 12px', textAlign: 'center',
               border: '1px solid rgba(0,84,72,0.06)'
             }}>
               <p style={{ fontSize: 32, margin: '0 0 10px' }}>{d.emoji}</p>
