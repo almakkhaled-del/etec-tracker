@@ -4,10 +4,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-const NAVY = '#1F6E56'
-const GOLD = '#4FA8D8'
-const GOLD_LIGHT = '#B8E2F2'
-const CREAM = '#F4F9F6'
+const NAVY = '#1E3A5C'
+const GOLD = '#D9A441'
+const GOLD_LIGHT = '#F0D9A0'
+const CREAM = '#FBF8F2'
 
 export default function Landing() {
   const router = useRouter()
@@ -46,7 +46,7 @@ export default function Landing() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F4F9F6', fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: '#1F6E56' }}>
+    <div style={{ minHeight: '100vh', background: '#FBF8F2', fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: '#1E3A5C' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
 
       <style>{`
@@ -58,7 +58,7 @@ export default function Landing() {
         @media (prefers-reduced-motion: reduce) { .hero-bg { animation: none; } }
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
         .cta-gold:hover { filter: brightness(1.08); }
-        .login-input:focus { border-color: #4FA8D8 !important; outline: none; }
+        .login-input:focus { border-color: #D9A441 !important; outline: none; }
         .login-btn:hover { background: #0a1830 !important; }
 
         .hero-split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
@@ -82,8 +82,8 @@ export default function Landing() {
 
       {/* ============ NAV (مبسّط - شعار فقط) ============ */}
       <nav style={{
-        background: 'rgba(244,249,246,0.92)', backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(31,110,86,0.08)', padding: '0 28px',
+        background: 'rgba(251,248,242,0.92)', backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(30,58,92,0.08)', padding: '0 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: 76, position: 'sticky', top: 0, zIndex: 100,
       }}>
@@ -104,7 +104,7 @@ export default function Landing() {
         }} />
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(31,110,86,0.05) 0%, rgba(31,110,86,0.0) 50%, rgba(244,249,246,1) 100%)',
+          background: 'linear-gradient(180deg, rgba(30,58,92,0.05) 0%, rgba(30,58,92,0.0) 50%, rgba(251,248,242,1) 100%)',
           zIndex: 1,
         }} />
       </section>
@@ -117,32 +117,32 @@ export default function Landing() {
           <div style={{ textAlign: 'right' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(126,195,227,0.14)', border: '1px solid rgba(79,168,216,0.35)',
-              color: '#2E86AB', fontSize: 12, fontWeight: 600, padding: '6px 16px',
+              background: 'rgba(229,188,107,0.14)', border: '1px solid rgba(217,164,65,0.35)',
+              color: '#B8862B', fontSize: 12, fontWeight: 600, padding: '6px 16px',
               borderRadius: 30, marginBottom: 26, letterSpacing: 0.3
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4FA8D8', display: 'inline-block' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#D9A441', display: 'inline-block' }} />
               متوافق مع معايير هيئة تقويم التعليم والتدريب
             </div>
 
-            <h1 className="hero-title" style={{ fontWeight: 900, color: '#1F6E56', marginBottom: 22 }}>
+            <h1 className="hero-title" style={{ fontWeight: 900, color: '#1E3A5C', marginBottom: 22 }}>
               <span style={{ display: 'block', marginBottom: 6 }}>لا تبحث عن الشاهد المناسب</span>
               <span style={{
                 display: 'block',
-                background: 'linear-gradient(135deg, #4FA8D8, #2E86AB)',
+                background: 'linear-gradient(135deg, #D9A441, #B8862B)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>شواهدي يرشدك إليه، وينشئه لك</span>
             </h1>
 
-            <p className="body-font" style={{ fontSize: 16, color: '#45564F', lineHeight: 1.9, marginBottom: 30, maxWidth: 540 }}>
+            <p className="body-font" style={{ fontSize: 16, color: '#5A5648', lineHeight: 1.9, marginBottom: 30, maxWidth: 540 }}>
               شواهدي منصة تساعد مدارس التعليم العام على <strong>إنشاء</strong> شواهد معايير الاعتماد المدرسي، تنظيمها، وطباعتها — مجال بمجال، مؤشراً بمؤشر، حتى تستقبل لجنة التقويم بثقة كاملة طوال العام.
             </p>
 
             <Link href="#login-box" className="cta-gold" style={{
               display: 'inline-block', padding: '15px 38px', fontSize: 16, fontWeight: 700,
-              background: 'linear-gradient(135deg, #7EC3E3, #4FA8D8)', color: '#1F6E56',
+              background: 'linear-gradient(135deg, #E5BC6B, #D9A441)', color: '#1E3A5C',
               borderRadius: 10, textDecoration: 'none',
-              boxShadow: '0 8px 24px rgba(79,168,216,0.28)', transition: 'filter 0.2s'
+              boxShadow: '0 8px 24px rgba(217,164,65,0.28)', transition: 'filter 0.2s'
             }}>
               سجّل مدرستك الآن ←
             </Link>
@@ -151,11 +151,11 @@ export default function Landing() {
           {/* مربع الدخول - يسار */}
           <div id="login-box" style={{
             background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
-            border: '1px solid rgba(31,110,86,0.07)', boxShadow: '0 16px 44px rgba(31,110,86,0.10)',
+            border: '1px solid rgba(30,58,92,0.07)', boxShadow: '0 16px 44px rgba(30,58,92,0.10)',
             scrollMarginTop: 100
           }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: NAVY, marginBottom: 6, textAlign: 'center' }}>تسجيل الدخول</h2>
-            <p className="body-font" style={{ fontSize: 13, color: '#6E8079', marginBottom: 22, textAlign: 'center' }}>
+            <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 22, textAlign: 'center' }}>
               أدخل بيانات مدرستك للمتابعة
             </p>
 
@@ -167,9 +167,9 @@ export default function Landing() {
               placeholder="example@school.edu.sa" className="login-input"
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
               style={{
-                width: '100%', padding: '12px 16px', border: '1px solid rgba(31,110,86,0.15)',
+                width: '100%', padding: '12px 16px', border: '1px solid rgba(30,58,92,0.15)',
                 borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                boxSizing: 'border-box', marginBottom: 16, background: '#F4F9F6', color: NAVY
+                boxSizing: 'border-box', marginBottom: 16, background: '#FBF8F2', color: NAVY
               }}
             />
 
@@ -181,9 +181,9 @@ export default function Landing() {
               placeholder="••••••••" className="login-input"
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
               style={{
-                width: '100%', padding: '12px 16px', border: '1px solid rgba(31,110,86,0.15)',
+                width: '100%', padding: '12px 16px', border: '1px solid rgba(30,58,92,0.15)',
                 borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                boxSizing: 'border-box', marginBottom: 20, background: '#F4F9F6', color: NAVY
+                boxSizing: 'border-box', marginBottom: 20, background: '#FBF8F2', color: NAVY
               }}
             />
 
@@ -206,7 +206,7 @@ export default function Landing() {
               {loginLoading ? 'جاري الدخول...' : 'دخول ←'}
             </button>
 
-            <p style={{ textAlign: 'center', fontSize: 13, color: '#6E8079', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+            <p style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               ليس لديك حساب؟{' '}
               <Link href="/register" style={{ color: GOLD, textDecoration: 'none', fontWeight: 700 }}>
                 سجّل مدرستك مجاناً
@@ -218,7 +218,7 @@ export default function Landing() {
       </section>
 
       {/* ============ نبذة عن شواهدي ============ */}
-      <section style={{ background: '#fff', borderTop: '1px solid rgba(31,110,86,0.08)', borderBottom: '1px solid rgba(31,110,86,0.08)', padding: '5rem 1.5rem' }}>
+      <section style={{ background: '#fff', borderTop: '1px solid rgba(30,58,92,0.08)', borderBottom: '1px solid rgba(30,58,92,0.08)', padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
@@ -238,7 +238,7 @@ export default function Landing() {
           </div>
 
           <div style={{
-            background: 'linear-gradient(135deg, #1F6E56, #2A8568)', borderRadius: 20,
+            background: 'linear-gradient(135deg, #1E3A5C, #2A4E78)', borderRadius: 20,
             padding: '2.4rem 2rem', textAlign: 'center'
           }}>
             <p style={{ fontSize: 13, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>
@@ -253,8 +253,8 @@ export default function Landing() {
       </section>
 
       {/* ============ المجالات ============ */}
-      <section style={{ background: '#fff', borderBottom: '1px solid rgba(31,110,86,0.08)', padding: '3rem 1.5rem' }}>
-        <p className="body-font" style={{ textAlign: 'center', fontSize: 13, color: '#6E8079', marginBottom: 22, fontWeight: 600, letterSpacing: 1 }}>
+      <section style={{ background: '#fff', borderBottom: '1px solid rgba(30,58,92,0.08)', padding: '3rem 1.5rem' }}>
+        <p className="body-font" style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', marginBottom: 22, fontWeight: 600, letterSpacing: 1 }}>
           يغطي المجالات الأربعة لمعايير إتقان — 47 مؤشراً
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, maxWidth: 920, margin: '0 auto' }}>
@@ -265,12 +265,12 @@ export default function Landing() {
             { emoji: '🏢', label: 'البيئة المدرسية', sub: '6 مؤشرات' },
           ].map(d => (
             <div key={d.label} style={{
-              background: '#F4F9F6', borderRadius: 14, padding: '22px 12px', textAlign: 'center',
-              border: '1px solid rgba(31,110,86,0.06)'
+              background: '#FBF8F2', borderRadius: 14, padding: '22px 12px', textAlign: 'center',
+              border: '1px solid rgba(30,58,92,0.06)'
             }}>
               <p style={{ fontSize: 32, margin: '0 0 10px' }}>{d.emoji}</p>
               <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{d.label}</p>
-              <p className="body-font" style={{ fontSize: 11, color: '#6E8079', margin: 0 }}>{d.sub}</p>
+              <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: 0 }}>{d.sub}</p>
             </div>
           ))}
         </div>
@@ -281,7 +281,7 @@ export default function Landing() {
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>المشكلة</p>
           <h2 style={{ fontSize: 30, fontWeight: 800, color: NAVY, marginBottom: 10 }}>ما تواجهه المدارس اليوم</h2>
-          <p className="body-font" style={{ fontSize: 15, color: '#45564F' }}>معايير التقويم نظام جديد — وكثير من المدارس تبدأ من الصفر في كل زيارة</p>
+          <p className="body-font" style={{ fontSize: 15, color: '#5A5648' }}>معايير التقويم نظام جديد — وكثير من المدارس تبدأ من الصفر في كل زيارة</p>
         </div>
         <div style={{ display: 'grid', gap: 14 }}>
           {[
@@ -291,12 +291,12 @@ export default function Landing() {
           ].map(p => (
             <div key={p.title} style={{
               display: 'flex', gap: 18, padding: '1.4rem 1.6rem',
-              background: '#fff', borderRadius: 14, border: '1px solid rgba(31,110,86,0.08)'
+              background: '#fff', borderRadius: 14, border: '1px solid rgba(30,58,92,0.08)'
             }}>
               <span style={{ fontSize: 30, flexShrink: 0 }}>{p.icon}</span>
               <div>
                 <p style={{ fontWeight: 700, fontSize: 16, color: NAVY, margin: '0 0 6px' }}>{p.title}</p>
-                <p className="body-font" style={{ fontSize: 14, color: '#45564F', margin: 0, lineHeight: 1.8 }}>{p.desc}</p>
+                <p className="body-font" style={{ fontSize: 14, color: '#5A5648', margin: 0, lineHeight: 1.8 }}>{p.desc}</p>
               </div>
             </div>
           ))}
@@ -320,7 +320,7 @@ export default function Landing() {
             ].map(f => (
               <div key={f.title} style={{
                 padding: '1.5rem 1.6rem', background: 'rgba(255,255,255,0.04)',
-                borderRadius: 14, border: '1px solid rgba(184,226,242,0.2)'
+                borderRadius: 14, border: '1px solid rgba(240,217,160,0.2)'
               }}>
                 <p style={{ fontSize: 32, margin: '0 0 12px' }}>{f.icon}</p>
                 <p style={{ fontWeight: 700, fontSize: 15, color: '#fff', margin: '0 0 8px' }}>{f.title}</p>
@@ -336,7 +336,7 @@ export default function Landing() {
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{
-              display: 'inline-block', background: 'rgba(126,195,227,0.12)', color: '#2E86AB',
+              display: 'inline-block', background: 'rgba(229,188,107,0.12)', color: '#B8862B',
               fontSize: 13.5, fontWeight: 700, padding: '7px 18px', borderRadius: 20, marginBottom: 24
             }}>
               الإطلاق الرسمي — بداية العام الدراسي 1448هـ
@@ -348,22 +348,22 @@ export default function Landing() {
 
             {/* الباقة التجريبية */}
             <div style={{
-              background: CREAM, border: '2px solid rgba(31,110,86,0.1)', borderRadius: 24,
+              background: CREAM, border: '2px solid rgba(30,58,92,0.1)', borderRadius: 24,
               padding: '3rem 2.6rem', display: 'flex', flexDirection: 'column'
             }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#6E8079', marginBottom: 14 }}>🆓 تجريبية</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#8A8270', marginBottom: 14 }}>🆓 تجريبية</p>
               <p style={{ fontSize: 56, fontWeight: 900, color: NAVY, margin: '0 0 6px', lineHeight: 1 }}>0</p>
-              <p className="body-font" style={{ fontSize: 14.5, color: '#6E8079', marginBottom: 30 }}>ريال / 7 أيام تجربة مجانية</p>
+              <p className="body-font" style={{ fontSize: 14.5, color: '#8A8270', marginBottom: 30 }}>ريال / 7 أيام تجربة مجانية</p>
               <div style={{ textAlign: 'right', marginBottom: 32, flex: 1 }}>
                 {['مجال واحد من أصل 4', 'حجم رفع حتى 50 ميجابايت', 'رفع صور وملفات PDF', 'تقرير طباعة أساسي'].map(f => (
                   <p key={f} className="body-font" style={{ fontSize: 14.5, color: NAVY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ color: '#6E8079', fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
+                    <span style={{ color: '#8A8270', fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
                   </p>
                 ))}
               </div>
               <a href="/register" style={{
                 display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
-                background: 'rgba(31,110,86,0.06)', color: NAVY, borderRadius: 12, textDecoration: 'none'
+                background: 'rgba(30,58,92,0.06)', color: NAVY, borderRadius: 12, textDecoration: 'none'
               }}>
                 ابدأ مجاناً ←
               </a>
@@ -373,13 +373,13 @@ export default function Landing() {
             <div style={{
               background: NAVY, borderRadius: 24, position: 'relative',
               padding: '3rem 2.6rem', display: 'flex', flexDirection: 'column',
-              boxShadow: '0 20px 52px rgba(31,110,86,0.24)'
+              boxShadow: '0 20px 52px rgba(30,58,92,0.24)'
             }}>
               <div style={{
                 position: 'absolute', top: -17, left: '50%', transform: 'translateX(-50%)',
-                background: `linear-gradient(135deg, #7EC3E3, ${GOLD})`, color: NAVY,
+                background: `linear-gradient(135deg, #E5BC6B, ${GOLD})`, color: NAVY,
                 fontSize: 13, fontWeight: 800, padding: '7px 20px', borderRadius: 20,
-                whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(79,168,216,0.35)'
+                whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(217,164,65,0.35)'
               }}>
                 🎉 عرض تدشين المنصة
               </div>
@@ -421,7 +421,7 @@ export default function Landing() {
               </div>
               <a href="https://wa.me/966555826838?text=أبي أشترك بالباقة المتكاملة" target="_blank" rel="noreferrer" style={{
                 display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
-                background: `linear-gradient(135deg, #7EC3E3, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none'
+                background: `linear-gradient(135deg, #E5BC6B, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none'
               }}>
                 اشترك الآن ←
               </a>
@@ -432,15 +432,15 @@ export default function Landing() {
       </section>
 
       {/* ============ الفوتر ============ */}
-      <footer style={{ borderTop: '1px solid rgba(31,110,86,0.08)', background: '#fff', padding: '4rem 2rem 2.8rem' }}>
+      <footer style={{ borderTop: '1px solid rgba(30,58,92,0.08)', background: '#fff', padding: '4rem 2rem 2.8rem' }}>
         <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 56, marginBottom: 20 }} />
-          <p className="body-font" style={{ fontSize: 14, color: '#6E8079', margin: '0 0 20px' }}>
+          <p className="body-font" style={{ fontSize: 14, color: '#8A8270', margin: '0 0 20px' }}>
             shawahede.com · منصة مستقلة لدعم المدارس · غير مرتبطة بهيئة تقويم التعليم والتدريب
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 32 }}>
-            <Link href="/privacy" className="body-font" style={{ fontSize: 14, color: '#6E8079', textDecoration: 'none' }}>سياسة الخصوصية</Link>
-            <Link href="/terms" className="body-font" style={{ fontSize: 14, color: '#6E8079', textDecoration: 'none' }}>الشروط والأحكام</Link>
+            <Link href="/privacy" className="body-font" style={{ fontSize: 14, color: '#8A8270', textDecoration: 'none' }}>سياسة الخصوصية</Link>
+            <Link href="/terms" className="body-font" style={{ fontSize: 14, color: '#8A8270', textDecoration: 'none' }}>الشروط والأحكام</Link>
           </div>
 
           {/* ============ شارات التوثيق الرسمي ============ */}
@@ -451,7 +451,7 @@ export default function Landing() {
             {/* توثيق التجارة الإلكترونية - وزارة التجارة + المركز السعودي للأعمال */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 18, background: '#FAFAF7',
-              border: '1px solid rgba(31,110,86,0.08)', borderRadius: 16, padding: '18px 26px'
+              border: '1px solid rgba(30,58,92,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
               <img src="/ecommerce-auth-qr.png" alt="باركود توثيق التجارة الإلكترونية" style={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
@@ -459,28 +459,28 @@ export default function Landing() {
                   <img src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 34, objectFit: 'contain' }} />
                   <img src="/saudi-business-center-logo.png" alt="المركز السعودي للأعمال" style={{ height: 30, objectFit: 'contain' }} />
                 </div>
-                <p className="body-font" style={{ fontSize: 13, color: '#6E8079', margin: 0 }}>موثّق إلكترونياً — المركز السعودي للأعمال</p>
+                <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>موثّق إلكترونياً — المركز السعودي للأعمال</p>
               </div>
             </div>
 
             {/* وثيقة العمل الحر */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 18, background: '#FAFAF7',
-              border: '1px solid rgba(31,110,86,0.08)', borderRadius: 16, padding: '18px 26px'
+              border: '1px solid rgba(30,58,92,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
               <img src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 68, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>وثيقة عمل حر</p>
-                <p className="body-font" style={{ fontSize: 13, color: '#6E8079', margin: 0 }}>رقم الوثيقة: FL-898950755</p>
+                <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>رقم الوثيقة: FL-898950755</p>
               </div>
             </div>
           </div>
 
-          <div style={{ width: 60, height: 1, background: 'rgba(31,110,86,0.1)', margin: '0 auto 24px' }} />
+          <div style={{ width: 60, height: 1, background: 'rgba(30,58,92,0.1)', margin: '0 auto 24px' }} />
           <a href="https://khaleddev.online" target="_blank" rel="noreferrer" style={{
             display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none'
           }}>
-            <span className="body-font" style={{ fontSize: 13, color: '#6E8079' }}>صُنع بواسطة</span>
+            <span className="body-font" style={{ fontSize: 13, color: '#8A8270' }}>صُنع بواسطة</span>
             <img src="/nextlogic-logo.png" alt="Next Logic by Khaled" style={{ height: 26, objectFit: 'contain' }} />
           </a>
         </div>
