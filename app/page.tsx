@@ -423,10 +423,41 @@ export default function Landing() {
           <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 16px' }}>
             shawahede.com · منصة مستقلة لدعم المدارس · غير مرتبطة بهيئة تقويم التعليم والتدريب
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginBottom: 24 }}>
             <Link href="/privacy" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>سياسة الخصوصية</Link>
             <Link href="/terms" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>الشروط والأحكام</Link>
           </div>
+
+          {/* ============ شارات التوثيق الرسمي ============ */}
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', alignItems: 'stretch', justifyContent: 'center', gap: 14,
+            marginBottom: 24
+          }}>
+            {/* توثيق التجارة الإلكترونية - وزارة التجارة */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12, background: '#FAFAF7',
+              border: '1px solid rgba(11,31,58,0.08)', borderRadius: 14, padding: '12px 18px'
+            }}>
+              <img src="/ecommerce-auth-qr.png" alt="باركود توثيق التجارة الإلكترونية" style={{ height: 56, width: 56, objectFit: 'contain', flexShrink: 0 }} />
+              <div style={{ textAlign: 'right' }}>
+                <img src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 20, objectFit: 'contain', marginBottom: 4 }} />
+                <p className="body-font" style={{ fontSize: 10.5, color: '#8A8270', margin: 0 }}>موثّق إلكترونياً — المركز السعودي للأعمال</p>
+              </div>
+            </div>
+
+            {/* وثيقة العمل الحر */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12, background: '#FAFAF7',
+              border: '1px solid rgba(11,31,58,0.08)', borderRadius: 14, padding: '12px 18px'
+            }}>
+              <img src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 40, objectFit: 'contain', flexShrink: 0 }} />
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: 11.5, fontWeight: 700, color: NAVY, margin: '0 0 2px' }}>وثيقة عمل حر</p>
+                <p className="body-font" style={{ fontSize: 10.5, color: '#8A8270', margin: 0 }}>رقم الوثيقة: FL-898950755</p>
+              </div>
+            </div>
+          </div>
+
           <div style={{ width: 60, height: 1, background: 'rgba(11,31,58,0.1)', margin: '0 auto 20px' }} />
           <a href="https://khaleddev.online" target="_blank" rel="noreferrer" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none'
