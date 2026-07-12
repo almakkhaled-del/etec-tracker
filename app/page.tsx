@@ -69,9 +69,9 @@ export default function Landing() {
           .hero-split { gap: 100px; }
         }
 
-        .hero-title { font-size: 38px; line-height: 1.7; }
+        .hero-title { font-size: 44px; line-height: 1.65; }
         @media (max-width: 640px) {
-          .hero-title { font-size: 30px; line-height: 1.65; }
+          .hero-title { font-size: 32px; line-height: 1.6; }
         }
 
         .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
@@ -134,12 +134,12 @@ export default function Landing() {
               }}>شواهدي يرشدك إليه، وينشئه لك</span>
             </h1>
 
-            <p className="body-font" style={{ fontSize: 16, color: '#5A5648', lineHeight: 1.9, marginBottom: 30, maxWidth: 540 }}>
-              شواهدي منصة تساعد مدارس التعليم العام على <strong>إنشاء</strong> شواهد معايير الاعتماد المدرسي، تنظيمها، وطباعتها — مجال بمجال، مؤشراً بمؤشر، حتى تستقبل لجنة التقويم بثقة كاملة طوال العام.
+            <p className="body-font" style={{ fontSize: 17.5, color: '#5A5648', lineHeight: 2, marginBottom: 30, maxWidth: 590 }}>
+              شواهدي منصة سعودية متكاملة تحوّل جمع شواهد الاعتماد المدرسي من مهمة مرهقة تُنجز في اللحظات الأخيرة، إلى مسار واضح ومنظم تسير عليه إدارتك طوال العام. ترفع الشاهد، والنظام يصنّفه ويرتبه تلقائياً تحت المؤشر الصحيح — لتصل يوم الزيارة بملف متكامل يعكس مستوى مدرستك الحقيقي، ويضعك على أول الطريق نحو <strong>التميز المؤسسي</strong>.
             </p>
 
             <Link href="#login-box" className="cta-gold" style={{
-              display: 'inline-block', padding: '15px 38px', fontSize: 16, fontWeight: 700,
+              display: 'inline-block', padding: '16px 40px', fontSize: 17, fontWeight: 700,
               background: 'linear-gradient(135deg, #5FC2AC, #2FAB99)', color: '#005448',
               borderRadius: 10, textDecoration: 'none',
               boxShadow: '0 8px 24px rgba(47,171,153,0.28)', transition: 'filter 0.2s'
@@ -221,30 +221,33 @@ export default function Landing() {
       <section style={{ background: '#fff', borderTop: '1px solid rgba(0,84,72,0.08)', borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
-            <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
-            <h2 style={{ fontSize: 30, fontWeight: 800, color: NAVY }}>وش هو شواهدي بالضبط؟</h2>
+            <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
+            <h2 style={{ fontSize: 34, fontWeight: 800, color: NAVY }}>وش هو شواهدي بالضبط؟</h2>
           </div>
 
-          <div style={{ display: 'grid', gap: 20, marginBottom: 40 }}>
-            <p className="body-font" style={{ fontSize: 16, color: '#374151', lineHeight: 2 }}>
+          <div style={{ display: 'grid', gap: 22, marginBottom: 44 }}>
+            <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
               شواهدي منصة سعودية مبنية خصيصاً لمدارس التعليم العام (حكومية، أهلية، وعالمية) لمساعدتها على تنظيم <strong>شواهد معايير الاعتماد المدرسي</strong> وفق إطار هيئة تقويم التعليم والتدريب <strong>(إتقان)</strong> — بمعاييره الأربعة و47 مؤشراً.
             </p>
-            <p className="body-font" style={{ fontSize: 16, color: '#374151', lineHeight: 2 }}>
+            <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
               المشكلة اللي تعيشها أغلب المدارس اليوم: الشواهد مبعثرة بين ملفات ورقية، صور غير مصنفة، ومجلدات متفرقة — والتجهيز الحقيقي يبدأ متأخراً، قبل الزيارة بأيام قليلة، مما يضغط على الإدارة ويقلل من جودة ما يُقدَّم للجنة.
             </p>
-            <p className="body-font" style={{ fontSize: 16, color: '#374151', lineHeight: 2 }}>
-              شواهدي يقلب هذي المعادلة: بدل ما تبحث عن الشاهد المناسب وتتساءل "وش أرفع هنا؟"، تدخل على كل مؤشر وتلقى إرشاداً واضحاً لما هو مطلوب، ترفع صورة أو ملف PDF مباشرة، والنظام يحوّله ويرتبه تلقائياً. وفي أي وقت تحتاج، تطبع تقريراً كاملاً منظماً حسب المجالات والمعايير جاهزاً للجنة التقويم.
+            <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
+              شواهدي يقلب هذي المعادلة: بدل ما تبحث عن الشاهد المناسب وتتساءل "وش أرفع هنا؟"، تدخل على كل مؤشر وتلقى إرشاداً واضحاً لما هو مطلوب، ترفع صورة أو ملف PDF مباشرة، والنظام يحوّله ويرتبه تلقائياً تحت المؤشر الصحيح. وفي أي وقت تحتاج، تطبع تقريراً كاملاً منظماً حسب المجالات والمعايير جاهزاً للجنة التقويم.
+            </p>
+            <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
+              والأهم من ذلك: شواهدي ما يتوقف عند تسهيل الرفع والتنظيم — هو يؤسس لمدرستك <strong>أرشيفاً مؤسسياً حياً</strong>، يتراكم عاماً بعد عام، بحيث تدخل كل موسم تقويم وأنت مبني على أساس قوي، لا تبدأ من الصفر. هذا بالضبط ما يميّز المدارس المتميزة عن غيرها: الجاهزية المستمرة، لا الاستعداد اللحظي.
             </p>
           </div>
 
           <div style={{
             background: 'linear-gradient(135deg, #005448, #0A6B5A)', borderRadius: 20,
-            padding: '2.4rem 2rem', textAlign: 'center'
+            padding: '2.6rem 2.2rem', textAlign: 'center'
           }}>
-            <p style={{ fontSize: 13, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>
+            <p style={{ fontSize: 14, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>
               الفرق الجوهري
             </p>
-            <p style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.7, maxWidth: 600, margin: '0 auto' }}>
+            <p style={{ fontSize: 24, fontWeight: 800, color: '#fff', lineHeight: 1.75, maxWidth: 620, margin: '0 auto' }}>
               شواهدي ما يبيعك مساحة تخزين فقط —<br />
               <span style={{ color: GOLD_LIGHT }}>هو يساعدك تصنع الشاهد الصحيح، وتحفظه في مكانه</span>
             </p>
@@ -252,12 +255,25 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ============ رسالة لمدير المدرسة ============ */}
+      <section style={{ padding: '4.5rem 1.5rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 14 }}>رسالة لكل مدير مدرسة</p>
+          <h2 style={{ fontSize: 30, fontWeight: 800, color: NAVY, lineHeight: 1.6, marginBottom: 18 }}>
+            التميز المدرسي ما يبدأ يوم الزيارة — يبدأ من أول شاهد ترفعه اليوم
+          </h2>
+          <p className="body-font" style={{ fontSize: 17, color: '#5A5648', lineHeight: 2.1 }}>
+            كل مدرسة تطمح تكون من المدارس المتميزة تحتاج نظاماً يحوّل جهد إدارتها اليومي إلى ملف اعتماد قوي ومرتب، لا إلى فوضى تُدار في اللحظة الأخيرة. شواهدي يمنحك هذا الأساس — حتى تقود مدرستك بثقة وحضور مؤسسي، لا بالقلق من موعد الزيارة القادمة.
+          </p>
+        </div>
+      </section>
+
       {/* ============ المجالات ============ */}
       <section style={{ background: '#fff', borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '3rem 1.5rem' }}>
-        <p className="body-font" style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', marginBottom: 22, fontWeight: 600, letterSpacing: 1 }}>
+        <p className="body-font" style={{ textAlign: 'center', fontSize: 14, color: '#8A8270', marginBottom: 24, fontWeight: 600, letterSpacing: 1 }}>
           يغطي المجالات الأربعة لمعايير إتقان — 47 مؤشراً
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, maxWidth: 920, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, maxWidth: 960, margin: '0 auto' }}>
           {[
             { emoji: '🏫', label: 'الإدارة المدرسية', sub: '15 مؤشراً' },
             { emoji: '📚', label: 'التعليم والتعلم', sub: '13 مؤشراً' },
@@ -265,12 +281,12 @@ export default function Landing() {
             { emoji: '🏢', label: 'البيئة المدرسية', sub: '6 مؤشرات' },
           ].map(d => (
             <div key={d.label} style={{
-              background: '#F6F7F6', borderRadius: 14, padding: '22px 12px', textAlign: 'center',
+              background: '#F6F7F6', borderRadius: 14, padding: '24px 14px', textAlign: 'center',
               border: '1px solid rgba(0,84,72,0.06)'
             }}>
-              <p style={{ fontSize: 32, margin: '0 0 10px' }}>{d.emoji}</p>
-              <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{d.label}</p>
-              <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: 0 }}>{d.sub}</p>
+              <p style={{ fontSize: 34, margin: '0 0 10px' }}>{d.emoji}</p>
+              <p style={{ fontSize: 14.5, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{d.label}</p>
+              <p className="body-font" style={{ fontSize: 12.5, color: '#8A8270', margin: 0 }}>{d.sub}</p>
             </div>
           ))}
         </div>
@@ -278,25 +294,25 @@ export default function Landing() {
 
       {/* ============ المشكلة ============ */}
       <section style={{ padding: '5rem 1.5rem', maxWidth: 760, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>المشكلة</p>
-          <h2 style={{ fontSize: 30, fontWeight: 800, color: NAVY, marginBottom: 10 }}>ما تواجهه المدارس اليوم</h2>
-          <p className="body-font" style={{ fontSize: 15, color: '#5A5648' }}>معايير التقويم نظام جديد — وكثير من المدارس تبدأ من الصفر في كل زيارة</p>
+        <div style={{ textAlign: 'center', marginBottom: 44 }}>
+          <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>المشكلة</p>
+          <h2 style={{ fontSize: 34, fontWeight: 800, color: NAVY, marginBottom: 12 }}>ما تواجهه المدارس اليوم</h2>
+          <p className="body-font" style={{ fontSize: 16.5, color: '#5A5648' }}>معايير التقويم نظام جديد — وكثير من المدارس تبدأ من الصفر في كل زيارة</p>
         </div>
-        <div style={{ display: 'grid', gap: 14 }}>
+        <div style={{ display: 'grid', gap: 16 }}>
           {[
             { icon: '📂', title: 'الشواهد مبعثرة أو مفقودة', desc: 'الملفات الورقية تضيع، والصور غير مصنفة، والمدير لا يعرف ما اكتمل وما ينقصه قبيل الزيارة.' },
             { icon: '🤷', title: 'وش أرفع هنا بالضبط؟', desc: 'كثير من المدارس تحتار وتقدم شواهد غير كافية لأنها لا تعرف ما المطلوب بالضبط لكل مؤشر.' },
             { icon: '⏰', title: 'التجهيز يأتي متأخراً', desc: 'المدارس تبدأ التجهيز قبل الزيارة بأيام قليلة، مما يضغط على الإدارة ويقلل جودة الشواهد المقدمة.' },
           ].map(p => (
             <div key={p.title} style={{
-              display: 'flex', gap: 18, padding: '1.4rem 1.6rem',
+              display: 'flex', gap: 18, padding: '1.6rem 1.8rem',
               background: '#fff', borderRadius: 14, border: '1px solid rgba(0,84,72,0.08)'
             }}>
-              <span style={{ fontSize: 30, flexShrink: 0 }}>{p.icon}</span>
+              <span style={{ fontSize: 32, flexShrink: 0 }}>{p.icon}</span>
               <div>
-                <p style={{ fontWeight: 700, fontSize: 16, color: NAVY, margin: '0 0 6px' }}>{p.title}</p>
-                <p className="body-font" style={{ fontSize: 14, color: '#5A5648', margin: 0, lineHeight: 1.8 }}>{p.desc}</p>
+                <p style={{ fontWeight: 700, fontSize: 17, color: NAVY, margin: '0 0 7px' }}>{p.title}</p>
+                <p className="body-font" style={{ fontSize: 15.5, color: '#5A5648', margin: 0, lineHeight: 1.85 }}>{p.desc}</p>
               </div>
             </div>
           ))}
@@ -306,25 +322,25 @@ export default function Landing() {
       {/* ============ الحل ============ */}
       <section style={{ background: NAVY, padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <p style={{ fontSize: 12, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>الحل</p>
-            <h2 style={{ fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 10 }}>شواهدي يرشدك خطوة بخطوة</h2>
-            <p className="body-font" style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)' }}>منصة متكاملة تقود مدير المدرسة طوال العام، لا قبل الزيارة فقط</p>
+          <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <p style={{ fontSize: 13, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>الحل</p>
+            <h2 style={{ fontSize: 34, fontWeight: 800, color: '#fff', marginBottom: 12 }}>شواهدي يرشدك خطوة بخطوة</h2>
+            <p className="body-font" style={{ fontSize: 16.5, color: 'rgba(255,255,255,0.75)' }}>منصة متكاملة تقود مدير المدرسة طوال العام، لا قبل الزيارة فقط</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
             {[
-              { icon: '📋', title: 'لوحة اكتمال فورية', desc: 'تعرف في ثوانٍ أي المجالات مكتملة وأيها يحتاج شواهد إضافية.' },
-              { icon: '💡', title: 'إرشاد لكل مؤشر', desc: 'كل مؤشر يوضح لك بالضبط أي نوع من الشواهد يناسبه.' },
-              { icon: '📤', title: 'رفع شواهد بسهولة', desc: 'ارفع صوراً وملفات PDF مباشرة، والنظام يرتبها ويحولها تلقائياً.' },
-              { icon: '🖨️', title: 'تقرير كامل بضغطة', desc: 'اطبع ملف شواهد مدرستك كاملاً ومرتباً جاهزاً لأي زيارة.' },
+              { icon: '📋', title: 'لوحة اكتمال فورية', desc: 'تعرف في ثوانٍ أي المجالات مكتملة وأيها يحتاج شواهد إضافية، دون الحاجة لمراجعة يدوية.' },
+              { icon: '💡', title: 'إرشاد لكل مؤشر', desc: 'كل مؤشر يوضح لك بالضبط أي نوع من الشواهد يناسبه، فتنتهي حيرة "وش أرفع هنا؟".' },
+              { icon: '📤', title: 'رفع شواهد بسهولة', desc: 'ارفع صوراً وملفات PDF مباشرة، والنظام يصنّفها ويرتبها ويحولها تلقائياً.' },
+              { icon: '🖨️', title: 'تقرير كامل بضغطة', desc: 'اطبع ملف شواهد مدرستك كاملاً ومرتباً حسب المجالات والمعايير، جاهزاً لأي زيارة.' },
             ].map(f => (
               <div key={f.title} style={{
-                padding: '1.5rem 1.6rem', background: 'rgba(255,255,255,0.04)',
+                padding: '1.7rem 1.8rem', background: 'rgba(255,255,255,0.04)',
                 borderRadius: 14, border: '1px solid rgba(138,212,196,0.2)'
               }}>
-                <p style={{ fontSize: 32, margin: '0 0 12px' }}>{f.icon}</p>
-                <p style={{ fontWeight: 700, fontSize: 15, color: '#fff', margin: '0 0 8px' }}>{f.title}</p>
-                <p className="body-font" style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', margin: 0, lineHeight: 1.8 }}>{f.desc}</p>
+                <p style={{ fontSize: 34, margin: '0 0 14px' }}>{f.icon}</p>
+                <p style={{ fontWeight: 700, fontSize: 16.5, color: '#fff', margin: '0 0 9px' }}>{f.title}</p>
+                <p className="body-font" style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.7)', margin: 0, lineHeight: 1.85 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -341,7 +357,7 @@ export default function Landing() {
             }}>
               الإطلاق الرسمي — بداية العام الدراسي 1448هـ
             </div>
-            <h2 style={{ fontSize: 34, fontWeight: 800, color: NAVY, marginBottom: 52 }}>اختر الباقة المناسبة لمدرستك</h2>
+            <h2 style={{ fontSize: 36, fontWeight: 800, color: NAVY, marginBottom: 52 }}>اختر الباقة المناسبة لمدرستك</h2>
           </div>
 
           <div className="pricing-grid">
