@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 const NAVY = '#0B1F3A'
 const GOLD = '#C28A1F'
 const GOLD_LIGHT = '#E8C275'
+const CREAM = '#FBF8F2'
 
 export default function Landing() {
   const router = useRouter()
@@ -332,7 +333,7 @@ export default function Landing() {
 
       {/* ============ الباقتان ============ */}
       <section style={{ padding: '6rem 1.5rem' }}>
-        <div style={{ maxWidth: 940, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{
               display: 'inline-block', background: 'rgba(217,164,65,0.12)', color: '#A6730F',
@@ -347,8 +348,8 @@ export default function Landing() {
 
             {/* الباقة التجريبية */}
             <div style={{
-              background: '#fff', border: '2px solid rgba(11,31,58,0.1)', borderRadius: 24,
-              padding: '3rem 2.4rem', display: 'flex', flexDirection: 'column'
+              background: CREAM, border: '2px solid rgba(11,31,58,0.1)', borderRadius: 24,
+              padding: '3rem 2.6rem', display: 'flex', flexDirection: 'column'
             }}>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#8A8270', marginBottom: 14 }}>🆓 تجريبية</p>
               <p style={{ fontSize: 56, fontWeight: 900, color: NAVY, margin: '0 0 6px', lineHeight: 1 }}>0</p>
@@ -371,7 +372,7 @@ export default function Landing() {
             {/* الباقة المتكاملة */}
             <div style={{
               background: NAVY, borderRadius: 24, position: 'relative',
-              padding: '3rem 2.4rem', display: 'flex', flexDirection: 'column',
+              padding: '3rem 2.6rem', display: 'flex', flexDirection: 'column',
               boxShadow: '0 20px 52px rgba(11,31,58,0.24)'
             }}>
               <div style={{
@@ -391,17 +392,31 @@ export default function Landing() {
               <p className="body-font" style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.6)', marginBottom: 30 }}>ريال / عام دراسي — بمناسبة الافتتاح وتدشين المنصة</p>
               <div style={{ textAlign: 'right', marginBottom: 32, flex: 1 }}>
                 {[
-                  'جميع المجالات الأربعة',
-                  'رفع ملفات غير محدود',
-                  'تحليل ذكي متكامل لتقرير هيئة التقويم الخارجي',
-                  'استخراج آلي لـ: الخطة التشغيلية، متابعتها، واقع المدرسة، خطة التحسين، وخطة تنفيذها',
-                  'نموذج تقارير الزيارات والاحتفالات (تعبئة آلية لإنتاج PDF)',
-                  'مجموعة كبيرة من النماذج المتنوعة',
-                  'دعم فني ذو أولوية على مدار العام، ومتابعة مستجدات الميدان من مختصين',
-                ].map(f => (
-                  <p key={f} className="body-font" style={{ fontSize: 14.5, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                    <span style={{ color: GOLD_LIGHT, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
-                  </p>
+                  { text: 'جميع المجالات الأربعة' },
+                  { text: 'رفع ملفات غير محدود' },
+                  { text: 'تحليل ذكي متكامل لتقرير هيئة التقويم الخارجي' },
+                  {
+                    text: 'استخراج آلي بعد تحليل تقرير هيئة التقويم الخارجي لـ:',
+                    sub: ['الخطة التشغيلية', 'متابعة الخطة التشغيلية', 'واقع المدرسة', 'خطة التحسين', 'تنفيذ خطة التحسين']
+                  },
+                  { text: 'نموذج تقارير الزيارات والاحتفالات (تعبئة آلية لإنتاج PDF)' },
+                  { text: 'مجموعة كبيرة من النماذج المتنوعة' },
+                  { text: 'دعم فني ذو أولوية على مدار العام، ومتابعة مستجدات الميدان من مختصين' },
+                ].map(item => (
+                  <div key={item.text} style={{ marginBottom: 14 }}>
+                    <p className="body-font" style={{ fontSize: 14.5, color: '#fff', margin: 0, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                      <span style={{ color: GOLD_LIGHT, fontWeight: 900, flexShrink: 0 }}>✓</span> {item.text}
+                    </p>
+                    {item.sub && (
+                      <div style={{ marginTop: 8, paddingRight: 26 }}>
+                        {item.sub.map(s => (
+                          <p key={s} className="body-font" style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.75)', margin: '0 0 6px' }}>
+                            – {s}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
               <a href="https://wa.me/966555826838?text=أبي أشترك بالباقة المتكاملة" target="_blank" rel="noreferrer" style={{
