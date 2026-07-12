@@ -73,8 +73,8 @@ export default function Landing() {
           .hero-title { font-size: 30px; line-height: 1.65; }
         }
 
-        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        @media (max-width: 860px) {
+        .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        @media (max-width: 720px) {
           .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
         }
       `}</style>
@@ -330,9 +330,9 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ============ الباقات الثلاث ============ */}
+      {/* ============ الباقتان ============ */}
       <section style={{ padding: '5rem 1.5rem' }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+        <div style={{ maxWidth: 780, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{
               display: 'inline-block', background: 'rgba(217,164,65,0.12)', color: '#A6730F',
@@ -345,14 +345,14 @@ export default function Landing() {
 
           <div className="pricing-grid">
 
-            {/* الباقة المجانية */}
+            {/* الباقة التجريبية */}
             <div style={{
               background: '#fff', border: '2px solid rgba(11,31,58,0.1)', borderRadius: 20,
               padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column'
             }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#8A8270', marginBottom: 10 }}>🆓 المجانية</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#8A8270', marginBottom: 10 }}>🆓 تجريبية</p>
               <p style={{ fontSize: 40, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>0</p>
-              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 24 }}>ريال / للأبد</p>
+              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 24 }}>ريال / 7 أيام تجربة مجانية</p>
               <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
                 {['مجال واحد من أصل 4', 'حجم رفع حتى 50 ميجابايت', 'رفع صور وملفات PDF', 'تقرير طباعة أساسي'].map(f => (
                   <p key={f} className="body-font" style={{ fontSize: 13, color: NAVY, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -368,51 +368,47 @@ export default function Landing() {
               </a>
             </div>
 
-            {/* الباقة الأساسية */}
+            {/* الباقة المتكاملة */}
             <div style={{
-              background: '#fff', border: `2.5px solid ${GOLD}`, borderRadius: 20,
+              background: NAVY, borderRadius: 20, position: 'relative',
               padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column',
-              position: 'relative', boxShadow: '0 16px 44px rgba(194,138,31,0.14)'
+              boxShadow: '0 16px 44px rgba(11,31,58,0.22)'
             }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: GOLD, marginBottom: 10 }}>⭐ الأساسية</p>
-              <p style={{ fontSize: 40, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>؟</p>
-              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 24 }}>السعر قيد التقييم</p>
-              <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
-                {['جميع المجالات الأربعة', 'تخزين حتى 500 ميجابايت', 'مكتبة نماذج متعددة', 'تقارير PDF احترافية', 'دعم فني مستمر'].map(f => (
-                  <p key={f} className="body-font" style={{ fontSize: 13, color: NAVY, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ color: GOLD, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
-                  </p>
-                ))}
-              </div>
-              <a href="#login-box" style={{
-                display: 'block', textAlign: 'center', padding: '13px', fontSize: 14, fontWeight: 700,
-                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, borderRadius: 10, textDecoration: 'none'
+              <div style={{
+                position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY,
+                fontSize: 11.5, fontWeight: 800, padding: '5px 16px', borderRadius: 20,
+                whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(194,138,31,0.35)'
               }}>
-                سجّل اهتمامك ←
-              </a>
-            </div>
+                🎉 عرض تدشين المنصة
+              </div>
 
-            {/* الباقة المتقدمة */}
-            <div style={{
-              background: NAVY, borderRadius: 20,
-              padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column'
-            }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: GOLD_LIGHT, marginBottom: 10 }}>👑 المتقدمة</p>
-              <p style={{ fontSize: 40, fontWeight: 900, color: '#fff', margin: '0 0 4px', lineHeight: 1 }}>؟</p>
-              <p className="body-font" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>السعر قيد التقييم</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: GOLD_LIGHT, marginBottom: 10 }}>👑 المتكاملة</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
+                <p style={{ fontSize: 40, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>599</p>
+                <p style={{ fontSize: 20, fontWeight: 700, color: 'rgba(255,255,255,0.45)', margin: 0, textDecoration: 'line-through' }}>699</p>
+              </div>
+              <p className="body-font" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>ريال / سنوياً — بمناسبة الافتتاح وتدشين المنصة</p>
               <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
-                {['جميع المجالات الأربعة', 'رفع ملفات غير محدود', 'توليد نماذج جاهزة تلقائياً', 'تقارير PDF احترافية', 'دعم فني ذو أولوية'].map(f => (
-                  <p key={f} className="body-font" style={{ fontSize: 13, color: '#fff', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                {[
+                  'جميع المجالات الأربعة',
+                  'رفع ملفات غير محدود',
+                  'تحليل ذكي متكامل لتقرير هيئة التقويم الخارجي',
+                  'استخراج آلي لـ: الخطة التشغيلية، متابعتها، واقع المدرسة، خطة التحسين، وخطة تنفيذها',
+                  'نموذج تقارير الزيارات والاحتفالات (تعبئة آلية لإنتاج PDF)',
+                  'مجموعة كبيرة من النماذج المتنوعة',
+                  'دعم فني ذو أولوية على مدار العام، ومتابعة مستجدات الميدان من مختصين',
+                ].map(f => (
+                  <p key={f} className="body-font" style={{ fontSize: 13, color: '#fff', margin: '0 0 10px', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                     <span style={{ color: GOLD_LIGHT, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
                   </p>
                 ))}
               </div>
-              <a href="#login-box" style={{
+              <a href="https://wa.me/966555826838?text=أبي أشترك بالباقة المتكاملة" target="_blank" rel="noreferrer" style={{
                 display: 'block', textAlign: 'center', padding: '13px', fontSize: 14, fontWeight: 700,
-                background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: 10, textDecoration: 'none',
-                border: `1px solid ${GOLD_LIGHT}40`
+                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, borderRadius: 10, textDecoration: 'none'
               }}>
-                سجّل اهتمامك ←
+                اشترك الآن ←
               </a>
             </div>
 
