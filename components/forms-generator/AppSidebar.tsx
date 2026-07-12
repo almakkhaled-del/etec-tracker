@@ -120,7 +120,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span style={{ fontSize: 14, fontWeight: 500 }}>التقرير الكامل</span>
         </Link>
 
-        <a href="https://wa.me/00966555826838?text=السلام عليكم، أحتاج مساعدة في منصة شواهدي"
+        <a href="https://wa.me/966555826838?text=السلام عليكم، أحتاج مساعدة في منصة شواهدي"
           target="_blank" rel="noreferrer" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2, color: '#4ade80'

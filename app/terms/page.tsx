@@ -25,21 +25,42 @@ export default function TermsPage() {
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif} ul{margin:0;padding-inline-start:22px} li{margin-bottom:8px}`}</style>
 
-      <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 20px', height: 72, display: 'flex', alignItems: 'center' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-            ← الرئيسية
-          </Link>
-          <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: 0 }}>الشروط والأحكام</p>
+      {/* ============ NAV (نفس شريط الصفحة الرئيسية) ============ */}
+      <nav style={{
+        background: 'rgba(251,248,242,0.92)', backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        height: 76, position: 'sticky', top: 0, zIndex: 100,
+      }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/logo.png" alt="شواهدي" style={{ height: 58, objectFit: 'contain' }} />
+        </Link>
+        <Link href="/#login-box" style={{
+          padding: '9px 22px', fontSize: 13, fontWeight: 700, color: '#fff',
+          textDecoration: 'none', background: NAVY, borderRadius: 8
+        }}>
+          الدخول ↓
+        </Link>
+      </nav>
+
+      <main style={{ maxWidth: 760, margin: '0 auto', padding: '48px 20px 60px' }}>
+
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          background: 'rgba(217,164,65,0.14)', border: '1px solid rgba(194,138,31,0.35)',
+          color: '#A6730F', fontSize: 12, fontWeight: 600, padding: '6px 16px',
+          borderRadius: 30, marginBottom: 18,
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
+          الشفافية والثقة
         </div>
-      </header>
 
-      <main style={{ maxWidth: 760, margin: '0 auto', padding: '36px 20px 60px' }}>
+        <h1 style={{ fontSize: 30, fontWeight: 900, color: NAVY, margin: '0 0 8px' }}>الشروط والأحكام</h1>
+        <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 32 }}>
+          آخر تحديث: يوليو 2026
+        </p>
+
         <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '2rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
-
-          <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 28 }}>
-            آخر تحديث: يوليو 2026
-          </p>
 
           <p className="body-font" style={{ fontSize: 14.5, color: '#3a3a3a', lineHeight: 2.1, marginBottom: 32 }}>
             باستخدامك لمنصة "شواهدي" عبر الموقع shawahede.com فإنك توافق على الشروط والأحكام التالية. يرجى قراءتها
@@ -122,6 +143,27 @@ export default function TermsPage() {
 
         </div>
       </main>
+
+      {/* ============ الفوتر (نفس فوتر الصفحة الرئيسية) ============ */}
+      <footer style={{ borderTop: '1px solid rgba(11,31,58,0.08)', background: '#fff', padding: '2.5rem 1.5rem 1.8rem' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+          <img src="/logo.png" alt="شواهدي" style={{ height: 42, marginBottom: 16 }} />
+          <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 16px' }}>
+            shawahede.com · منصة مستقلة لدعم المدارس · غير مرتبطة بهيئة تقويم التعليم والتدريب
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginBottom: 20 }}>
+            <Link href="/privacy" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>سياسة الخصوصية</Link>
+            <Link href="/terms" className="body-font" style={{ fontSize: 12, color: GOLD, textDecoration: 'none', fontWeight: 700 }}>الشروط والأحكام</Link>
+          </div>
+          <div style={{ width: 60, height: 1, background: 'rgba(11,31,58,0.1)', margin: '0 auto 20px' }} />
+          <a href="https://khaleddev.online" target="_blank" rel="noreferrer" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none'
+          }}>
+            <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>صُنع بواسطة</span>
+            <img src="/nextlogic-logo.png" alt="Next Logic by Khaled" style={{ height: 22, objectFit: 'contain' }} />
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }

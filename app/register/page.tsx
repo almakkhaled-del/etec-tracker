@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [agreed, setAgreed] = useState(false)
   const [form, setForm] = useState({
     school_name: '', school_number: '', region: '', school_type: 'government',
     principal_name: '', phone: '', email: '', password: '', confirm_password: '',
@@ -28,6 +29,7 @@ export default function RegisterPage() {
     }
     if (form.password !== form.confirm_password) { setError('كلمة المرور غير متطابقة'); return }
     if (form.password.length < 8) { setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return }
+    if (!agreed) { setError('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية للمتابعة'); return }
 
     setLoading(true)
     try {
@@ -145,17 +147,32 @@ export default function RegisterPage() {
           <label style={labelStyle}>تأكيد كلمة المرور *</label>
           <input name="confirm_password" type="password" value={form.confirm_password} onChange={handleChange} placeholder="أعد كتابة كلمة المرور" style={{ ...inputStyle, marginBottom: 22 }} />
 
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, marginBottom: 18, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={e => setAgreed(e.target.checked)}
+              style={{ marginTop: 3, width: 16, height: 16, flexShrink: 0, accentColor: GOLD, cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: 12.5, color: '#5A5648', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              أوافق على{' '}
+              <Link href="/terms" target="_blank" style={{ color: GOLD, fontWeight: 700, textDecoration: 'none' }}>الشروط والأحكام</Link>
+              {' '}و{' '}
+              <Link href="/privacy" target="_blank" style={{ color: GOLD, fontWeight: 700, textDecoration: 'none' }}>سياسة الخصوصية</Link>
+            </span>
+          </label>
+
           {error && (
             <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '11px 16px', marginBottom: 18, fontSize: 13, color: '#DC2626', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               {error}
             </div>
           )}
 
-          <button onClick={handleSubmit} disabled={loading} style={{
+          <button onClick={handleSubmit} disabled={loading || !agreed} style={{
             width: '100%', padding: '14px', fontSize: 16, fontWeight: 700,
-            background: loading ? '#9ca3af' : `linear-gradient(135deg, #D9A441, ${GOLD})`,
-            color: NAVY, border: 'none', borderRadius: 11, cursor: loading ? 'not-allowed' : 'pointer',
-            fontFamily: 'Tajawal, sans-serif', boxShadow: loading ? 'none' : '0 6px 18px rgba(194,138,31,0.3)'
+            background: (loading || !agreed) ? '#9ca3af' : `linear-gradient(135deg, #D9A441, ${GOLD})`,
+            color: NAVY, border: 'none', borderRadius: 11, cursor: (loading || !agreed) ? 'not-allowed' : 'pointer',
+            fontFamily: 'Tajawal, sans-serif', boxShadow: (loading || !agreed) ? 'none' : '0 6px 18px rgba(194,138,31,0.3)'
           }}>
             {loading ? 'جاري التسجيل...' : 'إنشاء الحساب — ابدأ التجربة المجانية ←'}
           </button>
