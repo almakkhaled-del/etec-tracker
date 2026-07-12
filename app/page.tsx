@@ -331,38 +331,38 @@ export default function Landing() {
       </section>
 
       {/* ============ الباقتان ============ */}
-      <section style={{ padding: '5rem 1.5rem' }}>
-        <div style={{ maxWidth: 780, margin: '0 auto' }}>
+      <section style={{ padding: '6rem 1.5rem' }}>
+        <div style={{ maxWidth: 940, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{
               display: 'inline-block', background: 'rgba(217,164,65,0.12)', color: '#A6730F',
-              fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 20, marginBottom: 20
+              fontSize: 13.5, fontWeight: 700, padding: '7px 18px', borderRadius: 20, marginBottom: 24
             }}>
               الإطلاق الرسمي — بداية العام الدراسي 1448هـ
             </div>
-            <h2 style={{ fontSize: 28, fontWeight: 800, color: NAVY, marginBottom: 44 }}>اختر الباقة المناسبة لمدرستك</h2>
+            <h2 style={{ fontSize: 34, fontWeight: 800, color: NAVY, marginBottom: 52 }}>اختر الباقة المناسبة لمدرستك</h2>
           </div>
 
           <div className="pricing-grid">
 
             {/* الباقة التجريبية */}
             <div style={{
-              background: '#fff', border: '2px solid rgba(11,31,58,0.1)', borderRadius: 20,
-              padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column'
+              background: '#fff', border: '2px solid rgba(11,31,58,0.1)', borderRadius: 24,
+              padding: '3rem 2.4rem', display: 'flex', flexDirection: 'column'
             }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#8A8270', marginBottom: 10 }}>🆓 تجريبية</p>
-              <p style={{ fontSize: 40, fontWeight: 900, color: NAVY, margin: '0 0 4px', lineHeight: 1 }}>0</p>
-              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 24 }}>ريال / 7 أيام تجربة مجانية</p>
-              <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#8A8270', marginBottom: 14 }}>🆓 تجريبية</p>
+              <p style={{ fontSize: 56, fontWeight: 900, color: NAVY, margin: '0 0 6px', lineHeight: 1 }}>0</p>
+              <p className="body-font" style={{ fontSize: 14.5, color: '#8A8270', marginBottom: 30 }}>ريال / 7 أيام تجربة مجانية</p>
+              <div style={{ textAlign: 'right', marginBottom: 32, flex: 1 }}>
                 {['مجال واحد من أصل 4', 'حجم رفع حتى 50 ميجابايت', 'رفع صور وملفات PDF', 'تقرير طباعة أساسي'].map(f => (
-                  <p key={f} className="body-font" style={{ fontSize: 13, color: NAVY, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <p key={f} className="body-font" style={{ fontSize: 14.5, color: NAVY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ color: '#8A8270', fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
                   </p>
                 ))}
               </div>
               <a href="/register" style={{
-                display: 'block', textAlign: 'center', padding: '13px', fontSize: 14, fontWeight: 700,
-                background: 'rgba(11,31,58,0.06)', color: NAVY, borderRadius: 10, textDecoration: 'none'
+                display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
+                background: 'rgba(11,31,58,0.06)', color: NAVY, borderRadius: 12, textDecoration: 'none'
               }}>
                 ابدأ مجاناً ←
               </a>
@@ -370,26 +370,26 @@ export default function Landing() {
 
             {/* الباقة المتكاملة */}
             <div style={{
-              background: NAVY, borderRadius: 20, position: 'relative',
-              padding: '2.2rem 1.8rem', display: 'flex', flexDirection: 'column',
-              boxShadow: '0 16px 44px rgba(11,31,58,0.22)'
+              background: NAVY, borderRadius: 24, position: 'relative',
+              padding: '3rem 2.4rem', display: 'flex', flexDirection: 'column',
+              boxShadow: '0 20px 52px rgba(11,31,58,0.24)'
             }}>
               <div style={{
-                position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                position: 'absolute', top: -17, left: '50%', transform: 'translateX(-50%)',
                 background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY,
-                fontSize: 11.5, fontWeight: 800, padding: '5px 16px', borderRadius: 20,
+                fontSize: 13, fontWeight: 800, padding: '7px 20px', borderRadius: 20,
                 whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(194,138,31,0.35)'
               }}>
                 🎉 عرض تدشين المنصة
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 700, color: GOLD_LIGHT, marginBottom: 10 }}>👑 المتكاملة</p>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
-                <p style={{ fontSize: 40, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>599</p>
-                <p style={{ fontSize: 20, fontWeight: 700, color: 'rgba(255,255,255,0.45)', margin: 0, textDecoration: 'line-through' }}>699</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: GOLD_LIGHT, marginBottom: 14 }}>👑 المتكاملة</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 6 }}>
+                <p style={{ fontSize: 56, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>599</p>
+                <p style={{ fontSize: 26, fontWeight: 700, color: 'rgba(255,255,255,0.45)', margin: 0, textDecoration: 'line-through' }}>699</p>
               </div>
-              <p className="body-font" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>ريال / سنوياً — بمناسبة الافتتاح وتدشين المنصة</p>
-              <div style={{ textAlign: 'right', marginBottom: 28, flex: 1 }}>
+              <p className="body-font" style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.6)', marginBottom: 30 }}>ريال / عام دراسي — بمناسبة الافتتاح وتدشين المنصة</p>
+              <div style={{ textAlign: 'right', marginBottom: 32, flex: 1 }}>
                 {[
                   'جميع المجالات الأربعة',
                   'رفع ملفات غير محدود',
@@ -399,14 +399,14 @@ export default function Landing() {
                   'مجموعة كبيرة من النماذج المتنوعة',
                   'دعم فني ذو أولوية على مدار العام، ومتابعة مستجدات الميدان من مختصين',
                 ].map(f => (
-                  <p key={f} className="body-font" style={{ fontSize: 13, color: '#fff', margin: '0 0 10px', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                  <p key={f} className="body-font" style={{ fontSize: 14.5, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                     <span style={{ color: GOLD_LIGHT, fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
                   </p>
                 ))}
               </div>
               <a href="https://wa.me/966555826838?text=أبي أشترك بالباقة المتكاملة" target="_blank" rel="noreferrer" style={{
-                display: 'block', textAlign: 'center', padding: '13px', fontSize: 14, fontWeight: 700,
-                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, borderRadius: 10, textDecoration: 'none'
+                display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
+                background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none'
               }}>
                 اشترك الآن ←
               </a>
@@ -417,53 +417,56 @@ export default function Landing() {
       </section>
 
       {/* ============ الفوتر ============ */}
-      <footer style={{ borderTop: '1px solid rgba(11,31,58,0.08)', background: '#fff', padding: '2.5rem 1.5rem 1.8rem' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-          <img src="/logo.png" alt="شواهدي" style={{ height: 42, marginBottom: 16 }} />
-          <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 16px' }}>
+      <footer style={{ borderTop: '1px solid rgba(11,31,58,0.08)', background: '#fff', padding: '4rem 2rem 2.8rem' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
+          <img src="/logo.png" alt="شواهدي" style={{ height: 56, marginBottom: 20 }} />
+          <p className="body-font" style={{ fontSize: 14, color: '#8A8270', margin: '0 0 20px' }}>
             shawahede.com · منصة مستقلة لدعم المدارس · غير مرتبطة بهيئة تقويم التعليم والتدريب
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginBottom: 24 }}>
-            <Link href="/privacy" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>سياسة الخصوصية</Link>
-            <Link href="/terms" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>الشروط والأحكام</Link>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 32 }}>
+            <Link href="/privacy" className="body-font" style={{ fontSize: 14, color: '#8A8270', textDecoration: 'none' }}>سياسة الخصوصية</Link>
+            <Link href="/terms" className="body-font" style={{ fontSize: 14, color: '#8A8270', textDecoration: 'none' }}>الشروط والأحكام</Link>
           </div>
 
           {/* ============ شارات التوثيق الرسمي ============ */}
           <div style={{
-            display: 'flex', flexWrap: 'wrap', alignItems: 'stretch', justifyContent: 'center', gap: 14,
-            marginBottom: 24
+            display: 'flex', flexWrap: 'wrap', alignItems: 'stretch', justifyContent: 'center', gap: 18,
+            marginBottom: 32
           }}>
-            {/* توثيق التجارة الإلكترونية - وزارة التجارة */}
+            {/* توثيق التجارة الإلكترونية - وزارة التجارة + المركز السعودي للأعمال */}
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 12, background: '#FAFAF7',
-              border: '1px solid rgba(11,31,58,0.08)', borderRadius: 14, padding: '12px 18px'
+              display: 'flex', alignItems: 'center', gap: 18, background: '#FAFAF7',
+              border: '1px solid rgba(11,31,58,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
-              <img src="/ecommerce-auth-qr.png" alt="باركود توثيق التجارة الإلكترونية" style={{ height: 56, width: 56, objectFit: 'contain', flexShrink: 0 }} />
+              <img src="/ecommerce-auth-qr.png" alt="باركود توثيق التجارة الإلكترونية" style={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
-                <img src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 20, objectFit: 'contain', marginBottom: 4 }} />
-                <p className="body-font" style={{ fontSize: 10.5, color: '#8A8270', margin: 0 }}>موثّق إلكترونياً — المركز السعودي للأعمال</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <img src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 34, objectFit: 'contain' }} />
+                  <img src="/saudi-business-center-logo.png" alt="المركز السعودي للأعمال" style={{ height: 30, objectFit: 'contain' }} />
+                </div>
+                <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>موثّق إلكترونياً — المركز السعودي للأعمال</p>
               </div>
             </div>
 
             {/* وثيقة العمل الحر */}
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 12, background: '#FAFAF7',
-              border: '1px solid rgba(11,31,58,0.08)', borderRadius: 14, padding: '12px 18px'
+              display: 'flex', alignItems: 'center', gap: 18, background: '#FAFAF7',
+              border: '1px solid rgba(11,31,58,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
-              <img src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 40, objectFit: 'contain', flexShrink: 0 }} />
+              <img src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 68, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 11.5, fontWeight: 700, color: NAVY, margin: '0 0 2px' }}>وثيقة عمل حر</p>
-                <p className="body-font" style={{ fontSize: 10.5, color: '#8A8270', margin: 0 }}>رقم الوثيقة: FL-898950755</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>وثيقة عمل حر</p>
+                <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>رقم الوثيقة: FL-898950755</p>
               </div>
             </div>
           </div>
 
-          <div style={{ width: 60, height: 1, background: 'rgba(11,31,58,0.1)', margin: '0 auto 20px' }} />
+          <div style={{ width: 60, height: 1, background: 'rgba(11,31,58,0.1)', margin: '0 auto 24px' }} />
           <a href="https://khaleddev.online" target="_blank" rel="noreferrer" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none'
+            display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none'
           }}>
-            <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>صُنع بواسطة</span>
-            <img src="/nextlogic-logo.png" alt="Next Logic by Khaled" style={{ height: 22, objectFit: 'contain' }} />
+            <span className="body-font" style={{ fontSize: 13, color: '#8A8270' }}>صُنع بواسطة</span>
+            <img src="/nextlogic-logo.png" alt="Next Logic by Khaled" style={{ height: 26, objectFit: 'contain' }} />
           </a>
         </div>
       </footer>
