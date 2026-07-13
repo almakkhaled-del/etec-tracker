@@ -115,16 +115,16 @@ export default function SchoolStatusReportForm({ schoolPrincipalName, onGenerate
 
       <SectionHeader icon="🎯" title="الأولويات العاجلة للتحسين" />
       {DOMAINS.map((domain, i) => (
-        <div key={domain} style={{ border: '1.5px solid rgba(11,31,58,0.1)', borderRadius: 12, padding: 12, marginBottom: 10, background: '#FAFAF7' }}>
+        <div key={domain} style={{ border: '1.5px solid rgba(10,59,88,0.1)', borderRadius: 12, padding: 12, marginBottom: 10, background: '#F7F9FA' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: NAVY, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{domain}</span>
             <select value={priorities[i].priority} onChange={e => updatePriority(i, 'priority', e.target.value)}
-              style={{ padding: '6px 10px', borderRadius: 8, border: '1.5px solid rgba(11,31,58,0.12)', fontSize: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#fff', color: NAVY }}>
+              style={{ padding: '6px 10px', borderRadius: 8, border: '1.5px solid rgba(10,59,88,0.12)', fontSize: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#fff', color: NAVY }}>
               {PRIORITY_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
             </select>
           </div>
           <input value={priorities[i].justification} onChange={e => updatePriority(i, 'justification', e.target.value)} placeholder="مبررات تحديد مستوى الأولوية"
-            style={{ width: '100%', padding: '8px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 8, fontSize: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#fff', color: NAVY, direction: 'rtl', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '8px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 8, fontSize: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#fff', color: NAVY, direction: 'rtl', boxSizing: 'border-box' }} />
         </div>
       ))}
 

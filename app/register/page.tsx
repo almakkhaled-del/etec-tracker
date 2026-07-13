@@ -4,9 +4,9 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const CREAM = '#F5F8FA'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -89,7 +89,7 @@ export default function RegisterPage() {
   }
 
   const inputStyle = {
-    width: '100%', padding: '12px 16px', border: '1px solid rgba(11,31,58,0.15)',
+    width: '100%', padding: '12px 16px', border: '1px solid rgba(10,59,88,0.15)',
     borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, Tajawal, sans-serif',
     boxSizing: 'border-box' as const, marginBottom: 14, background: '#fff', color: NAVY
   }
@@ -106,10 +106,10 @@ export default function RegisterPage() {
             <img src="/logo.png" alt="شواهدي" style={{ height: 50, marginBottom: 18 }} />
           </Link>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: NAVY, marginBottom: 8 }}>تسجيل مدرسة جديدة</h1>
-          <p style={{ fontSize: 14, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>تجربة مجانية 7 أيام — لا يلزم بطاقة ائتمان</p>
+          <p style={{ fontSize: 14, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>تجربة مجانية 7 أيام — لا يلزم بطاقة ائتمان</p>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 18, padding: '2.2rem 2rem', border: '1px solid rgba(11,31,58,0.06)', boxShadow: '0 12px 36px rgba(11,31,58,0.08)' }}>
+        <div style={{ background: '#fff', borderRadius: 18, padding: '2.2rem 2rem', border: '1px solid rgba(10,59,88,0.06)', boxShadow: '0 12px 36px rgba(10,59,88,0.08)' }}>
 
           <p style={sectionLabel}>بيانات المدرسة</p>
 
@@ -161,7 +161,7 @@ export default function RegisterPage() {
               onChange={e => setAgreed(e.target.checked)}
               style={{ marginTop: 3, width: 16, height: 16, flexShrink: 0, accentColor: GOLD, cursor: 'pointer' }}
             />
-            <span style={{ fontSize: 12.5, color: '#5A5648', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+            <span style={{ fontSize: 12.5, color: '#4C5A66', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               أوافق على{' '}
               <Link href="/terms" target="_blank" style={{ color: GOLD, fontWeight: 700, textDecoration: 'none' }}>الشروط والأحكام</Link>
               {' '}و{' '}
@@ -177,14 +177,14 @@ export default function RegisterPage() {
 
           <button onClick={handleSubmit} disabled={loading || !agreed} style={{
             width: '100%', padding: '14px', fontSize: 16, fontWeight: 700,
-            background: (loading || !agreed) ? '#9ca3af' : `linear-gradient(135deg, #D9A441, ${GOLD})`,
+            background: (loading || !agreed) ? '#9ca3af' : `linear-gradient(135deg, #3E8AB0, ${GOLD})`,
             color: NAVY, border: 'none', borderRadius: 11, cursor: (loading || !agreed) ? 'not-allowed' : 'pointer',
-            fontFamily: 'Tajawal, sans-serif', boxShadow: (loading || !agreed) ? 'none' : '0 6px 18px rgba(194,138,31,0.3)'
+            fontFamily: 'Tajawal, sans-serif', boxShadow: (loading || !agreed) ? 'none' : '0 6px 18px rgba(31,110,150,0.3)'
           }}>
             {loading ? 'جاري التسجيل...' : 'إنشاء الحساب — ابدأ التجربة المجانية ←'}
           </button>
 
-          <p style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', marginTop: 18, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+          <p style={{ textAlign: 'center', fontSize: 13, color: '#7A8896', marginTop: 18, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
             عندك حساب؟{' '}
             <Link href="/login" style={{ color: GOLD, textDecoration: 'none', fontWeight: 700 }}>سجّل دخول</Link>
           </p>

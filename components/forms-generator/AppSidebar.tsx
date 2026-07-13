@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
-const NAVY = '#0B1F3A'
-const GOLD_LIGHT = '#E8C275'
+const NAVY = '#0A3B58'
+const GOLD_LIGHT = '#7FB3CB'
 const DOMAIN_ICONS: Record<string, string> = { '1': '🏫', '2': '📚', '3': '📊', '4': '🏢' }
 
 type Domain = { id: number; code: string; name_ar: string; order_num: number; pct?: number }
@@ -69,7 +69,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/dashboard" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 4,
-          background: pathname === '/dashboard' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/dashboard' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/dashboard' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🏠</span>
@@ -86,7 +86,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
             <Link key={domain.id} href={`/domain/${domain.id}`} className="sidebar-link" style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
               textDecoration: 'none', marginBottom: 2,
-              background: isActive ? 'rgba(232,194,117,0.14)' : 'transparent',
+              background: isActive ? 'rgba(127,179,203,0.14)' : 'transparent',
               color: isActive ? GOLD_LIGHT : 'rgba(255,255,255,0.72)'
             }}>
               <span style={{ fontSize: 14, flexShrink: 0 }}>{DOMAIN_ICONS[domain.code]}</span>
@@ -103,7 +103,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/forms" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/forms' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/forms' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/forms' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>📋</span>
@@ -113,7 +113,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/print" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/print' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/print' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/print' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🖨️</span>
@@ -153,18 +153,18 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         .mobile-fab {
           position: fixed; bottom: 22px; left: 22px; z-index: 200;
           width: 54px; height: 54px; border-radius: 50%;
-          background: #0B1F3A; border: none; cursor: pointer;
+          background: #0A3B58; border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 6px 20px rgba(11,31,58,0.35);
+          box-shadow: 0 6px 20px rgba(10,59,88,0.35);
         }
         .mobile-overlay {
-          position: fixed; inset: 0; background: rgba(11,31,58,0.5);
+          position: fixed; inset: 0; background: rgba(10,59,88,0.5);
           z-index: 199; opacity: 0; pointer-events: none; transition: opacity 0.25s;
         }
         .mobile-overlay.open { opacity: 1; pointer-events: auto; }
         .mobile-drawer {
           position: fixed; top: 0; right: 0; height: 100vh; width: 260px;
-          background: #0B1F3A; z-index: 201;
+          background: #0A3B58; z-index: 201;
           transform: translateX(100%); transition: transform 0.28s ease;
           display: flex; flex-direction: column; padding: 24px 0; overflow-y: auto;
         }
@@ -182,7 +182,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
       {/* زر عائم للجوال */}
       <button className="mobile-fab" onClick={() => setMobileOpen(true)} aria-label="فتح القائمة">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M4 6h16M4 12h16M4 18h16" stroke="#E8C275" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="#7FB3CB" strokeWidth="2.2" strokeLinecap="round" />
         </svg>
       </button>
 

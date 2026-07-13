@@ -43,7 +43,7 @@ export default function OrientationWeekForm({ schoolPrincipalName, onGenerated }
   return (
     <Card>
       <SectionHeader icon="🎒" title="خطة الأسبوع التمهيدي" />
-      <p style={{ fontSize: 12, color: '#8A8270', marginBottom: 16, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+      <p style={{ fontSize: 12, color: '#7A8896', marginBottom: 16, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
         محتوى الخطة (برنامج الأيام الخمسة والجدول الزمني) معتمد وثابت — تحتاج بس تعبّي 3 حقول
       </p>
       <Field label="إعداد" value={preparedBy} onChange={setPreparedBy} />

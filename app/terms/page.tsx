@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const CREAM = '#F5F8FA'
 
 export const metadata = {
   title: 'الشروط والأحكام | شواهدي',
@@ -12,7 +12,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section style={{ marginBottom: 32 }}>
       <h2 style={{ fontSize: 18, fontWeight: 800, color: NAVY, marginBottom: 12 }}>{title}</h2>
-      <div className="body-font" style={{ fontSize: 14.5, color: '#3a3a3a', lineHeight: 2.1 }}>
+      <div className="body-font" style={{ fontSize: 14.5, color: '#2F3B45', lineHeight: 2.1 }}>
         {children}
       </div>
     </section>
@@ -27,8 +27,8 @@ export default function TermsPage() {
 
       {/* ============ NAV (نفس شريط الصفحة الرئيسية) ============ */}
       <nav style={{
-        background: 'rgba(251,248,242,0.92)', backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px',
+        background: 'rgba(245,248,250,0.92)', backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '0 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: 76, position: 'sticky', top: 0, zIndex: 100,
       }}>
@@ -47,8 +47,8 @@ export default function TermsPage() {
 
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'rgba(217,164,65,0.14)', border: '1px solid rgba(194,138,31,0.35)',
-          color: '#A6730F', fontSize: 12, fontWeight: 600, padding: '6px 16px',
+          background: 'rgba(62,138,176,0.14)', border: '1px solid rgba(31,110,150,0.35)',
+          color: '#175A7D', fontSize: 12, fontWeight: 600, padding: '6px 16px',
           borderRadius: 30, marginBottom: 18,
         }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
@@ -56,13 +56,13 @@ export default function TermsPage() {
         </div>
 
         <h1 style={{ fontSize: 30, fontWeight: 900, color: NAVY, margin: '0 0 8px' }}>الشروط والأحكام</h1>
-        <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 32 }}>
+        <p className="body-font" style={{ fontSize: 13, color: '#7A8896', marginBottom: 32 }}>
           آخر تحديث: يوليو 2026
         </p>
 
-        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '2rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
+        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '2rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)' }}>
 
-          <p className="body-font" style={{ fontSize: 14.5, color: '#3a3a3a', lineHeight: 2.1, marginBottom: 32 }}>
+          <p className="body-font" style={{ fontSize: 14.5, color: '#2F3B45', lineHeight: 2.1, marginBottom: 32 }}>
             باستخدامك لمنصة "شواهدي" عبر الموقع shawahede.com فإنك توافق على الشروط والأحكام التالية. يرجى قراءتها
             بعناية قبل استخدام المنصة أو تسجيل مدرستك.
           </p>
@@ -146,21 +146,21 @@ export default function TermsPage() {
       </main>
 
       {/* ============ الفوتر (نفس فوتر الصفحة الرئيسية) ============ */}
-      <footer style={{ borderTop: '1px solid rgba(11,31,58,0.08)', background: '#fff', padding: '2.5rem 1.5rem 1.8rem' }}>
+      <footer style={{ borderTop: '1px solid rgba(10,59,88,0.08)', background: '#fff', padding: '2.5rem 1.5rem 1.8rem' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 42, marginBottom: 16 }} />
-          <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: '0 0 16px' }}>
+          <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: '0 0 16px' }}>
             shawahede.com · منصة مستقلة لدعم المدارس · غير مرتبطة بهيئة تقويم التعليم والتدريب
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginBottom: 20 }}>
-            <Link href="/privacy" className="body-font" style={{ fontSize: 12, color: '#8A8270', textDecoration: 'none' }}>سياسة الخصوصية</Link>
+            <Link href="/privacy" className="body-font" style={{ fontSize: 12, color: '#7A8896', textDecoration: 'none' }}>سياسة الخصوصية</Link>
             <Link href="/terms" className="body-font" style={{ fontSize: 12, color: GOLD, textDecoration: 'none', fontWeight: 700 }}>الشروط والأحكام</Link>
           </div>
-          <div style={{ width: 60, height: 1, background: 'rgba(11,31,58,0.1)', margin: '0 auto 20px' }} />
+          <div style={{ width: 60, height: 1, background: 'rgba(10,59,88,0.1)', margin: '0 auto 20px' }} />
           <a href="https://khaleddev.online" target="_blank" rel="noreferrer" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none'
           }}>
-            <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>صُنع بواسطة</span>
+            <span className="body-font" style={{ fontSize: 12, color: '#7A8896' }}>صُنع بواسطة</span>
             <img src="/nextlogic-logo.png" alt="Next Logic by Khaled" style={{ height: 22, objectFit: 'contain' }} />
           </a>
         </div>

@@ -7,13 +7,13 @@ import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import { getGuidance } from '@/lib/indicatorGuidance'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const GOLD_LIGHT = '#E8C275'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const GOLD_LIGHT = '#7FB3CB'
+const CREAM = '#F5F8FA'
 
 const DOMAIN_COLORS: Record<string, string> = {
-  '1': '#1d4ed8', '2': '#16a34a', '3': '#C28A1F', '4': '#7c3aed'
+  '1': '#1d4ed8', '2': '#16a34a', '3': '#1F6E96', '4': '#7c3aed'
 }
 const DOMAIN_ICONS: Record<string, string> = {
   '1': '🏫', '2': '📚', '3': '📊', '4': '🏢'
@@ -31,7 +31,7 @@ function CircleProgress({ percent, color, size = 80 }: { percent: number; color:
   const offset = circ - (percent / 100) * circ
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
-      <circle cx={size/2} cy={size/2} r={r} stroke="#EDEAE0" strokeWidth={stroke} fill="none" />
+      <circle cx={size/2} cy={size/2} r={r} stroke="#E6EBEE" strokeWidth={stroke} fill="none" />
       <circle cx={size/2} cy={size/2} r={r} stroke={color} strokeWidth={stroke} fill="none"
         strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
         style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
@@ -131,7 +131,7 @@ function DashboardInner() {
 
   if (schoolLoading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: CREAM }}>
-      <p style={{ color: '#8A8270', fontFamily: 'Tajawal, sans-serif' }}>جاري التحميل...</p>
+      <p style={{ color: '#7A8896', fontFamily: 'Tajawal, sans-serif' }}>جاري التحميل...</p>
     </div>
   )
 
@@ -143,9 +143,9 @@ function DashboardInner() {
         .fade-in { animation: fadeUp 0.35s cubic-bezier(0.4,0,0.2,1) both; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         .domain-card { transition: all 0.22s ease; cursor: pointer; }
-        .domain-card:hover { box-shadow: 0 8px 24px rgba(11,31,58,0.10) !important; }
-        .std-row:hover { background: rgba(11,31,58,0.03) !important; }
-        .ind-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(11,31,58,0.10) !important; }
+        .domain-card:hover { box-shadow: 0 8px 24px rgba(10,59,88,0.10) !important; }
+        .std-row:hover { background: rgba(10,59,88,0.03) !important; }
+        .ind-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10,59,88,0.10) !important; }
         .tree-expand { animation: treeOpen 0.3s cubic-bezier(0.4,0,0.2,1) both; }
         @keyframes treeOpen { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
@@ -156,7 +156,7 @@ function DashboardInner() {
 
           {/* Header */}
           <header style={{
-            background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
+            background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)',
             padding: mob ? '0 16px' : '0 28px',
             height: mob ? 64 : 80,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -166,7 +166,7 @@ function DashboardInner() {
               <p style={{ fontSize: mob ? 15 : 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
                 مرحباً، {principalFirstName} 👋
               </p>
-              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 {school?.name} — 1448هـ
               </p>
             </div>
@@ -174,8 +174,8 @@ function DashboardInner() {
               {isTrial && trialDaysLeft !== null && (
                 <Link href="/account" style={{ textDecoration: 'none' }}>
                   <span style={{
-                    fontSize: 11, fontWeight: 600, background: 'rgba(194,138,31,0.1)', color: '#A6730F',
-                    padding: '5px 10px', borderRadius: 20, border: '1px solid rgba(194,138,31,0.25)',
+                    fontSize: 11, fontWeight: 600, background: 'rgba(31,110,150,0.1)', color: '#175A7D',
+                    padding: '5px 10px', borderRadius: 20, border: '1px solid rgba(31,110,150,0.25)',
                     fontFamily: 'IBM Plex Sans Arabic, sans-serif', display: 'inline-block'
                   }}>{trialDaysLeft} أيام متبقية</span>
                 </Link>
@@ -203,17 +203,17 @@ function DashboardInner() {
                   <div style={{ width: `${completion || 2}%`, height: '100%', background: GOLD_LIGHT, borderRadius: 99 }} />
                 </div>
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
-                <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي المؤشرات</p>
+              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
+                <p style={{ fontSize: 11, color: '#7A8896', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي المؤشرات</p>
                 <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
-                <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>مؤشرات مكتملة</p>
+              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
+                <p style={{ fontSize: 11, color: '#7A8896', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>مؤشرات مكتملة</p>
                 <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#16a34a', margin: '0 0 3px' }}>{loading ? '—' : stats.completed}</p>
                 {!loading && <p style={{ fontSize: 11, color: '#DC2626', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>متبقي {stats.total - stats.completed}</p>}
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(11,31,58,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
-                <p style={{ fontSize: 11, color: '#8A8270', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي الشواهد</p>
+              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
+                <p style={{ fontSize: 11, color: '#7A8896', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي الشواهد</p>
                 <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: GOLD, margin: 0 }}>{loading ? '—' : stats.evidences}</p>
               </div>
             </div>
@@ -233,8 +233,8 @@ function DashboardInner() {
                 return (
                   <div key={domain.id} style={{
                     background: '#fff', borderRadius: 18,
-                    border: `1.5px solid ${isExpanded ? c + '40' : 'rgba(11,31,58,0.07)'}`,
-                    boxShadow: isExpanded ? `0 4px 20px ${c}18` : '0 2px 8px rgba(11,31,58,0.05)',
+                    border: `1.5px solid ${isExpanded ? c + '40' : 'rgba(10,59,88,0.07)'}`,
+                    boxShadow: isExpanded ? `0 4px 20px ${c}18` : '0 2px 8px rgba(10,59,88,0.05)',
                     overflow: 'hidden', transition: 'all 0.25s ease'
                   }}>
                     {/* Domain Header Row */}
@@ -245,9 +245,9 @@ function DashboardInner() {
                       borderBottom: isExpanded ? `1px solid ${c}20` : 'none',
                     }}>
                       <div style={{ position: 'relative', flexShrink: 0 }}>
-                        <CircleProgress percent={locked ? 0 : pct} color={locked ? '#C0BCA8' : c} size={mob ? 64 : 72} />
+                        <CircleProgress percent={locked ? 0 : pct} color={locked ? '#A8B4BC' : c} size={mob ? 64 : 72} />
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={{ fontSize: locked ? (mob ? 20 : 24) : (mob ? 13 : 15), fontWeight: 800, color: locked ? '#C0BCA8' : NAVY }}>
+                          <span style={{ fontSize: locked ? (mob ? 20 : 24) : (mob ? 13 : 15), fontWeight: 800, color: locked ? '#A8B4BC' : NAVY }}>
                             {locked ? '🔒' : `${pct}%`}
                           </span>
                         </div>
@@ -258,21 +258,21 @@ function DashboardInner() {
                           <p style={{ fontWeight: 700, fontSize: mob ? 14 : 16, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
                         </div>
                         {locked ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(194,138,31,0.12)', color: '#A6730F', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 20, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>🔒 يتطلب الاشتراك</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(31,110,150,0.12)', color: '#175A7D', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 20, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>🔒 يتطلب الاشتراك</span>
                         ) : (
-                          <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                          <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                             {domain.completed} من {domain.total_indicators} مؤشراً · {domain.total_evidences} شاهد · {domStds.length} معايير
                           </p>
                         )}
                       </div>
                       <div style={{
                         width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                        background: `${locked ? '#C0BCA8' : c}14`,
+                        background: `${locked ? '#A8B4BC' : c}14`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         transition: 'transform 0.25s',
                         transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'
                       }}>
-                        <span style={{ fontSize: 14, color: locked ? '#C0BCA8' : c }}>{locked ? '🔒' : '←'}</span>
+                        <span style={{ fontSize: 14, color: locked ? '#A8B4BC' : c }}>{locked ? '🔒' : '←'}</span>
                       </div>
                     </div>
 
@@ -318,8 +318,8 @@ function DashboardInner() {
                                 }}>{std.code}</div>
                                 <p style={{ flex: 1, fontSize: mob ? 12 : 13, fontWeight: 600, color: NAVY, margin: 0, lineHeight: 1.4 }}>{std.name_ar}</p>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                                  <span style={{ fontSize: 11, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{completed}/{total}</span>
-                                  <div style={{ width: 40, height: 4, background: '#EDEAE0', borderRadius: 99 }}>
+                                  <span style={{ fontSize: 11, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{completed}/{total}</span>
+                                  <div style={{ width: 40, height: 4, background: '#E6EBEE', borderRadius: 99 }}>
                                     <div style={{ width: `${stdPct || 2}%`, height: '100%', background: stdPct === 100 ? '#16a34a' : c, borderRadius: 99 }} />
                                   </div>
                                   <span style={{ fontSize: 11, fontWeight: 700, color: stdPct === 100 ? '#16a34a' : c }}>{stdPct}%</span>
@@ -340,18 +340,18 @@ function DashboardInner() {
                                       <Link key={ind.id} href={`/indicator/${ind.id}`} style={{ textDecoration: 'none' }}>
                                         <div className="ind-chip" style={{
                                           position: 'relative',
-                                          background: hasEv ? '#F0FDF4' : '#FAFAF7',
-                                          border: `1.5px solid ${hasEv ? '#86EFAC' : 'rgba(11,31,58,0.08)'}`,
+                                          background: hasEv ? '#F0FDF4' : '#F7F9FA',
+                                          border: `1.5px solid ${hasEv ? '#86EFAC' : 'rgba(10,59,88,0.08)'}`,
                                           borderRadius: 12, padding: '10px 10px 8px',
                                           cursor: 'pointer', transition: 'all 0.18s',
-                                          boxShadow: hasEv ? '0 2px 8px rgba(22,163,74,0.10)' : '0 1px 4px rgba(11,31,58,0.04)'
+                                          boxShadow: hasEv ? '0 2px 8px rgba(22,163,74,0.10)' : '0 1px 4px rgba(10,59,88,0.04)'
                                         }}>
                                           <button
                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setGuidanceFor(ind) }}
                                             style={{
                                               position: 'absolute', top: 6, insetInlineStart: 6,
                                               width: 20, height: 20, borderRadius: '50%',
-                                              background: 'rgba(11,31,58,0.06)', border: 'none', cursor: 'pointer',
+                                              background: 'rgba(10,59,88,0.06)', border: 'none', cursor: 'pointer',
                                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                                               fontSize: 11, color: NAVY, fontWeight: 800, padding: 0
                                             }}
@@ -392,7 +392,7 @@ function DashboardInner() {
 
             {/* Quick Links */}
             <div style={{ display: 'grid', gridTemplateColumns: mob ? '1fr' : '1fr 1fr', gap: mob ? 10 : 14 }}>
-              <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #A6730F)`, borderRadius: 16, padding: mob ? '14px 18px' : '18px 24px', textDecoration: 'none' }}>
+              <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #175A7D)`, borderRadius: 16, padding: mob ? '14px 18px' : '18px 24px', textDecoration: 'none' }}>
                 <div>
                   <p style={{ fontSize: mob ? 13 : 15, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>🖨️ التقرير الكامل</p>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>اطبع ملف شواهد مدرستك كاملاً</p>
@@ -414,40 +414,40 @@ function DashboardInner() {
 
       {/* Modal: ترقية الاشتراك */}
       {showUpgrade && (
-        <div onClick={() => setShowUpgrade(false)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(11,31,58,0.45)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 22, maxWidth: 400, width: '100%', padding: '30px 26px', textAlign: 'center', boxShadow: '0 20px 60px rgba(11,31,58,0.3)', animation: 'fadeUp 0.3s cubic-bezier(0.34,1.3,0.5,1) both' }}>
+        <div onClick={() => setShowUpgrade(false)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(10,59,88,0.45)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 22, maxWidth: 400, width: '100%', padding: '30px 26px', textAlign: 'center', boxShadow: '0 20px 60px rgba(10,59,88,0.3)', animation: 'fadeUp 0.3s cubic-bezier(0.34,1.3,0.5,1) both' }}>
             <div style={{ fontSize: 44, marginBottom: 10 }}>🔒</div>
             <p style={{ fontSize: 18, fontWeight: 800, color: NAVY, margin: '0 0 8px' }}>هذا المجال يتطلب الاشتراك</p>
-            <p style={{ fontSize: 13, color: '#8A8270', margin: '0 0 20px', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+            <p style={{ fontSize: 13, color: '#7A8896', margin: '0 0 20px', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               في النسخة التجريبية يتاح مجال <b>البيئة المدرسية</b> فقط. اشترك الآن لفتح المجالات الأربعة كاملة.
             </p>
             <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 10 }}>💬 تواصل للاشتراك</button>
+              <button style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 10 }}>💬 تواصل للاشتراك</button>
             </a>
-            <button onClick={() => setShowUpgrade(false)} style={{ width: '100%', padding: '11px', fontSize: 13, fontWeight: 600, background: 'transparent', color: '#8A8270', border: 'none', cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>لاحقاً</button>
+            <button onClick={() => setShowUpgrade(false)} style={{ width: '100%', padding: '11px', fontSize: 13, fontWeight: 600, background: 'transparent', color: '#7A8896', border: 'none', cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>لاحقاً</button>
           </div>
         </div>
       )}
 
       {/* Modal: ماذا يتوقع */}
       {guidanceFor && (
-        <div onClick={() => setGuidanceFor(null)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(11,31,58,0.45)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '26px 24px', boxShadow: '0 20px 60px rgba(11,31,58,0.3)', animation: 'fadeUp 0.3s cubic-bezier(0.34,1.3,0.5,1) both' }}>
+        <div onClick={() => setGuidanceFor(null)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(10,59,88,0.45)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '26px 24px', boxShadow: '0 20px 60px rgba(10,59,88,0.3)', animation: 'fadeUp 0.3s cubic-bezier(0.34,1.3,0.5,1) both' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: `${GOLD}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>💡</div>
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 11, color: GOLD, margin: '0 0 2px', fontWeight: 700, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>ماذا يُتوقع من المدرسة؟</p>
                 <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: 0, lineHeight: 1.5 }}>{guidanceFor.name_ar}</p>
               </div>
-              <button onClick={() => setGuidanceFor(null)} style={{ background: 'rgba(11,31,58,0.06)', border: 'none', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, color: NAVY, flexShrink: 0 }}>✕</button>
+              <button onClick={() => setGuidanceFor(null)} style={{ background: 'rgba(10,59,88,0.06)', border: 'none', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, color: NAVY, flexShrink: 0 }}>✕</button>
             </div>
-            <div style={{ background: '#FBF8F2', borderRadius: 14, padding: '16px 18px', borderInlineStart: `4px solid ${GOLD}` }}>
-              <p style={{ fontSize: 13.5, color: '#3A3A3A', margin: 0, lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+            <div style={{ background: '#F5F8FA', borderRadius: 14, padding: '16px 18px', borderInlineStart: `4px solid ${GOLD}` }}>
+              <p style={{ fontSize: 13.5, color: '#2F3B45', margin: 0, lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 {getGuidance(guidanceFor.name_ar)}
               </p>
             </div>
             <Link href={`/indicator/${guidanceFor.id}`} onClick={() => setGuidanceFor(null)} style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', marginTop: 16, padding: '13px', fontSize: 14, fontWeight: 700, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
+              <button style={{ width: '100%', marginTop: 16, padding: '13px', fontSize: 14, fontWeight: 700, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
                 رفع شواهد هذا المؤشر ←
               </button>
             </Link>
@@ -457,7 +457,7 @@ function DashboardInner() {
 
       {/* Bottom Nav — موبايل */}
       {mob && (
-        <nav style={{ position: 'fixed', bottom: 0, right: 0, left: 0, zIndex: 100, background: '#fff', borderTop: '1px solid rgba(11,31,58,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-around', paddingTop: 10, paddingBottom: 20 }}>
+        <nav style={{ position: 'fixed', bottom: 0, right: 0, left: 0, zIndex: 100, background: '#fff', borderTop: '1px solid rgba(10,59,88,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-around', paddingTop: 10, paddingBottom: 20 }}>
           {[
             { href: '/dashboard', icon: '🏠', label: 'الرئيسية' },
             { href: '/forms', icon: '📋', label: 'النماذج' },
@@ -479,8 +479,8 @@ function DashboardInner() {
 export default function Dashboard() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FBF8F2', fontFamily: 'Tajawal, sans-serif' }}>
-        <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F8FA', fontFamily: 'Tajawal, sans-serif' }}>
+        <p style={{ color: '#7A8896' }}>جاري التحميل...</p>
       </div>
     }>
       <DashboardInner />

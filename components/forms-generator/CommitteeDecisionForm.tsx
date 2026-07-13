@@ -90,27 +90,27 @@ export default function CommitteeDecisionForm({ schoolPrincipalName, onGenerated
       <SectionHeader icon="👥" title="أعضاء اللجنة" />
       {members.map((m, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <span style={{ fontSize: 11, color: '#8A8270', width: 90, flexShrink: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ROLE_LABELS[i]}</span>
+          <span style={{ fontSize: 11, color: '#7A8896', width: 90, flexShrink: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ROLE_LABELS[i]}</span>
           <input type="text" value={m.name} onChange={e => updateMember(i, 'name', e.target.value)} placeholder="اسم العضو"
-            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
+            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#F7F9FA', color: NAVY, direction: 'rtl' }} />
           <input type="text" value={m.job} onChange={e => updateMember(i, 'job', e.target.value)} placeholder="الوظيفة"
-            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
+            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#F7F9FA', color: NAVY, direction: 'rtl' }} />
         </div>
       ))}
 
       <SectionHeader icon="🗓️" title="مواعيد الاجتماعات (اختياري)" />
-      <p style={{ fontSize: 12, color: '#8A8270', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الفصل الدراسي الأول</p>
+      <p style={{ fontSize: 12, color: '#7A8896', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الفصل الدراسي الأول</p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
         {sem1.map((v, i) => (
           <input key={i} value={v} onChange={e => { const n = [...sem1]; n[i] = e.target.value; setSem1(n) }} placeholder={`الاجتماع ${i + 1}`}
-            style={{ padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
+            style={{ padding: '9px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#F7F9FA', color: NAVY, direction: 'rtl' }} />
         ))}
       </div>
-      <p style={{ fontSize: 12, color: '#8A8270', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الفصل الدراسي الثاني</p>
+      <p style={{ fontSize: 12, color: '#7A8896', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الفصل الدراسي الثاني</p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
         {sem2.map((v, i) => (
           <input key={i} value={v} onChange={e => { const n = [...sem2]; n[i] = e.target.value; setSem2(n) }} placeholder={`الاجتماع ${i + 1}`}
-            style={{ padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
+            style={{ padding: '9px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#F7F9FA', color: NAVY, direction: 'rtl' }} />
         ))}
       </div>
 

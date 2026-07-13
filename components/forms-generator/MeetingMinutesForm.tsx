@@ -98,7 +98,7 @@ export default function MeetingMinutesForm({ schoolPrincipalName, onGenerated }:
     setGenerating(false)
   }
 
-  const inputStyle = { padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#FAFAF7', color: NAVY, direction: 'rtl' as const, width: '100%', boxSizing: 'border-box' as const }
+  const inputStyle = { padding: '9px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#F7F9FA', color: NAVY, direction: 'rtl' as const, width: '100%', boxSizing: 'border-box' as const }
 
   return (
     <Card>
@@ -127,7 +127,7 @@ export default function MeetingMinutesForm({ schoolPrincipalName, onGenerated }:
 
       <SectionHeader icon="✅" title="التوصيات" />
       {recs.map((r, i) => (
-        <div key={i} style={{ border: '1.5px solid rgba(11,31,58,0.1)', borderRadius: 12, padding: 12, marginBottom: 10, background: '#FAFAF7' }}>
+        <div key={i} style={{ border: '1.5px solid rgba(10,59,88,0.1)', borderRadius: 12, padding: 12, marginBottom: 10, background: '#F7F9FA' }}>
           <input value={r.text} onChange={e => updateRec(i, 'text', e.target.value)} placeholder="نص التوصية" style={{ ...inputStyle, marginBottom: 8 }} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             <input value={r.assignee} onChange={e => updateRec(i, 'assignee', e.target.value)} placeholder="الجهة المكلفة" style={inputStyle} />
@@ -145,19 +145,19 @@ export default function MeetingMinutesForm({ schoolPrincipalName, onGenerated }:
       ))}
 
       <SectionHeader icon="👥" title="أعضاء اللجنة الحاضرون" />
-      <p style={{ fontSize: 11, color: '#8A8270', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الأعضاء الثلاثة الأوائل ثابتون حسب النظام</p>
+      <p style={{ fontSize: 11, color: '#7A8896', marginBottom: 8, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>الأعضاء الثلاثة الأوائل ثابتون حسب النظام</p>
       {FIXED_ROLES.map((r, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <input value={fixedMembers[i]} onChange={e => { const n = [...fixedMembers]; n[i] = e.target.value; setFixedMembers(n) }} placeholder="الاسم" style={{ ...inputStyle, flex: 1 }} />
-          <span style={{ fontSize: 11, color: '#8A8270', width: 160, flexShrink: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{r.job} — {r.role}</span>
+          <span style={{ fontSize: 11, color: '#7A8896', width: 160, flexShrink: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{r.job} — {r.role}</span>
         </div>
       ))}
-      <p style={{ fontSize: 11, color: '#8A8270', margin: '10px 0 8px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>أعضاء إضافيون (اختياري)</p>
+      <p style={{ fontSize: 11, color: '#7A8896', margin: '10px 0 8px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>أعضاء إضافيون (اختياري)</p>
       {extraMembers.map((m, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <input value={m.name} onChange={e => updateExtra(i, 'name', e.target.value)} placeholder="اسم العضو" style={{ ...inputStyle, flex: 1 }} />
           <input value={m.job} onChange={e => updateExtra(i, 'job', e.target.value)} placeholder="الوظيفة" style={{ ...inputStyle, flex: 1 }} />
-          <span style={{ fontSize: 11, color: '#8A8270', width: 60, flexShrink: 0 }}>{EDITABLE_ROLES[i]}</span>
+          <span style={{ fontSize: 11, color: '#7A8896', width: 60, flexShrink: 0 }}>{EDITABLE_ROLES[i]}</span>
         </div>
       ))}
 

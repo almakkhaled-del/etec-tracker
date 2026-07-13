@@ -4,9 +4,9 @@ import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 
-const NAVY = '#0B1F3A'
+const NAVY = '#0A3B58'
 const GREEN = '#1F5C2E'
-const CREAM = '#FBF8F2'
+const CREAM = '#F5F8FA'
 
 const GREEN_DARK = '1F5C2E'
 const GREEN_LIGHT = 'D9EAD3'
@@ -705,17 +705,17 @@ export default function OperationalPlanPage() {
         <div style={{ display: 'flex', minHeight: '100vh' }}>
           <AppSidebar />
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
+            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(10,59,88,0.08)' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
               <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>مولّد الخطة التشغيلية يتطلب الاشتراك</p>
-              <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              <p style={{ fontSize: 13.5, color: '#7A8896', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 هذه الميزة متاحة في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
               <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, #C28A1F)`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, #1F6E96)`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
+                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
               </Link>
             </div>
           </div>
@@ -730,11 +730,11 @@ export default function OperationalPlanPage() {
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
-            <Link href="/forms" style={{ textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270' }}>← النماذج</Link>
+          <header style={{ background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
+            <Link href="/forms" style={{ textDecoration: 'none', background: 'rgba(10,59,88,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#7A8896' }}>← النماذج</Link>
             <div>
               <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>الخطة التشغيلية الذكية</p>
-              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic' }}>ارفع تقرير التقويم — النظام يبني الخطة كاملة تلقائياً</p>
+              <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic' }}>ارفع تقرير التقويم — النظام يبني الخطة كاملة تلقائياً</p>
             </div>
           </header>
           <main style={{ padding: '28px', maxWidth: 600, margin: '0 auto' }}>
@@ -744,21 +744,21 @@ export default function OperationalPlanPage() {
                 غلاف رسمي · مقدمة · معلومات عامة · رؤية ورسالة وقيم · الأهداف الاستراتيجية · أهداف المرحلة · لجنة التميز · مصادر الخطة · تحليل SWOT من التقرير · أبرز القضايا · التعريفات · 10 أهداف + 64 برنامج + جداول متابعة · اللجنة الإدارية · الاعتماد · الختام
               </p>
             </div>
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.6rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '1.6rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)' }}>
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 8 }}>📄 تقرير التقويم الخارجي *</label>
-                <div onClick={() => document.getElementById('pdf-in')?.click()} style={{ border: `2px dashed ${pdfFile ? GREEN : 'rgba(11,31,58,0.2)'}`, borderRadius: 12, padding: '24px 20px', textAlign: 'center', cursor: 'pointer', background: pdfFile ? '#f0fdf4' : '#FAFAF7' }}>
+                <div onClick={() => document.getElementById('pdf-in')?.click()} style={{ border: `2px dashed ${pdfFile ? GREEN : 'rgba(10,59,88,0.2)'}`, borderRadius: 12, padding: '24px 20px', textAlign: 'center', cursor: 'pointer', background: pdfFile ? '#f0fdf4' : '#F7F9FA' }}>
                   <input id="pdf-in" type="file" accept=".pdf" onChange={handleFile} style={{ display: 'none' }} />
                   {pdfFile
-                    ? <><p style={{ fontSize: 24, margin: '0 0 6px' }}>✅</p><p style={{ fontSize: 13, fontWeight: 700, color: GREEN, margin: 0 }}>{pdfFile.name}</p><p style={{ fontSize: 11, color: '#8A8270', margin: '4px 0 0' }}>اضغط للتغيير</p></>
-                    : <><p style={{ fontSize: 32, margin: '0 0 6px' }}>📥</p><p style={{ fontSize: 14, fontWeight: 600, color: NAVY, margin: '0 0 4px' }}>ارفع تقرير التقويم الخارجي</p><p style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>PDF فقط — تقرير هيئة تقويم التعليم (إتقان)</p></>
+                    ? <><p style={{ fontSize: 24, margin: '0 0 6px' }}>✅</p><p style={{ fontSize: 13, fontWeight: 700, color: GREEN, margin: 0 }}>{pdfFile.name}</p><p style={{ fontSize: 11, color: '#7A8896', margin: '4px 0 0' }}>اضغط للتغيير</p></>
+                    : <><p style={{ fontSize: 32, margin: '0 0 6px' }}>📥</p><p style={{ fontSize: 14, fontWeight: 600, color: NAVY, margin: '0 0 4px' }}>ارفع تقرير التقويم الخارجي</p><p style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>PDF فقط — تقرير هيئة تقويم التعليم (إتقان)</p></>
                   }
                 </div>
               </div>
               <div style={{ marginBottom: 24 }}>
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 6 }}>👤 اسم مدير المدرسة *</label>
                 <input type="text" value={principalName} onChange={e => setPrincipalName(e.target.value)} placeholder="الاسم الكامل"
-                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic', boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl', outline: 'none' }} />
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic', boxSizing: 'border-box', background: '#F7F9FA', color: NAVY, direction: 'rtl', outline: 'none' }} />
               </div>
               {error && <div style={{ background: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}><p style={{ fontSize: 13, color: '#dc2626', margin: 0 }}>⚠️ {error}</p></div>}
               {step !== 'idle' && step !== 'error' && (

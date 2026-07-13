@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
-const NAVY = '#0B1F3A'
-const GOLD_LIGHT = '#E8C275'
+const NAVY = '#0A3B58'
+const GOLD_LIGHT = '#7FB3CB'
 const DOMAIN_ICONS: Record<string, string> = { '1': '🏫', '2': '📚', '3': '📊', '4': '🏢' }
 
 type Domain = { id: number; code: string; name_ar: string; order_num: number; pct?: number }
@@ -91,7 +91,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/dashboard" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 4,
-          background: pathname === '/dashboard' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/dashboard' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/dashboard' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🏠</span>
@@ -122,7 +122,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
             <Link key={domain.id} href={`/dashboard?domain=${domain.id}`} prefetch={false} className="sidebar-link" style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
               textDecoration: 'none', marginBottom: 2,
-              background: isActive ? 'rgba(232,194,117,0.14)' : 'transparent',
+              background: isActive ? 'rgba(127,179,203,0.14)' : 'transparent',
               color: isActive ? GOLD_LIGHT : 'rgba(255,255,255,0.72)'
             }}>
               <span style={{ fontSize: 14, flexShrink: 0 }}>{DOMAIN_ICONS[domain.code]}</span>
@@ -139,7 +139,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/forms" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/forms' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/forms' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/forms' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>📋</span>
@@ -149,7 +149,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/forms/generator" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/forms/generator' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/forms/generator' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/forms/generator' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🧾</span>
@@ -159,7 +159,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/forms/improvement-plan" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/forms/improvement-plan' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/forms/improvement-plan' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/forms/improvement-plan' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🤖</span>
@@ -169,7 +169,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/forms/operational-plan" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/forms/operational-plan' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/forms/operational-plan' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/forms/operational-plan' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>📊</span>
@@ -179,7 +179,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <Link href="/print" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/print' ? 'rgba(232,194,117,0.14)' : 'transparent',
+          background: pathname === '/print' ? 'rgba(127,179,203,0.14)' : 'transparent',
           color: pathname === '/print' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🖨️</span>

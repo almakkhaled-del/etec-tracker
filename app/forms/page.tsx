@@ -5,9 +5,9 @@ import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const CREAM = '#F5F8FA'
 
 const CATEGORIES = ['الكل', 'التخطيط والإعداد', 'الإدارة المدرسية', 'الشؤون التعليمية', 'شؤون الطلاب', 'التحسين والتطوير']
 
@@ -54,17 +54,17 @@ export default function FormsPage() {
         <div style={{ display: 'flex', minHeight: '100vh' }}>
           <AppSidebar />
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
+            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(10,59,88,0.08)' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
               <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>مكتبة النماذج تتطلب الاشتراك</p>
-              <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              <p style={{ fontSize: 13.5, color: '#7A8896', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 مكتبة النماذج الجاهزة (29 نموذجاً) ومولّد الخطة التشغيلية متاحان في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
               <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
+                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
               </Link>
             </div>
           </div>
@@ -84,9 +84,9 @@ export default function FormsPage() {
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>{`
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
-        .form-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(11,31,58,0.10); }
-        .cat-btn:hover { background: rgba(11,31,58,0.06) !important; }
-        .download-btn:hover { background: #0a1830 !important; }
+        .form-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(10,59,88,0.10); }
+        .cat-btn:hover { background: rgba(10,59,88,0.06) !important; }
+        .download-btn:hover { background: #04202F !important; }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -94,13 +94,13 @@ export default function FormsPage() {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <header style={{
-            background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
+            background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
               <p style={{ fontSize: 18, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>النماذج الجاهزة</p>
-              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
+              <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>
                 {forms.length} نموذجاً جاهزاً للتحميل — حقيبة السجلات المدرسية 1448هـ
               </p>
             </div>
@@ -109,7 +109,7 @@ export default function FormsPage() {
               value={search} onChange={e => setSearch(e.target.value)}
               className="body-font"
               style={{
-                padding: '10px 16px', border: '1px solid rgba(11,31,58,0.15)', borderRadius: 10,
+                padding: '10px 16px', border: '1px solid rgba(10,59,88,0.15)', borderRadius: 10,
                 fontSize: 14, width: 240, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
                 outline: 'none', background: CREAM
               }}
@@ -120,12 +120,12 @@ export default function FormsPage() {
 
             {/* نوتة المصادر */}
             <div style={{
-              background: 'rgba(194,138,31,0.08)', border: '1px solid rgba(194,138,31,0.25)',
+              background: 'rgba(31,110,150,0.08)', border: '1px solid rgba(31,110,150,0.25)',
               borderRadius: 12, padding: '14px 18px', marginBottom: 24,
               display: 'flex', gap: 12, alignItems: 'flex-start'
             }}>
               <span style={{ fontSize: 20, flexShrink: 0 }}>📌</span>
-              <p className="body-font" style={{ fontSize: 13, color: '#7A5A0F', margin: 0, lineHeight: 1.8 }}>
+              <p className="body-font" style={{ fontSize: 13, color: '#175A7D', margin: 0, lineHeight: 1.8 }}>
                 هذه الملفات تم تجميعها من حسابات تعليمية ومن مصادر متعددة مع الشكر الجزيل لهذه الحسابات،
                 ولم يتم إزالة أي حقوق مُضافة.
               </p>
@@ -136,9 +136,9 @@ export default function FormsPage() {
               {CATEGORIES.map(cat => (
                 <button key={cat} className="cat-btn" onClick={() => setActiveCategory(cat)} style={{
                   padding: '8px 18px', borderRadius: 20, border: '1.5px solid',
-                  borderColor: activeCategory === cat ? NAVY : 'rgba(11,31,58,0.15)',
+                  borderColor: activeCategory === cat ? NAVY : 'rgba(10,59,88,0.15)',
                   background: activeCategory === cat ? NAVY : 'transparent',
-                  color: activeCategory === cat ? '#fff' : '#5A5648',
+                  color: activeCategory === cat ? '#fff' : '#4C5A66',
                   fontSize: 13, fontWeight: activeCategory === cat ? 700 : 400,
                   cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', transition: 'all 0.2s'
                 }}>
@@ -148,11 +148,11 @@ export default function FormsPage() {
             </div>
 
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#8A8270' }}>
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#7A8896' }}>
                 <p>جاري التحميل...</p>
               </div>
             ) : filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#8A8270' }}>
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#7A8896' }}>
                 <p style={{ fontSize: 32, marginBottom: 12 }}>🔍</p>
                 <p>لا توجد نماذج تطابق بحثك</p>
               </div>
@@ -160,12 +160,12 @@ export default function FormsPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
                 {filtered.map(form => (
                   <div key={form.id} className="form-card" style={{
-                    background: '#fff', borderRadius: 16, border: '1px solid rgba(11,31,58,0.07)',
+                    background: '#fff', borderRadius: 16, border: '1px solid rgba(10,59,88,0.07)',
                     padding: '20px', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', gap: 12
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                       <div style={{
-                        width: 44, height: 44, borderRadius: 12, background: 'rgba(11,31,58,0.06)',
+                        width: 44, height: 44, borderRadius: 12, background: 'rgba(10,59,88,0.06)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 20, flexShrink: 0
                       }}>
@@ -176,14 +176,14 @@ export default function FormsPage() {
                           {form.title_ar}
                         </p>
                         <span style={{
-                          fontSize: 11, background: 'rgba(11,31,58,0.06)', color: '#5A5648',
+                          fontSize: 11, background: 'rgba(10,59,88,0.06)', color: '#4C5A66',
                           padding: '2px 10px', borderRadius: 20
                         }}>
                           {form.category}
                         </span>
                       </div>
                       <span style={{
-                        fontSize: 12, fontWeight: 700, color: '#8A8270',
+                        fontSize: 12, fontWeight: 700, color: '#7A8896',
                         background: CREAM, padding: '4px 10px', borderRadius: 8, flexShrink: 0
                       }}>
                         {form.order_num}
@@ -191,7 +191,7 @@ export default function FormsPage() {
                     </div>
 
                     {form.description_ar && (
-                      <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0, lineHeight: 1.7 }}>
+                      <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0, lineHeight: 1.7 }}>
                         {form.description_ar}
                       </p>
                     )}

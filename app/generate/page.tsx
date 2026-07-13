@@ -4,9 +4,9 @@ import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const CREAM = '#F5F8FA'
 
 function Field({ label, value, onChange, placeholder, half = false }: {
   label: string; value: string; onChange: (val: string) => void; placeholder?: string; half?: boolean
@@ -18,9 +18,9 @@ function Field({ label, value, onChange, placeholder, half = false }: {
       </label>
       <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
         style={{
-          width: '100%', padding: '10px 12px', border: '1.5px solid rgba(11,31,58,0.12)',
+          width: '100%', padding: '10px 12px', border: '1.5px solid rgba(10,59,88,0.12)',
           borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-          boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl'
+          boxSizing: 'border-box', background: '#F7F9FA', color: NAVY, direction: 'rtl'
         }}
       />
     </div>
@@ -29,7 +29,7 @@ function Field({ label, value, onChange, placeholder, half = false }: {
 
 function SectionHeader({ icon, title }: { icon: string; title: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, borderBottom: '2px solid rgba(194,138,31,0.2)', paddingBottom: 10, marginTop: 28 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, borderBottom: '2px solid rgba(31,110,150,0.2)', paddingBottom: 10, marginTop: 28 }}>
       <span style={{ fontSize: 20 }}>{icon}</span>
       <h3 style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: 0 }}>{title}</h3>
     </div>
@@ -101,7 +101,7 @@ export default function GenerateOperationalPlan() {
       <style>{`
         .body-font { font-family: 'IBM Plex Sans Arabic','Tajawal',sans-serif; }
         .gen-btn:hover { filter: brightness(1.05); }
-        input:focus { border-color: #C28A1F !important; outline: none; }
+        input:focus { border-color: #1F6E96 !important; outline: none; }
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr !important; } .grid-3 { grid-template-columns: 1fr !important; } }
       `}</style>
 
@@ -109,25 +109,25 @@ export default function GenerateOperationalPlan() {
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
-            <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
+          <header style={{ background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
+            <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(10,59,88,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
             <div>
               <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>إنشاء الخطة التشغيلية</p>
-              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>أدخل بيانات مدرستك — الخطة جاهزة بالكامل</p>
+              <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>أدخل بيانات مدرستك — الخطة جاهزة بالكامل</p>
             </div>
           </header>
 
           <main style={{ padding: '24px 28px', maxWidth: 640, margin: '0 auto' }}>
 
             {/* الملف يحتوي */}
-            <div style={{ background: 'linear-gradient(135deg, #0B1F3A, #14284a)', borderRadius: 16, padding: '18px 20px', marginBottom: 22, color: '#fff' }}>
+            <div style={{ background: 'linear-gradient(135deg, #0A3B58, #0F4C6E)', borderRadius: 16, padding: '18px 20px', marginBottom: 22, color: '#fff' }}>
               <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px' }}>📄 الملف يحتوي تلقائياً:</p>
               <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.9, margin: 0 }}>
                 غلاف رسمي بشعار الوزارة ورؤية 2030 · رؤية ورسالة المدرسة · تحليل الواقع SWOT · 5 أهداف عامة بـ19 برنامج مفصّل · مسؤولي التنفيذ ومؤشرات الأداء
               </p>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)' }}>
 
               {/* القسم 1: بيانات المدرسة */}
               <SectionHeader icon="🏫" title="بيانات المدرسة" />
@@ -170,13 +170,13 @@ export default function GenerateOperationalPlan() {
               <SectionHeader icon="👥" title="أعضاء لجنة إعداد الخطة (التميز)" />
               {MEMBERS.map(m => (
                 <div key={m.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <span className="body-font" style={{ fontSize: 11, color: '#8A8270', width: 180, flexShrink: 0, textAlign: 'left' }}>{m.role}</span>
+                  <span className="body-font" style={{ fontSize: 11, color: '#7A8896', width: 180, flexShrink: 0, textAlign: 'left' }}>{m.role}</span>
                   <input type="text" value={(f as any)[m.key]} onChange={e => u(m.key, e.target.value)}
                     placeholder="اسم العضو"
                     style={{
-                      flex: 1, padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)',
+                      flex: 1, padding: '9px 12px', border: '1.5px solid rgba(10,59,88,0.12)',
                       borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                      boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl'
+                      boxSizing: 'border-box', background: '#F7F9FA', color: NAVY, direction: 'rtl'
                     }}
                   />
                 </div>
@@ -186,10 +186,10 @@ export default function GenerateOperationalPlan() {
               <div style={{ marginTop: 28 }}>
                 <button onClick={handleGenerate} disabled={generating} className="gen-btn" style={{
                   width: '100%', padding: '16px', fontSize: 17, fontWeight: 800,
-                  background: generating ? '#9CA3AF' : `linear-gradient(135deg, #D9A441, ${GOLD})`,
+                  background: generating ? '#9CA3AF' : `linear-gradient(135deg, #3E8AB0, ${GOLD})`,
                   color: generating ? '#fff' : NAVY, border: 'none', borderRadius: 14,
                   cursor: generating ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif',
-                  boxShadow: generating ? 'none' : '0 6px 20px rgba(194,138,31,0.30)', transition: 'all 0.2s'
+                  boxShadow: generating ? 'none' : '0 6px 20px rgba(31,110,150,0.30)', transition: 'all 0.2s'
                 }}>
                   {generating ? '⏳ جاري إنشاء الملف...' : '📄 توليد الخطة التشغيلية ←'}
                 </button>
@@ -199,7 +199,7 @@ export default function GenerateOperationalPlan() {
                 <div style={{ marginTop: 18, background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 14, padding: '16px 18px', textAlign: 'center' }}>
                   <p style={{ fontSize: 15, fontWeight: 700, color: '#15803D', margin: '0 0 6px' }}>✅ تم إنشاء الخطة التشغيلية بنجاح!</p>
                   <p className="body-font" style={{ fontSize: 13, color: '#166534', margin: '0 0 10px' }}>الملف تم تحميله: الخطة التشغيلية - {f.school_name}.docx</p>
-                  <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>💡 يمكنك فتح الملف وتعديل أي تفاصيل إضافية</p>
+                  <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>💡 يمكنك فتح الملف وتعديل أي تفاصيل إضافية</p>
                 </div>
               )}
             </div>

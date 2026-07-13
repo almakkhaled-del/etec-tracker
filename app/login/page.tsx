@@ -4,9 +4,9 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const CREAM = '#F5F8FA'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -55,7 +55,7 @@ export default function LoginPage() {
   }
 
   const inputStyle = {
-    width: '100%', padding: '13px 16px', border: '1px solid rgba(11,31,58,0.15)',
+    width: '100%', padding: '13px 16px', border: '1px solid rgba(10,59,88,0.15)',
     borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, Tajawal, sans-serif',
     boxSizing: 'border-box' as const, marginBottom: 18, background: '#fff', color: NAVY
   }
@@ -71,10 +71,10 @@ export default function LoginPage() {
             <img src="/logo.png" alt="شواهدي" style={{ height: 52, marginBottom: 20 }} />
           </Link>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: NAVY, marginBottom: 8 }}>تسجيل الدخول</h1>
-          <p style={{ fontSize: 14, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>أدخل بيانات مدرستك للمتابعة</p>
+          <p style={{ fontSize: 14, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>أدخل بيانات مدرستك للمتابعة</p>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 18, padding: '2.2rem 2rem', border: '1px solid rgba(11,31,58,0.06)', boxShadow: '0 12px 36px rgba(11,31,58,0.08)' }}>
+        <div style={{ background: '#fff', borderRadius: 18, padding: '2.2rem 2rem', border: '1px solid rgba(10,59,88,0.06)', boxShadow: '0 12px 36px rgba(10,59,88,0.08)' }}>
           <label style={labelStyle}>البريد الإلكتروني</label>
           <input
             type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -106,7 +106,7 @@ export default function LoginPage() {
             {loading ? 'جاري الدخول...' : 'دخول ←'}
           </button>
 
-          <p style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+          <p style={{ textAlign: 'center', fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
             ليس لديك حساب؟{' '}
             <Link href="/register" style={{ color: GOLD, textDecoration: 'none', fontWeight: 700 }}>
               سجّل مدرستك مجاناً

@@ -28,8 +28,8 @@ export default function FormsGeneratorPage({ schoolPrincipalName, schoolName }: 
               disabled={isDisabled}
               onClick={() => setSelected(t.id)}
               style={{
-                textAlign: 'right', border: `1.5px solid ${isSelected ? GOLD : 'rgba(11,31,58,0.1)'}`,
-                borderRadius: 14, padding: 14, background: isSelected ? 'rgba(194,138,31,0.06)' : '#fff',
+                textAlign: 'right', border: `1.5px solid ${isSelected ? GOLD : 'rgba(10,59,88,0.1)'}`,
+                borderRadius: 14, padding: 14, background: isSelected ? 'rgba(31,110,150,0.06)' : '#fff',
                 cursor: isDisabled ? 'not-allowed' : 'pointer', opacity: isDisabled ? 0.5 : 1,
                 fontFamily: 'Tajawal, sans-serif', transition: 'all 0.2s'
               }}
@@ -37,10 +37,10 @@ export default function FormsGeneratorPage({ schoolPrincipalName, schoolName }: 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{t.title}</span>
                 {isDisabled && (
-                  <span style={{ fontSize: 10, background: CREAM, color: '#8A8270', borderRadius: 20, padding: '2px 8px' }}>قريباً</span>
+                  <span style={{ fontSize: 10, background: CREAM, color: '#7A8896', borderRadius: 20, padding: '2px 8px' }}>قريباً</span>
                 )}
               </div>
-              <p style={{ fontSize: 11, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif', lineHeight: 1.6 }}>{t.description}</p>
+              <p style={{ fontSize: 11, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif', lineHeight: 1.6 }}>{t.description}</p>
             </button>
           )
         })}

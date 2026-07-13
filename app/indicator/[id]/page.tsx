@@ -6,10 +6,10 @@ import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const GOLD_LIGHT = '#E8C275'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const GOLD_LIGHT = '#7FB3CB'
+const CREAM = '#F5F8FA'
 
 type Evidence = {
   id: string; title: string; description: string; evidence_type: string
@@ -171,7 +171,7 @@ export default function IndicatorPage() {
 
   if (schoolLoading || loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: CREAM }}>
-      <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
+      <p style={{ color: '#7A8896' }}>جاري التحميل...</p>
     </div>
   )
 
@@ -186,17 +186,17 @@ export default function IndicatorPage() {
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar activeDomainId={domain?.id} />
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
+          <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(10,59,88,0.08)' }}>
             <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
             <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>هذا المجال يتطلب الاشتراك</p>
-            <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+            <p style={{ fontSize: 13.5, color: '#7A8896', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               الحساب المجاني يتيح مجال "البيئة المدرسية" فقط. اشترك للوصول لبقية المجالات ورفع الشواهد فيها.
             </p>
             <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+              <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
             </a>
             <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
+              <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
             </Link>
           </div>
         </div>
@@ -209,9 +209,9 @@ export default function IndicatorPage() {
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>{`
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
-        .ev-card:hover { box-shadow: 0 6px 18px rgba(11,31,58,0.08); }
+        .ev-card:hover { box-shadow: 0 6px 18px rgba(10,59,88,0.08); }
         .drop-zone { transition: all 0.2s; }
-        .drop-zone.over { background: rgba(194,138,31,0.06); border-color: #C28A1F !important; }
+        .drop-zone.over { background: rgba(31,110,150,0.06); border-color: #1F6E96 !important; }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -219,17 +219,17 @@ export default function IndicatorPage() {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <header style={{
-            background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)',
+            background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
             position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif', flexWrap: 'wrap' }}>
-                <Link href="/dashboard" style={{ color: '#8A8270', textDecoration: 'none' }}>الرئيسية</Link>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif', flexWrap: 'wrap' }}>
+                <Link href="/dashboard" style={{ color: '#7A8896', textDecoration: 'none' }}>الرئيسية</Link>
                 <span>←</span>
-                <Link href={`/domain/${domain?.id}`} style={{ color: '#8A8270', textDecoration: 'none' }}>{domain?.name_ar}</Link>
+                <Link href={`/domain/${domain?.id}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{domain?.name_ar}</Link>
                 <span>←</span>
-                <Link href={`/standard/${standard?.id}`} style={{ color: '#8A8270', textDecoration: 'none' }}>{standard?.name_ar}</Link>
+                <Link href={`/standard/${standard?.id}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{standard?.name_ar}</Link>
               </div>
               <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: '4px 0 0', lineHeight: 1.4, maxWidth: 600 }}>{indicator?.name_ar}</p>
             </div>
@@ -239,7 +239,7 @@ export default function IndicatorPage() {
 
             {/* حالة المؤشر */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-              <span style={{ fontSize: 11, background: 'rgba(11,31,58,0.06)', color: NAVY, padding: '4px 12px', borderRadius: 8, fontWeight: 600 }}>
+              <span style={{ fontSize: 11, background: 'rgba(10,59,88,0.06)', color: NAVY, padding: '4px 12px', borderRadius: 8, fontWeight: 600 }}>
                 مؤشر {indicator?.code}
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, padding: '5px 14px', borderRadius: 20, background: statusBg, color: statusColor }}>
@@ -255,12 +255,12 @@ export default function IndicatorPage() {
               onDrop={handleDrop}
               onClick={() => fileRef.current?.click()}
               style={{
-                border: '2px dashed rgba(11,31,58,0.18)', borderRadius: 18, padding: '40px 24px',
+                border: '2px dashed rgba(10,59,88,0.18)', borderRadius: 18, padding: '40px 24px',
                 textAlign: 'center', cursor: 'pointer', background: '#fff', marginBottom: 24
               }}
             >
               <div style={{
-                width: 64, height: 64, borderRadius: 16, background: 'rgba(194,138,31,0.1)',
+                width: 64, height: 64, borderRadius: 16, background: 'rgba(31,110,150,0.1)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 28
               }}>
                 📎
@@ -268,7 +268,7 @@ export default function IndicatorPage() {
               <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: '0 0 6px' }}>
                 اسحب الملف هنا أو اضغط للاختيار
               </p>
-              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>
+              <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: 0 }}>
                 صورة (JPG, PNG) أو ملف PDF — يدعم الرفع التلقائي بدون ضغط
               </p>
               <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
@@ -278,7 +278,7 @@ export default function IndicatorPage() {
             {/* نموذج تفاصيل الشاهد - يظهر بعد اختيار ملف */}
             {showForm && (
               <div style={{ background: '#fff', border: `1.5px solid ${GOLD}`, borderRadius: 16, padding: '20px 22px', marginBottom: 24 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '10px 14px', background: 'rgba(194,138,31,0.06)', borderRadius: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '10px 14px', background: 'rgba(31,110,150,0.06)', borderRadius: 10 }}>
                   <span style={{ fontSize: 20 }}>{file?.type === 'application/pdf' ? '📄' : '🖼️'}</span>
                   <p style={{ fontSize: 13, fontWeight: 600, color: NAVY, margin: 0, flex: 1, wordBreak: 'break-all' }}>{file?.name}</p>
                   <button onClick={() => { setFile(null); setShowForm(false) }} style={{
@@ -288,22 +288,22 @@ export default function IndicatorPage() {
 
                 <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6, display: 'block' }}>عنوان الشاهد *</label>
                 <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(11,31,58,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(10,59,88,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box' }} />
 
                 <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6, display: 'block' }}>وصف مختصر (اختياري)</label>
                 <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2}
-                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(11,31,58,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', resize: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(10,59,88,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif', resize: 'none', boxSizing: 'border-box' }} />
 
                 <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6, display: 'block' }}>التاريخ</label>
                 <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(11,31,58,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 16, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(10,59,88,0.15)', borderRadius: 9, fontSize: 14, marginBottom: 16, boxSizing: 'border-box' }} />
 
                 {uploadStatus && (
                   <p className="body-font" style={{ fontSize: 12, color: GOLD, textAlign: 'center', marginBottom: 12 }}>{uploadStatus}</p>
                 )}
 
                 <button onClick={uploadEvidence} disabled={uploading} style={{
-                  width: '100%', padding: '13px', background: uploading ? '#9ca3af' : `linear-gradient(135deg, #D9A441, ${GOLD})`,
+                  width: '100%', padding: '13px', background: uploading ? '#9ca3af' : `linear-gradient(135deg, #3E8AB0, ${GOLD})`,
                   color: NAVY, border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700,
                   cursor: uploading ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif'
                 }}>
@@ -319,7 +319,7 @@ export default function IndicatorPage() {
                 <div style={{ display: 'grid', gap: 12 }}>
                   {evidences.map(ev => (
                     <div key={ev.id} className="ev-card" style={{
-                      background: '#fff', border: '1px solid rgba(11,31,58,0.08)', borderRadius: 14,
+                      background: '#fff', border: '1px solid rgba(10,59,88,0.08)', borderRadius: 14,
                       padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14, transition: 'box-shadow 0.2s'
                     }}>
                       <div style={{
@@ -331,7 +331,7 @@ export default function IndicatorPage() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, margin: '0 0 2px' }}>{ev.title}</p>
-                        <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>
+                        <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>
                           {ev.pdf_pages?.length ? `${ev.pdf_pages.length} صفحة محوّلة` : ''}
                           {ev.evidence_date ? ` · ${ev.evidence_date}` : ''}
                         </p>
@@ -339,7 +339,7 @@ export default function IndicatorPage() {
                       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                         {ev.file_url && (
                           <a href={ev.file_url} target="_blank" rel="noreferrer" style={{
-                            fontSize: 12, padding: '7px 14px', background: 'rgba(11,31,58,0.05)', color: NAVY,
+                            fontSize: 12, padding: '7px 14px', background: 'rgba(10,59,88,0.05)', color: NAVY,
                             borderRadius: 8, textDecoration: 'none', fontWeight: 600
                           }}>عرض</a>
                         )}

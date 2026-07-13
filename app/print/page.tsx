@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
 import Link from 'next/link'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
 
 type Evidence = {
   id: string; title: string; description: string; evidence_type: string
@@ -57,7 +57,7 @@ export default function PrintPage() {
 
   if (schoolLoading || loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif' }}>
-      <p style={{ color: '#8A8270' }}>جاري تجهيز التقرير...</p>
+      <p style={{ color: '#7A8896' }}>جاري تجهيز التقرير...</p>
     </div>
   )
 
@@ -77,7 +77,7 @@ export default function PrintPage() {
   })).filter(d => d.standards.length > 0)
 
   return (
-    <div style={{ fontFamily: 'Tajawal, sans-serif', direction: 'rtl', background: '#EDEAE0' }}>
+    <div style={{ fontFamily: 'Tajawal, sans-serif', direction: 'rtl', background: '#E6EBEE' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
 
       <style>{`
@@ -126,7 +126,7 @@ export default function PrintPage() {
             </div>
 
             <button onClick={() => window.print()} style={{
-              background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none',
+              background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none',
               padding: '10px 28px', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif'
             }}>
               🖨️ طباعة التقرير
@@ -135,17 +135,17 @@ export default function PrintPage() {
         </div>
       </div>
 
-      <div className="report-container" style={{ padding: '2rem', boxShadow: '0 0 24px rgba(11,31,58,0.10)', margin: '20px auto' }}>
+      <div className="report-container" style={{ padding: '2rem', boxShadow: '0 0 24px rgba(10,59,88,0.10)', margin: '20px auto' }}>
 
         <div style={{ textAlign: 'center', padding: '4rem 1rem', borderBottom: `3px solid ${NAVY}` }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 60, marginBottom: 32 }} />
-          <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 8 }}>ملف شواهد معايير التقويم والاعتماد المدرسي</p>
+          <p className="body-font" style={{ fontSize: 13, color: '#7A8896', marginBottom: 8 }}>ملف شواهد معايير التقويم والاعتماد المدرسي</p>
           <h1 style={{ fontSize: 28, fontWeight: 800, color: NAVY, marginBottom: 16 }}>{school?.name}</h1>
-          <div className="body-font" style={{ display: 'flex', justifyContent: 'center', gap: 20, fontSize: 13, color: '#8A8270', marginBottom: 24 }}>
+          <div className="body-font" style={{ display: 'flex', justifyContent: 'center', gap: 20, fontSize: 13, color: '#7A8896', marginBottom: 24 }}>
             {school?.school_number && <span>رقم المدرسة: {school.school_number}</span>}
             {school?.region && <span>المنطقة: {school.region}</span>}
           </div>
-          <p className="body-font" style={{ fontSize: 13, color: '#A8A296' }}>تاريخ الطباعة: {today}</p>
+          <p className="body-font" style={{ fontSize: 13, color: '#94A2AC' }}>تاريخ الطباعة: {today}</p>
 
           {showEmptyOnly === 'completed' && (
             <p className="body-font no-print" style={{ fontSize: 12, color: GOLD, marginTop: 10, fontWeight: 600 }}>
@@ -156,15 +156,15 @@ export default function PrintPage() {
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 32 }}>
             <div style={{ background: '#EFF6FF', borderRadius: 10, padding: '12px 24px', textAlign: 'center' }}>
               <p style={{ fontSize: 22, fontWeight: 700, color: '#1d4ed8', margin: 0 }}>{stats.total}</p>
-              <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: 0 }}>إجمالي المؤشرات</p>
+              <p className="body-font" style={{ fontSize: 11, color: '#7A8896', margin: 0 }}>إجمالي المؤشرات</p>
             </div>
             <div style={{ background: '#F0FDF4', borderRadius: 10, padding: '12px 24px', textAlign: 'center' }}>
               <p style={{ fontSize: 22, fontWeight: 700, color: '#16a34a', margin: 0 }}>{stats.completed}</p>
-              <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: 0 }}>مؤشرات مكتملة</p>
+              <p className="body-font" style={{ fontSize: 11, color: '#7A8896', margin: 0 }}>مؤشرات مكتملة</p>
             </div>
-            <div style={{ background: 'rgba(194,138,31,0.08)', borderRadius: 10, padding: '12px 24px', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(31,110,150,0.08)', borderRadius: 10, padding: '12px 24px', textAlign: 'center' }}>
               <p style={{ fontSize: 22, fontWeight: 700, color: GOLD, margin: 0 }}>{stats.evidences}</p>
-              <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: 0 }}>إجمالي الشواهد</p>
+              <p className="body-font" style={{ fontSize: 11, color: '#7A8896', margin: 0 }}>إجمالي الشواهد</p>
             </div>
           </div>
         </div>
@@ -175,11 +175,11 @@ export default function PrintPage() {
               <div key={standard.id}>
 
                 <div className="page-break" style={{ minHeight: '70vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '2rem' }}>
-                  <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 4 }}>{domain.name_ar}</p>
+                  <p className="body-font" style={{ fontSize: 13, color: '#7A8896', marginBottom: 4 }}>{domain.name_ar}</p>
                   <p style={{ fontSize: 12, color: GOLD, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>معيار {standard.code}</p>
                   <h2 style={{ fontSize: 26, fontWeight: 800, color: NAVY, maxWidth: 500, lineHeight: 1.5 }}>{standard.name_ar}</h2>
                   <div style={{ width: 60, height: 3, background: GOLD, borderRadius: 2, marginTop: 24 }} />
-                  <p className="body-font" style={{ fontSize: 12, color: '#A8A296', marginTop: 16 }}>{standard.indicators.length} مؤشراً</p>
+                  <p className="body-font" style={{ fontSize: 12, color: '#94A2AC', marginTop: 16 }}>{standard.indicators.length} مؤشراً</p>
                 </div>
 
                 {standard.indicators.map(indicator => (
@@ -196,13 +196,13 @@ export default function PrintPage() {
                     ) : (
                       <div style={{ display: 'grid', gap: 12 }}>
                         {indicator.evidences.map((ev, evIdx) => (
-                          <div key={ev.id} style={{ border: '1px solid rgba(11,31,58,0.1)', borderRadius: 10, overflow: 'hidden', breakInside: 'avoid' }}>
+                          <div key={ev.id} style={{ border: '1px solid rgba(10,59,88,0.1)', borderRadius: 10, overflow: 'hidden', breakInside: 'avoid' }}>
                             <div style={{ background: '#F8F6F0', padding: '8px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <p style={{ fontSize: 12, fontWeight: 600, color: NAVY, margin: 0 }}>شاهد {evIdx + 1}: {ev.title}</p>
-                              {ev.evidence_date && <p className="body-font" style={{ fontSize: 11, color: '#A8A296', margin: 0 }}>{ev.evidence_date}</p>}
+                              {ev.evidence_date && <p className="body-font" style={{ fontSize: 11, color: '#94A2AC', margin: 0 }}>{ev.evidence_date}</p>}
                             </div>
                             {ev.description && (
-                              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', padding: '8px 14px 0', margin: 0 }}>{ev.description}</p>
+                              <p className="body-font" style={{ fontSize: 12, color: '#7A8896', padding: '8px 14px 0', margin: 0 }}>{ev.description}</p>
                             )}
 
                             {ev.evidence_type === 'image' && ev.file_url && (
@@ -213,10 +213,10 @@ export default function PrintPage() {
                               <div style={{ display: 'grid', gap: 8, padding: 10 }}>
                                 {ev.pdf_pages.map((pageUrl, pIdx) => (
                                   <div key={pIdx}>
-                                    <p className="body-font" style={{ fontSize: 10, color: '#A8A296', textAlign: 'center', margin: '0 0 4px' }}>
+                                    <p className="body-font" style={{ fontSize: 10, color: '#94A2AC', textAlign: 'center', margin: '0 0 4px' }}>
                                       صفحة {pIdx + 1} من {ev.pdf_pages!.length}
                                     </p>
-                                    <img src={pageUrl} alt={`${ev.title} - صفحة ${pIdx + 1}`} style={{ width: '100%', border: '1px solid rgba(11,31,58,0.1)', borderRadius: 6 }} />
+                                    <img src={pageUrl} alt={`${ev.title} - صفحة ${pIdx + 1}`} style={{ width: '100%', border: '1px solid rgba(10,59,88,0.1)', borderRadius: 6 }} />
                                   </div>
                                 ))}
                               </div>
@@ -246,7 +246,7 @@ export default function PrintPage() {
 
         <div className="page-break" style={{ textAlign: 'center', padding: '4rem 1rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '50vh' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 40, margin: '0 auto 16px' }} />
-          <p className="body-font" style={{ fontSize: 13, color: '#A8A296', margin: 0 }}>
+          <p className="body-font" style={{ fontSize: 13, color: '#94A2AC', margin: 0 }}>
             نهاية التقرير · تم إنشاؤه عبر منصة شواهدي · shawahede.com
           </p>
         </div>

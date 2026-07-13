@@ -5,15 +5,15 @@ import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const GOLD_LIGHT = '#E8C275'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const GOLD_LIGHT = '#7FB3CB'
+const CREAM = '#F5F8FA'
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid rgba(11,31,58,0.06)' }}>
-      <span style={{ fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{label}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid rgba(10,59,88,0.06)' }}>
+      <span style={{ fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{label}</span>
       <span style={{ fontSize: 14, fontWeight: 600, color: NAVY, fontFamily: 'IBM Plex Sans Arabic, sans-serif', textAlign: 'left' }}>{value || '—'}</span>
     </div>
   )
@@ -25,7 +25,7 @@ export default function AccountPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: CREAM, fontFamily: 'Tajawal, sans-serif' }}>
-      <p style={{ color: '#8A8270' }}>جاري التحميل...</p>
+      <p style={{ color: '#7A8896' }}>جاري التحميل...</p>
     </div>
   )
 
@@ -33,7 +33,7 @@ export default function AccountPage() {
   const endDate = school ? new Date(school.subscription_end).toLocaleDateString('ar-SA') : '—'
   const startDate = school?.subscription_start ? new Date(school.subscription_start).toLocaleDateString('ar-SA') : '—'
   const planName = isTrial ? 'تجريبي (مجاني)' : 'مشترك'
-  const planColor = isTrial ? '#A6730F' : '#16a34a'
+  const planColor = isTrial ? '#175A7D' : '#16a34a'
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -47,24 +47,24 @@ export default function AccountPage() {
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
-            <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← اللوحة</Link>
+          <header style={{ background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
+            <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(10,59,88,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← اللوحة</Link>
             <div>
               <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>حسابي</p>
-              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>بيانات المدرسة والاشتراك</p>
+              <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>بيانات المدرسة والاشتراك</p>
             </div>
           </header>
 
           <main style={{ padding: '28px', maxWidth: 620, margin: '0 auto' }}>
 
             {/* بطاقة الاشتراك */}
-            <div style={{ background: `linear-gradient(135deg, ${NAVY}, #14284a)`, borderRadius: 20, padding: '24px 26px', marginBottom: 20, color: '#fff' }}>
+            <div style={{ background: `linear-gradient(135deg, ${NAVY}, #0F4C6E)`, borderRadius: 20, padding: '24px 26px', marginBottom: 20, color: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
                 <div>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: '0 0 4px' }}>نوع الاشتراك</p>
                   <p style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>{planName}</p>
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 700, background: isTrial ? 'rgba(230,194,117,0.2)' : 'rgba(134,239,172,0.2)', color: isTrial ? GOLD_LIGHT : '#86EFAC', padding: '6px 14px', borderRadius: 20, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, background: isTrial ? 'rgba(127,179,203,0.2)' : 'rgba(134,239,172,0.2)', color: isTrial ? GOLD_LIGHT : '#86EFAC', padding: '6px 14px', borderRadius: 20, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                   {daysLeft} يوم متبقٍ
                 </span>
               </div>
@@ -80,7 +80,7 @@ export default function AccountPage() {
               </div>
               {isTrial && (
                 <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                  <button style={{ width: '100%', marginTop: 18, padding: '13px', fontSize: 14, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
+                  <button style={{ width: '100%', marginTop: 18, padding: '13px', fontSize: 14, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
                     ⭐ ترقية للاشتراك الكامل
                   </button>
                 </a>
@@ -88,7 +88,7 @@ export default function AccountPage() {
             </div>
 
             {/* بيانات المدرسة */}
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '8px 22px', marginBottom: 20 }}>
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '8px 22px', marginBottom: 20 }}>
               <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: '16px 0 6px' }}>بيانات المدرسة</p>
               <Row label="اسم المدرسة" value={school?.name || ''} />
               <Row label="اسم المدير" value={school?.principal_name || ''} />

@@ -4,14 +4,14 @@ import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const CREAM = '#F5F8FA'
 const GREEN = '#15803D'
 
 function SectionHeader({ icon, title }: { icon: string; title: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, borderBottom: '2px solid rgba(194,138,31,0.2)', paddingBottom: 10, marginTop: 28 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, borderBottom: '2px solid rgba(31,110,150,0.2)', paddingBottom: 10, marginTop: 28 }}>
       <span style={{ fontSize: 20 }}>{icon}</span>
       <h3 style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: 0 }}>{title}</h3>
     </div>
@@ -526,17 +526,17 @@ export default function ImprovementPlanPage() {
         <div style={{ display: 'flex', minHeight: '100vh' }}>
           <AppSidebar />
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
+            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(10,59,88,0.08)' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
               <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>بناء خطة التحسين يتطلب الاشتراك</p>
-              <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              <p style={{ fontSize: 13.5, color: '#7A8896', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 هذه الميزة متاحة في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
               <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
+                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
               </Link>
             </div>
           </div>
@@ -548,15 +548,15 @@ export default function ImprovementPlanPage() {
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
-      <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif}.upload-zone:hover{border-color:#C28A1F!important;background:#FFF8EC!important}.doc-btn:hover{filter:brightness(1.04)}.doc-btn:disabled{opacity:0.6;cursor:not-allowed}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+      <style>{`.body-font{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif}.upload-zone:hover{border-color:#1F6E96!important;background:#FFF8EC!important}.doc-btn:hover{filter:brightness(1.04)}.doc-btn:disabled{opacity:0.6;cursor:not-allowed}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
-            <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
+          <header style={{ background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
+            <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(10,59,88,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
             <div>
               <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>بناء خطة التحسين والتنفيذ وواقع المدرسة</p>
-              <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>ارفع تقرير التقويم الخارجي — يولّد 3 ملفات رسمية مستقلة</p>
+              <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>ارفع تقرير التقويم الخارجي — يولّد 3 ملفات رسمية مستقلة</p>
             </div>
           </header>
 
@@ -564,7 +564,7 @@ export default function ImprovementPlanPage() {
 
             {/* Upload / Error step */}
             {(step === 'upload' || step === 'error') && (
-              <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)' }}>
+              <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)' }}>
                 <div style={{ background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF', margin: '0 0 8px' }}>📌 لبناء خطة التحسين والتنفيذ وتقرير واقع المدرسة</p>
                   <p className="body-font" style={{ fontSize: 13, color: '#1E3A8A', margin: 0, lineHeight: 1.8 }}>
@@ -583,7 +583,7 @@ export default function ImprovementPlanPage() {
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
                   onClick={() => fileRef.current?.click()}
-                  style={{ border: `2px dashed ${dragOver ? GOLD : file ? '#86EFAC' : 'rgba(11,31,58,0.15)'}`, borderRadius: 14, padding: '40px 20px', textAlign: 'center', cursor: 'pointer', background: dragOver ? '#FFF8EC' : file ? '#F0FDF4' : '#FAFAF7', transition: 'all 0.2s', marginBottom: 16 }}>
+                  style={{ border: `2px dashed ${dragOver ? GOLD : file ? '#86EFAC' : 'rgba(10,59,88,0.15)'}`, borderRadius: 14, padding: '40px 20px', textAlign: 'center', cursor: 'pointer', background: dragOver ? '#FFF8EC' : file ? '#F0FDF4' : '#F7F9FA', transition: 'all 0.2s', marginBottom: 16 }}>
                   <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} onChange={handleFileChange} />
                   <div style={{ fontSize: 40, marginBottom: 10 }}>{file ? '✅' : '📁'}</div>
                   {file ? (<>
@@ -591,7 +591,7 @@ export default function ImprovementPlanPage() {
                     <p className="body-font" style={{ fontSize: 12, color: '#166534', margin: 0 }}>{(file.size / 1024 / 1024).toFixed(2)} MB · اضغط لتغيير الملف</p>
                   </>) : (<>
                     <p style={{ fontSize: 15, fontWeight: 600, color: NAVY, margin: '0 0 6px' }}>اسحب ملف PDF هنا أو اضغط للاختيار</p>
-                    <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>تقرير التقويم الخارجي من هيئة تقويم التعليم والتدريب</p>
+                    <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: 0 }}>تقرير التقويم الخارجي من هيئة تقويم التعليم والتدريب</p>
                   </>)}
                 </div>
 
@@ -602,7 +602,7 @@ export default function ImprovementPlanPage() {
                 )}
 
                 <button onClick={handleAnalyze} disabled={!file} className="doc-btn"
-                  style={{ width: '100%', padding: '16px', fontSize: 17, fontWeight: 800, background: !file ? '#9CA3AF' : `linear-gradient(135deg, #D9A441, ${GOLD})`, color: !file ? '#fff' : NAVY, border: 'none', borderRadius: 14, cursor: !file ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif', boxShadow: !file ? 'none' : '0 6px 20px rgba(194,138,31,0.30)', transition: 'all 0.2s' }}>
+                  style={{ width: '100%', padding: '16px', fontSize: 17, fontWeight: 800, background: !file ? '#9CA3AF' : `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: !file ? '#fff' : NAVY, border: 'none', borderRadius: 14, cursor: !file ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif', boxShadow: !file ? 'none' : '0 6px 20px rgba(31,110,150,0.30)', transition: 'all 0.2s' }}>
                   📄 تحليل التقرير واستخراج البيانات ←
                 </button>
               </div>
@@ -610,10 +610,10 @@ export default function ImprovementPlanPage() {
 
             {/* Analyzing step */}
             {step === 'analyzing' && (
-              <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '3rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)', textAlign: 'center' }}>
+              <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '3rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)', textAlign: 'center' }}>
                 <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
                   <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(11,31,58,0.08)" strokeWidth="7" />
+                    <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(10,59,88,0.08)" strokeWidth="7" />
                     <circle cx="40" cy="40" r="34" fill="none" stroke={GOLD} strokeWidth="7"
                       strokeLinecap="round" strokeDasharray="70 145"
                       style={{ transformOrigin: '40px 40px', animation: 'spin 1.2s linear infinite' }} />
@@ -621,9 +621,9 @@ export default function ImprovementPlanPage() {
                   </svg>
                 </div>
                 <p style={{ fontSize: 18, fontWeight: 700, color: NAVY, margin: '0 0 8px' }}>{progress}</p>
-                <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: '0 0 20px' }}>يعالج النظام التقرير ويستخرج البيانات</p>
-                <div style={{ background: 'rgba(11,31,58,0.04)', borderRadius: 10, padding: '12px 16px' }}>
-                  <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>قد يستغرق 30-60 ثانية</p>
+                <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: '0 0 20px' }}>يعالج النظام التقرير ويستخرج البيانات</p>
+                <div style={{ background: 'rgba(10,59,88,0.04)', borderRadius: 10, padding: '12px 16px' }}>
+                  <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>قد يستغرق 30-60 ثانية</p>
                 </div>
               </div>
             )}
@@ -632,7 +632,7 @@ export default function ImprovementPlanPage() {
             {step === 'ready' && result && (
               <>
                 {/* Summary */}
-                <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(11,31,58,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(11,31,58,0.06)', marginBottom: 16 }}>
+                <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)', marginBottom: 16 }}>
                   <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 12, padding: '14px 18px', marginBottom: 20, textAlign: 'center' }}>
                     <p style={{ fontSize: 16, fontWeight: 800, color: GREEN, margin: '0 0 4px' }}>✅ اكتمل التحليل — {result.school_name}</p>
                     <p className="body-font" style={{ fontSize: 13, color: '#166534', margin: 0 }}>تم اكتشاف {result.weak_indicators.length} مؤشر يحتاج تحسين · حمّل كل ملف بشكل مستقل</p>
@@ -648,22 +648,22 @@ export default function ImprovementPlanPage() {
                       { label: 'مؤشرات ضعيفة', value: `${result.weak_indicators.length}` },
                     ].map(item => (
                       <div key={item.label} style={{ background: '#F8F7F4', borderRadius: 10, padding: '10px 12px', textAlign: 'center' }}>
-                        <p className="body-font" style={{ fontSize: 11, color: '#8A8270', margin: '0 0 3px' }}>{item.label}</p>
+                        <p className="body-font" style={{ fontSize: 11, color: '#7A8896', margin: '0 0 3px' }}>{item.label}</p>
                         <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: 0 }}>{item.value}</p>
                       </div>
                     ))}
                   </div>
 
                   <SectionHeader icon="⚠️" title={`المؤشرات الضعيفة (${result.weak_indicators.length} مؤشر)`} />
-                  <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid rgba(11,31,58,0.08)', borderRadius: 10 }}>
+                  <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid rgba(10,59,88,0.08)', borderRadius: 10 }}>
                     {result.weak_indicators.map((ind, i) => (
-                      <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(11,31,58,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#FAFAF7' }}>
+                      <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(10,59,88,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#F7F9FA' }}>
                         <div>
-                          <span className="body-font" style={{ fontSize: 11, color: '#8A8270', display: 'block' }}>{ind.id} · {ind.domain}</span>
+                          <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}>{ind.id} · {ind.domain}</span>
                           <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span className="body-font" style={{ fontSize: 11, color: '#8A8270' }}>{ind.level}</span>
+                          <span className="body-font" style={{ fontSize: 11, color: '#7A8896' }}>{ind.level}</span>
                           <span style={{ fontSize: 13, fontWeight: 800, color: ind.score < 50 ? '#DC2626' : '#D97706', background: ind.score < 50 ? '#FEF2F2' : '#FFFBEB', padding: '2px 10px', borderRadius: 20 }}>{ind.score}%</span>
                         </div>
                       </div>
@@ -676,18 +676,18 @@ export default function ImprovementPlanPage() {
                   {DOCS.map(doc => {
                     const st = docStatus[doc.key]
                     return (
-                      <div key={doc.key} style={{ background: '#fff', borderRadius: 14, border: `1.5px solid ${st === 'done' ? '#86EFAC' : 'rgba(11,31,58,0.08)'}`, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(11,31,58,0.04)' }}>
+                      <div key={doc.key} style={{ background: '#fff', borderRadius: 14, border: `1.5px solid ${st === 'done' ? '#86EFAC' : 'rgba(10,59,88,0.08)'}`, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(10,59,88,0.04)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 12, background: st === 'done' ? '#F0FDF4' : 'rgba(11,31,58,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 12, background: st === 'done' ? '#F0FDF4' : 'rgba(10,59,88,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
                             {st === 'done' ? '✅' : doc.icon}
                           </div>
                           <div>
                             <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 3px' }}>({doc.num}) {doc.title}</p>
-                            <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>{doc.desc}</p>
+                            <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>{doc.desc}</p>
                           </div>
                         </div>
                         <button onClick={doc.fn} disabled={st === 'generating'} className="doc-btn"
-                          style={{ padding: '10px 20px', fontSize: 13, fontWeight: 700, background: st === 'done' ? '#F0FDF4' : st === 'generating' ? '#F3F4F6' : `linear-gradient(135deg, #D9A441, ${GOLD})`, color: st === 'done' ? GREEN : st === 'generating' ? '#9CA3AF' : NAVY, border: st === 'done' ? `1.5px solid #86EFAC` : 'none', borderRadius: 10, cursor: st === 'generating' ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6, boxShadow: st === 'idle' ? '0 3px 10px rgba(194,138,31,0.25)' : 'none', transition: 'all 0.2s' }}>
+                          style={{ padding: '10px 20px', fontSize: 13, fontWeight: 700, background: st === 'done' ? '#F0FDF4' : st === 'generating' ? '#F3F4F6' : `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: st === 'done' ? GREEN : st === 'generating' ? '#9CA3AF' : NAVY, border: st === 'done' ? `1.5px solid #86EFAC` : 'none', borderRadius: 10, cursor: st === 'generating' ? 'not-allowed' : 'pointer', fontFamily: 'Tajawal, sans-serif', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6, boxShadow: st === 'idle' ? '0 3px 10px rgba(31,110,150,0.25)' : 'none', transition: 'all 0.2s' }}>
                           {st === 'generating' && (
                             <svg width="16" height="16" viewBox="0 0 16 16" style={{ animation: 'spin 1s linear infinite' }}>
                               <circle cx="8" cy="8" r="6" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeDasharray="12 26" />
@@ -707,7 +707,7 @@ export default function ImprovementPlanPage() {
                 </div>
 
                 <button onClick={() => { setStep('upload'); setFile(null); setResult(null); setDocStatus({ doc1: 'idle', doc2: 'idle', doc3: 'idle' }) }}
-                  style={{ width: '100%', padding: '14px', fontSize: 14, fontWeight: 700, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
+                  style={{ width: '100%', padding: '14px', fontSize: 14, fontWeight: 700, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
                   🔄 تحليل تقرير آخر
                 </button>
               </>

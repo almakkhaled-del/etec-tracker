@@ -4,9 +4,9 @@ import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import FormsGeneratorPage from '@/components/forms-generator/FormsGeneratorPage'
 
-const NAVY = '#0B1F3A'
-const GOLD = '#C28A1F'
-const CREAM = '#FBF8F2'
+const NAVY = '#0A3B58'
+const GOLD = '#1F6E96'
+const CREAM = '#F5F8FA'
 
 export default function Page() {
   const { school, isTrial, loading } = useSchool()
@@ -19,17 +19,17 @@ export default function Page() {
         <div style={{ display: 'flex', minHeight: '100vh' }}>
           <AppSidebar />
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(11,31,58,0.08)' }}>
+            <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(10,59,88,0.08)' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
               <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>مولّد النماذج يتطلب الاشتراك</p>
-              <p style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              <p style={{ fontSize: 13.5, color: '#7A8896', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 مولّد الخطة التشغيلية والنماذج التلقائية متاح في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
               <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #D9A441, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(11,31,58,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
+                <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
               </Link>
             </div>
           </div>
@@ -39,16 +39,16 @@ export default function Page() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FBF8F2', fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
+    <div style={{ minHeight: '100vh', background: '#F5F8FA', fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <AppSidebar />
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          <header style={{ background: '#fff', borderBottom: '1px solid rgba(11,31,58,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
-            <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(11,31,58,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
+          <header style={{ background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
+            <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(10,59,88,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
             <div>
-              <p style={{ fontSize: 16, fontWeight: 800, color: '#0B1F3A', margin: '0 0 1px' }}>مولّد النماذج</p>
-              <p style={{ fontSize: 12, color: '#8A8270', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>اختر النموذج وعبّي بياناته — الملف جاهز بالكامل</p>
+              <p style={{ fontSize: 16, fontWeight: 800, color: '#0A3B58', margin: '0 0 1px' }}>مولّد النماذج</p>
+              <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>اختر النموذج وعبّي بياناته — الملف جاهز بالكامل</p>
             </div>
           </header>
 

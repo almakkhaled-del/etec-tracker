@@ -76,7 +76,7 @@ export default function OperationalPlanForm({ schoolName: initialSchoolName, sch
 
   return (
     <Card>
-      <div style={{ background: 'linear-gradient(135deg, #0B1F3A, #14284a)', borderRadius: 16, padding: '18px 20px', marginBottom: 22, color: '#fff' }}>
+      <div style={{ background: 'linear-gradient(135deg, #0A3B58, #0F4C6E)', borderRadius: 16, padding: '18px 20px', marginBottom: 22, color: '#fff' }}>
         <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px' }}>📄 الملف يحتوي تلقائياً:</p>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.9, margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
           غلاف رسمي بشعار الوزارة ورؤية 2030 · رؤية ورسالة المدرسة · تحليل الواقع SWOT · 5 أهداف عامة بـ19 برنامج مفصّل · مسؤولي التنفيذ ومؤشرات الأداء
@@ -121,9 +121,9 @@ export default function OperationalPlanForm({ schoolName: initialSchoolName, sch
       <SectionHeader icon="👥" title="أعضاء لجنة إعداد الخطة (التميز)" />
       {MEMBERS.map(m => (
         <div key={m.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <span style={{ fontSize: 11, color: '#8A8270', width: 180, flexShrink: 0, textAlign: 'left', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{m.role}</span>
+          <span style={{ fontSize: 11, color: '#7A8896', width: 180, flexShrink: 0, textAlign: 'left', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{m.role}</span>
           <input type="text" value={(f as any)[m.key]} onChange={e => u(m.key, e.target.value)} placeholder="اسم العضو"
-            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(11,31,58,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#FAFAF7', color: NAVY, direction: 'rtl' }} />
+            style={{ flex: 1, padding: '9px 12px', border: '1.5px solid rgba(10,59,88,0.12)', borderRadius: 9, fontSize: 13, fontFamily: 'IBM Plex Sans Arabic, sans-serif', boxSizing: 'border-box', background: '#F7F9FA', color: NAVY, direction: 'rtl' }} />
         </div>
       ))}
 

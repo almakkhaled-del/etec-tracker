@@ -14,9 +14,9 @@ export default function DomainRedirect() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: '#FBF8F2', fontFamily: 'Tajawal, sans-serif', direction: 'rtl'
+      background: '#F5F8FA', fontFamily: 'Tajawal, sans-serif', direction: 'rtl'
     }}>
-      <p style={{ color: '#8A8270' }}>جاري التحويل...</p>
+      <p style={{ color: '#7A8896' }}>جاري التحويل...</p>
     </div>
   )
 }
