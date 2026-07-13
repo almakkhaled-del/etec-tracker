@@ -243,17 +243,8 @@ export default function Landing() {
         .cta-gold:hover { filter: brightness(1.08); }
         .login-input:focus { border-color: #2FAB99 !important; outline: none; }
         .login-btn:hover { background: #0a1830 !important; }
-        .login-visual-stack { position: relative; padding-left: 30px; }
-        .mockup-peek {
-          position: absolute; top: -34px; left: 0; width: 78%; z-index: 0;
-          transform: rotate(-6deg); pointer-events: none;
-        }
-        .login-card { position: relative; z-index: 1; width: 100%; max-width: 400px; margin-right: 0; }
-        @media (max-width: 860px) {
-          .mockup-peek { display: none; }
-          .login-visual-stack { padding-top: 0 !important; padding-left: 0 !important; }
-          .login-card { max-width: 100% !important; }
-        }
+        .about-split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 50px; align-items: start; }
+        @media (max-width: 860px) { .about-split { grid-template-columns: 1fr; gap: 32px; } }
         .footer-logo { filter: grayscale(1); opacity: 0.75; transition: filter 0.25s, opacity 0.25s; }
         .footer-logo:hover { filter: grayscale(0); opacity: 1; }
 
@@ -376,98 +367,103 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* موك أب المنصة + مربع الدخول - يسار (بوابة الدخول الفعلية) */}
-          <div className="login-visual-stack" style={{ paddingTop: 34 }}>
-            <div className="mockup-peek">
-              <DashboardMockup />
-            </div>
-            <div id="login-box" className="login-card" style={{
-              background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
-              border: '1px solid rgba(0,84,72,0.07)', boxShadow: '0 16px 44px rgba(0,84,72,0.10)',
-              scrollMarginTop: 100
-            }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: NAVY, marginBottom: 6, textAlign: 'center' }}>تسجيل الدخول</h2>
-            <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 22, textAlign: 'center' }}>
-              أدخل بيانات مدرستك للمتابعة
-            </p>
-
-            <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
-              البريد الإلكتروني
-            </label>
-            <input
-              type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="example@school.edu.sa" className="login-input"
-              onKeyDown={e => e.key === 'Enter' && handleLogin()}
-              style={{
-                width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
-                borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                boxSizing: 'border-box', marginBottom: 16, background: '#F6F7F6', color: NAVY
-              }}
-            />
-
-            <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
-              كلمة المرور
-            </label>
-            <input
-              type="password" value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••" className="login-input"
-              onKeyDown={e => e.key === 'Enter' && handleLogin()}
-              style={{
-                width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
-                borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                boxSizing: 'border-box', marginBottom: 20, background: '#F6F7F6', color: NAVY
-              }}
-            />
-
-            {loginError && (
-              <div style={{
-                background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10,
-                padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#DC2626',
-                fontFamily: 'IBM Plex Sans Arabic, sans-serif'
-              }}>
-                {loginError}
-              </div>
-            )}
-
-            <button onClick={handleLogin} disabled={loginLoading} className="login-btn" style={{
-              width: '100%', padding: '13px', fontSize: 15, fontWeight: 700,
-              background: loginLoading ? '#9ca3af' : NAVY, color: '#fff',
-              border: 'none', borderRadius: 10, cursor: loginLoading ? 'not-allowed' : 'pointer',
-              fontFamily: 'Tajawal, sans-serif', marginBottom: 16, transition: 'background 0.2s'
-            }}>
-              {loginLoading ? 'جاري الدخول...' : 'دخول ←'}
-            </button>
-
-            <p style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-              ليس لديك حساب؟{' '}
-              <Link href="/register" style={{ color: GOLD, textDecoration: 'none', fontWeight: 700 }}>
-                سجّل مدرستك مجاناً
-              </Link>
-            </p>
-            </div>
+          {/* موك أب المنصة - يسار */}
+          <div style={{ paddingTop: 34 }}>
+            <DashboardMockup />
           </div>
 
         </div>
       </section>
 
-      {/* ============ نبذة عن شواهدي ============ */}
+      {/* ============ نبذة عن شواهدي + تسجيل الدخول ============ */}
       <section id="about" style={{ background: '#fff', borderTop: '1px solid rgba(0,84,72,0.08)', borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '5rem 1.5rem', scrollMarginTop: 76 }}>
-        <div style={{ maxWidth: 820, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 44 }}>
-            <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
-            <h2 style={{ fontSize: 34, fontWeight: 800, color: NAVY }}>وش هو شواهدي بالضبط؟</h2>
-          </div>
+        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+          <div className="about-split" style={{ marginBottom: 48 }}>
 
-          <div style={{ display: 'grid', gap: 22, marginBottom: 44 }}>
-            <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
-              شواهدي منصة سعودية مبنية خصيصاً لمدارس التعليم العام (حكومية، أهلية، وعالمية) لمساعدتها على تنظيم <strong>شواهد معايير الاعتماد المدرسي</strong> وفق إطار هيئة تقويم التعليم والتدريب <strong>(إتقان)</strong> — بمعاييره الأربعة و47 مؤشراً.
-            </p>
-            <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
-              المشكلة اللي تعيشها أغلب المدارس اليوم: الشواهد مبعثرة بين ملفات ورقية، صور غير مصنفة، ومجلدات متفرقة — والتجهيز الحقيقي يبدأ متأخراً، قبل الزيارة بأيام قليلة، مما يضغط على الإدارة ويقلل من جودة ما يُقدَّم للجنة.
-            </p>
-            <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
-              شواهدي يقلب هذي المعادلة: بدل ما تبحث عن الشاهد المناسب وتتساءل "وش أرفع هنا؟"، تدخل على كل مؤشر وتلقى إرشاداً واضحاً لما هو مطلوب، ترفع صورة أو ملف PDF مباشرة، والنظام يحوّله ويرتبه تلقائياً تحت المؤشر الصحيح. وفي أي وقت تحتاج، تطبع تقريراً كاملاً منظماً حسب المجالات والمعايير جاهزاً للجنة التقويم.
-            </p>
+            {/* النبذة - أقصى يمين */}
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
+              <h2 style={{ fontSize: 34, fontWeight: 800, color: NAVY, marginBottom: 24 }}>وش هو شواهدي بالضبط؟</h2>
+
+              <div style={{ display: 'grid', gap: 22 }}>
+                <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
+                  شواهدي منصة سعودية مبنية خصيصاً لمدارس التعليم العام (حكومية، أهلية، وعالمية) لمساعدتها على تنظيم <strong>شواهد معايير الاعتماد المدرسي</strong> وفق إطار هيئة تقويم التعليم والتدريب <strong>(إتقان)</strong> — بمعاييره الأربعة و47 مؤشراً.
+                </p>
+                <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
+                  المشكلة اللي تعيشها أغلب المدارس اليوم: الشواهد مبعثرة بين ملفات ورقية، صور غير مصنفة، ومجلدات متفرقة — والتجهيز الحقيقي يبدأ متأخراً، قبل الزيارة بأيام قليلة، مما يضغط على الإدارة ويقلل من جودة ما يُقدَّم للجنة.
+                </p>
+                <p className="body-font" style={{ fontSize: 17, color: '#374151', lineHeight: 2.1 }}>
+                  شواهدي يقلب هذي المعادلة: بدل ما تبحث عن الشاهد المناسب وتتساءل "وش أرفع هنا؟"، تدخل على كل مؤشر وتلقى إرشاداً واضحاً لما هو مطلوب، ترفع صورة أو ملف PDF مباشرة، والنظام يحوّله ويرتبه تلقائياً تحت المؤشر الصحيح. وفي أي وقت تحتاج، تطبع تقريراً كاملاً منظماً حسب المجالات والمعايير جاهزاً للجنة التقويم.
+                </p>
+              </div>
+            </div>
+
+            {/* صندوق الدخول - أقصى يسار */}
+            <div id="login-box" style={{
+              background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
+              border: '1px solid rgba(0,84,72,0.07)', boxShadow: '0 16px 44px rgba(0,84,72,0.10)',
+              scrollMarginTop: 100
+            }}>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: NAVY, marginBottom: 6, textAlign: 'center' }}>تسجيل الدخول</h3>
+              <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 22, textAlign: 'center' }}>
+                أدخل بيانات مدرستك للمتابعة
+              </p>
+
+              <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
+                البريد الإلكتروني
+              </label>
+              <input
+                type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="example@school.edu.sa" className="login-input"
+                onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                style={{
+                  width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
+                  borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+                  boxSizing: 'border-box', marginBottom: 16, background: '#F6F7F6', color: NAVY
+                }}
+              />
+
+              <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
+                كلمة المرور
+              </label>
+              <input
+                type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••" className="login-input"
+                onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                style={{
+                  width: '100%', padding: '12px 16px', border: '1px solid rgba(0,84,72,0.15)',
+                  borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+                  boxSizing: 'border-box', marginBottom: 20, background: '#F6F7F6', color: NAVY
+                }}
+              />
+
+              {loginError && (
+                <div style={{
+                  background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10,
+                  padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#DC2626',
+                  fontFamily: 'IBM Plex Sans Arabic, sans-serif'
+                }}>
+                  {loginError}
+                </div>
+              )}
+
+              <button onClick={handleLogin} disabled={loginLoading} className="login-btn" style={{
+                width: '100%', padding: '13px', fontSize: 15, fontWeight: 700,
+                background: loginLoading ? '#9ca3af' : NAVY, color: '#fff',
+                border: 'none', borderRadius: 10, cursor: loginLoading ? 'not-allowed' : 'pointer',
+                fontFamily: 'Tajawal, sans-serif', marginBottom: 16, transition: 'background 0.2s'
+              }}>
+                {loginLoading ? 'جاري الدخول...' : 'دخول ←'}
+              </button>
+
+              <p style={{ textAlign: 'center', fontSize: 13, color: '#8A8270', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                ليس لديك حساب؟{' '}
+                <Link href="/register" style={{ color: GOLD, textDecoration: 'none', fontWeight: 700 }}>
+                  سجّل مدرستك مجاناً
+                </Link>
+              </p>
+            </div>
+
           </div>
 
           <div style={{
