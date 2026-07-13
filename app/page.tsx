@@ -253,7 +253,7 @@ export default function Landing() {
 
       {/* ============ نبذة عن شواهدي + تسجيل الدخول ============ */}
       <section id="about" style={{ background: '#fff', borderTop: '1px solid rgba(10,59,88,0.08)', borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '5rem 1.5rem', scrollMarginTop: 76 }}>
-        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <div style={{ width: '100%' }}>
           <div className="about-split" style={{ marginBottom: 48 }}>
 
             {/* النبذة - أقصى يمين */}
