@@ -9,6 +9,195 @@ const GOLD = '#2FAB99'
 const GOLD_LIGHT = '#8AD4C4'
 const CREAM = '#F6F7F6'
 
+/* ============ نظام الأيقونات (يستبدل الإيموجي) ============ */
+function Icon({ name, color = NAVY, size = 24, sw = 1.8 }: { name: string; color?: string; size?: number; sw?: number }) {
+  const c = color
+  switch (name) {
+    case 'school':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L21 8.5V10H3V8.5L12 3Z" stroke={c} strokeWidth={sw} strokeLinejoin="round" />
+          <path d="M5 10V20H19V10" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M10 20V14H14V20" stroke={c} strokeWidth={sw} strokeLinejoin="round" />
+          <path d="M3 20H21" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+        </svg>
+      )
+    case 'book':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M12 6.2C10.2 4.7 6.8 4.2 4.3 4.6V17.3C6.8 16.9 10.2 17.4 12 18.9C13.8 17.4 17.2 16.9 19.7 17.3V4.6C17.2 4.2 13.8 4.7 12 6.2Z" stroke={c} strokeWidth={sw} strokeLinejoin="round" />
+          <path d="M12 6.2V18.9" stroke={c} strokeWidth={sw} />
+        </svg>
+      )
+    case 'chart':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M5 20V11" stroke={c} strokeWidth={sw + 0.3} strokeLinecap="round" />
+          <path d="M12 20V4" stroke={c} strokeWidth={sw + 0.3} strokeLinecap="round" />
+          <path d="M19 20V14" stroke={c} strokeWidth={sw + 0.3} strokeLinecap="round" />
+          <path d="M3 20H21" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+        </svg>
+      )
+    case 'building':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="3" width="14" height="18" rx="1.2" stroke={c} strokeWidth={sw} />
+          <path d="M9 7.2H10M14 7.2H15M9 11H10M14 11H15M9 14.8H10M14 14.8H15" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+          <path d="M10 21V17.2H14V21" stroke={c} strokeWidth={sw} strokeLinejoin="round" />
+        </svg>
+      )
+    case 'trending':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M3 17L9.5 10.5L13.5 14.5L21 7" stroke={c} strokeWidth={sw + 0.3} strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M15 7H21V13" stroke={c} strokeWidth={sw + 0.3} strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'target':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="8" stroke={c} strokeWidth={sw} />
+          <circle cx="12" cy="12" r="4.4" stroke={c} strokeWidth={sw} />
+          <circle cx="12" cy="12" r="1.3" fill={c} />
+        </svg>
+      )
+    case 'search':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="6.5" stroke={c} strokeWidth={sw} />
+          <path d="M20 20L15.8 15.8" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+        </svg>
+      )
+    case 'calendar':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="18" height="15" rx="2" stroke={c} strokeWidth={sw} />
+          <path d="M3 9.5H21" stroke={c} strokeWidth={sw} />
+          <path d="M8 3V6.3M16 3V6.3" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+        </svg>
+      )
+    case 'folder':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M3 7.2C3 6.2 3.9 5.2 5 5.2H9L11 7.2H19C20.1 7.2 21 8.1 21 9.2V17C21 18.1 20.1 19 19 19H5C3.9 19 3 18.1 3 17V7.2Z" stroke={c} strokeWidth={sw} strokeLinejoin="round" />
+        </svg>
+      )
+    case 'bulb':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M9.2 18H14.8" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+          <path d="M10.2 21H13.8" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+          <path d="M12 3C8.5 3 6 5.6 6 9C6 11.1 7.1 12.5 8.1 13.5C8.7 14.1 9 14.7 9 15.4V16H15V15.4C15 14.7 15.3 14.1 15.9 13.5C16.9 12.5 18 11.1 18 9C18 5.6 15.5 3 12 3Z" stroke={c} strokeWidth={sw} strokeLinejoin="round" />
+        </svg>
+      )
+    case 'shield':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L19 6V11C19 15.4 16 18.8 12 20.6C8 18.8 5 15.4 5 11V6L12 3Z" stroke={c} strokeWidth={sw} strokeLinejoin="round" />
+          <path d="M9 12L11 14L15.2 9.4" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'sparkle':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L13.6 9.2L19.8 10.8L13.6 12.4L12 18.6L10.4 12.4L4.2 10.8L10.4 9.2L12 3Z" fill={c} />
+        </svg>
+      )
+    case 'wand':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M4 20L15 9" stroke={c} strokeWidth={sw + 0.2} strokeLinecap="round" />
+          <path d="M17 3L18 5.4L20.4 6.4L18 7.4L17 9.8L16 7.4L13.6 6.4L16 5.4L17 3Z" fill={c} />
+          <path d="M5.5 12L6.2 13.6L7.8 14.3L6.2 15L5.5 16.6L4.8 15L3.2 14.3L4.8 13.6L5.5 12Z" fill={c} />
+        </svg>
+      )
+    case 'check':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M6 12.5L9.8 16.3L18 7.5" stroke={c} strokeWidth={sw + 0.4} strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'x':
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <path d="M7 7L17 17M17 7L7 17" stroke={c} strokeWidth={sw + 0.4} strokeLinecap="round" />
+        </svg>
+      )
+    default:
+      return null
+  }
+}
+
+function IconBadge({ icon, color = NAVY, bg = 'rgba(47,171,153,0.12)', size = 56, iconSize }: {
+  icon: string; color?: string; bg?: string; size?: number; iconSize?: number
+}) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: size / 2.6, background: bg,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+    }}>
+      <Icon name={icon} color={color} size={iconSize || Math.round(size * 0.46)} />
+    </div>
+  )
+}
+
+/* ============ موك أب مصغّر للوحة التحكم (يستبدل الصورة المولدة بالذكاء الاصطناعي) ============ */
+function DashboardMockup() {
+  const domains = [
+    { label: 'الإدارة المدرسية', pct: 92 },
+    { label: 'التعليم والتعلم', pct: 78 },
+    { label: 'نواتج التعلم', pct: 65 },
+    { label: 'البيئة المدرسية', pct: 100 },
+  ]
+  return (
+    <div style={{
+      background: '#fff', borderRadius: 18, border: '1px solid rgba(0,84,72,0.08)',
+      boxShadow: '0 20px 44px rgba(0,84,72,0.16)', padding: '1.4rem 1.4rem 1.6rem', width: '100%'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#F87171', display: 'inline-block' }} />
+          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#FBBF24', display: 'inline-block' }} />
+          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#34D399', display: 'inline-block' }} />
+        </div>
+        <span className="body-font" style={{ fontSize: 11.5, color: '#8A8270' }}>لوحة تحكم شواهدي</span>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+        <div style={{ position: 'relative', width: 74, height: 74, flexShrink: 0 }}>
+          <svg width="74" height="74" viewBox="0 0 74 74">
+            <circle cx="37" cy="37" r="31" fill="none" stroke="rgba(0,84,72,0.08)" strokeWidth="8" />
+            <circle cx="37" cy="37" r="31" fill="none" stroke={GOLD} strokeWidth="8" strokeLinecap="round"
+              strokeDasharray={`${2 * Math.PI * 31 * 0.84} ${2 * Math.PI * 31}`}
+              transform="rotate(-90 37 37)" />
+          </svg>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+            <span style={{ fontSize: 17, fontWeight: 800, color: NAVY }}>84%</span>
+          </div>
+        </div>
+        <div>
+          <p style={{ fontSize: 13.5, fontWeight: 800, color: NAVY, margin: '0 0 3px' }}>نسبة الجاهزية العامة</p>
+          <p className="body-font" style={{ fontSize: 12, color: '#8A8270', margin: 0 }}>47 مؤشراً موزعة على 4 مجالات</p>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gap: 11 }}>
+        {domains.map(d => (
+          <div key={d.label}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+              <span className="body-font" style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>{d.label}</span>
+              <span className="body-font" style={{ fontSize: 12, color: '#8A8270' }}>{d.pct}%</span>
+            </div>
+            <div style={{ height: 6, borderRadius: 4, background: 'rgba(0,84,72,0.07)', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${d.pct}%`, borderRadius: 4, background: `linear-gradient(90deg, ${GOLD_LIGHT}, ${GOLD})` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Landing() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -50,16 +239,19 @@ export default function Landing() {
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
 
       <style>{`
-        @keyframes kenburns {
-          0%   { transform: scale(1.02) translate(0, 0); }
-          100% { transform: scale(1.08) translate(-1%, -0.5%); }
-        }
-        .hero-bg { animation: kenburns 24s ease-in-out infinite alternate; }
-        @media (prefers-reduced-motion: reduce) { .hero-bg { animation: none; } }
         .body-font { font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; }
         .cta-gold:hover { filter: brightness(1.08); }
         .login-input:focus { border-color: #2FAB99 !important; outline: none; }
         .login-btn:hover { background: #0a1830 !important; }
+        .login-visual-stack { position: relative; }
+        .mockup-peek {
+          position: absolute; top: -26px; left: -26px; width: 84%; z-index: 0;
+          transform: rotate(-5deg); opacity: 0.9; pointer-events: none;
+        }
+        .login-card { position: relative; z-index: 1; }
+        @media (max-width: 860px) { .mockup-peek { display: none; } .login-visual-stack { padding-top: 0 !important; } }
+        .footer-logo { filter: grayscale(1); opacity: 0.75; transition: filter 0.25s, opacity 0.25s; }
+        .footer-logo:hover { filter: grayscale(0); opacity: 1; }
 
         .nav-links { display: flex; align-items: center; gap: 30px; }
         @media (max-width: 980px) { .nav-links { display: none; } }
@@ -127,21 +319,8 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ============ HERO (صافي بدون نص) ============ */}
-      <section style={{ position: 'relative', overflow: 'hidden', height: '56vh', minHeight: 380, maxHeight: 560 }}>
-        <div className="hero-bg" style={{
-          position: 'absolute', inset: 0, backgroundImage: 'url(/hero.png)',
-          backgroundSize: 'cover', backgroundPosition: 'center 35%', zIndex: 0,
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(0,84,72,0.05) 0%, rgba(0,84,72,0.0) 50%, rgba(246,247,246,1) 100%)',
-          zIndex: 1,
-        }} />
-      </section>
-
-      {/* ============ نص + مربع دخول جنب بعض ============ */}
-      <section style={{ padding: '5.5rem 2rem 4rem', maxWidth: 1400, margin: '0 auto', position: 'relative', zIndex: 2 }}>
+      {/* ============ نص + موك أب المنصة + مربع دخول ============ */}
+      <section style={{ padding: '4rem 2rem 5rem', maxWidth: 1400, margin: '0 auto', position: 'relative', zIndex: 2, background: `radial-gradient(circle at 100% 0%, rgba(47,171,153,0.07), transparent 45%)` }}>
         <div className="hero-split">
 
           {/* النص - يمين */}
@@ -193,12 +372,16 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* مربع الدخول - يسار (بوابة الدخول الفعلية) */}
-          <div id="login-box" style={{
-            background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
-            border: '1px solid rgba(0,84,72,0.07)', boxShadow: '0 16px 44px rgba(0,84,72,0.10)',
-            scrollMarginTop: 100
-          }}>
+          {/* موك أب المنصة + مربع الدخول - يسار (بوابة الدخول الفعلية) */}
+          <div className="login-visual-stack" style={{ paddingTop: 34 }}>
+            <div className="mockup-peek">
+              <DashboardMockup />
+            </div>
+            <div id="login-box" className="login-card" style={{
+              background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
+              border: '1px solid rgba(0,84,72,0.07)', boxShadow: '0 16px 44px rgba(0,84,72,0.10)',
+              scrollMarginTop: 100
+            }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: NAVY, marginBottom: 6, textAlign: 'center' }}>تسجيل الدخول</h2>
             <p className="body-font" style={{ fontSize: 13, color: '#8A8270', marginBottom: 22, textAlign: 'center' }}>
               أدخل بيانات مدرستك للمتابعة
@@ -257,6 +440,7 @@ export default function Landing() {
                 سجّل مدرستك مجاناً
               </Link>
             </p>
+            </div>
           </div>
 
         </div>
@@ -284,15 +468,30 @@ export default function Landing() {
 
           <div style={{
             background: 'linear-gradient(135deg, #005448, #0A6B5A)', borderRadius: 20,
-            padding: '2.6rem 2.2rem', textAlign: 'center'
+            padding: '2.6rem 2.2rem', textAlign: 'center', position: 'relative', overflow: 'hidden'
           }}>
-            <p style={{ fontSize: 14, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>
-              الفرق الجوهري
-            </p>
-            <p style={{ fontSize: 24, fontWeight: 800, color: '#fff', lineHeight: 1.75, maxWidth: 620, margin: '0 auto' }}>
-              شواهدي ما يبيعك مساحة تخزين فقط —<br />
-              <span style={{ color: GOLD_LIGHT }}>هو يساعدك تصنع الشاهد الصحيح، وتحفظه في مكانه</span>
-            </p>
+            <div style={{
+              position: 'absolute', inset: 0, opacity: 0.5,
+              backgroundImage: 'radial-gradient(rgba(255,255,255,0.08) 1.4px, transparent 1.4px)',
+              backgroundSize: '22px 22px'
+            }} />
+            <div style={{
+              position: 'absolute', width: 260, height: 260, borderRadius: '50%',
+              background: 'rgba(138,212,196,0.18)', filter: 'blur(50px)', top: -110, right: -80
+            }} />
+            <div style={{
+              position: 'absolute', width: 220, height: 220, borderRadius: '50%',
+              background: 'rgba(47,171,153,0.16)', filter: 'blur(50px)', bottom: -100, left: -70
+            }} />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <p style={{ fontSize: 14, color: GOLD_LIGHT, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>
+                الفرق الجوهري
+              </p>
+              <p style={{ fontSize: 24, fontWeight: 800, color: '#fff', lineHeight: 1.75, maxWidth: 620, margin: '0 auto' }}>
+                شواهدي ما يبيعك مساحة تخزين فقط —<br />
+                <span style={{ color: GOLD_LIGHT }}>هو يساعدك تصنع الشاهد الصحيح، وتحفظه في مكانه</span>
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -309,9 +508,11 @@ export default function Landing() {
 
           <div className="comparison-grid">
             {/* الوضع الحالي */}
-            <div style={{ background: '#FEF6F5', border: '1px solid rgba(220,38,38,0.12)', borderRadius: 20, padding: '2.2rem 2rem' }}>
+            <div style={{ background: '#FEF6F5', border: '1px solid rgba(220,38,38,0.12)', borderRadius: 20, padding: '2.2rem 2rem', boxShadow: '0 10px 26px rgba(220,38,38,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingBottom: 18, borderBottom: '1px solid rgba(220,38,38,0.1)' }}>
-                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(220,38,38,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>❌</span>
+                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(220,38,38,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="x" color="#DC2626" size={18} />
+                </span>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: '#991B1B', margin: 0 }}>الوضع الحالي (المرهق)</h3>
               </div>
               <div style={{ display: 'grid', gap: 16 }}>
@@ -321,8 +522,10 @@ export default function Landing() {
                   { t: 'مأزق الوقت الضيق', d: 'التجهيز الحقيقي يبدأ قبل الزيارة بأيام قليلة، تحت ضغط يهدر جودة العمل.' },
                 ].map(x => (
                   <div key={x.t} className="body-font" style={{ fontSize: 14.5, color: '#5A5648', lineHeight: 1.8 }}>
-                    <p style={{ fontWeight: 700, color: '#991B1B', margin: '0 0 4px' }}>✕ {x.t}</p>
-                    <p style={{ margin: 0 }}>{x.d}</p>
+                    <p style={{ fontWeight: 700, color: '#991B1B', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Icon name="x" color="#DC2626" size={14} /> {x.t}
+                    </p>
+                    <p style={{ margin: 0, paddingRight: 22 }}>{x.d}</p>
                   </div>
                 ))}
               </div>
@@ -331,7 +534,9 @@ export default function Landing() {
             {/* الوضع الذكي مع شواهدي */}
             <div style={{ background: 'rgba(47,171,153,0.06)', border: '1px solid rgba(47,171,153,0.25)', borderRadius: 20, padding: '2.2rem 2rem', boxShadow: '0 12px 32px rgba(0,84,72,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingBottom: 18, borderBottom: '1px solid rgba(47,171,153,0.2)' }}>
-                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(47,171,153,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>✨</span>
+                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(47,171,153,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="sparkle" color={NAVY} size={18} />
+                </span>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: 0 }}>الوضع الذكي (مع شواهدي)</h3>
               </div>
               <div style={{ display: 'grid', gap: 16 }}>
@@ -341,8 +546,10 @@ export default function Landing() {
                   { t: 'رفع ذكي وتصدير بضغطة', d: 'ارفع صورك وملفات PDF مباشرة، ودع النظام يفرزها ويصنفها، لتستخرج ملفاً منسقاً جاهزاً للجنة.' },
                 ].map(x => (
                   <div key={x.t} className="body-font" style={{ fontSize: 14.5, color: '#374151', lineHeight: 1.8 }}>
-                    <p style={{ fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>✓ {x.t}</p>
-                    <p style={{ margin: 0 }}>{x.d}</p>
+                    <p style={{ fontWeight: 700, color: NAVY, margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Icon name="check" color={GOLD} size={14} /> {x.t}
+                    </p>
+                    <p style={{ margin: 0, paddingRight: 22 }}>{x.d}</p>
                   </div>
                 ))}
               </div>
@@ -356,10 +563,11 @@ export default function Landing() {
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', maxWidth: 700, margin: '0 auto 48px' }}>
             <span className="body-font" style={{
-              display: 'inline-block', background: 'rgba(138,212,196,0.12)', border: '1px solid rgba(138,212,196,0.3)',
+              display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(138,212,196,0.12)', border: '1px solid rgba(138,212,196,0.3)',
               color: GOLD_LIGHT, fontSize: 12.5, fontWeight: 700, padding: '6px 18px', borderRadius: 20, marginBottom: 18
             }}>
-              🪄 أقوى ميزة في المنصة
+              <Icon name="wand" color={GOLD_LIGHT} size={15} />
+              أقوى ميزة في المنصة
             </span>
             <h2 style={{ fontSize: 30, fontWeight: 800, color: '#fff', lineHeight: 1.6, marginBottom: 16 }}>
               بضغطة زر واحدة، شواهدي يحلّل تقريرك الخارجي ويولّد خططك آلياً
@@ -371,20 +579,20 @@ export default function Landing() {
 
           <div className="killer-grid">
             {[
-              { icon: '📈', title: 'الخطة التشغيلية للمدرسة', desc: 'خطة متكاملة ومصاغة تربوياً، مخصصة لمدرستك بناءً على نتائج تقرير التقويم الفعلي.' },
-              { icon: '🎯', title: 'خطة التحسين وتنفيذها', desc: 'خطة إجرائية مجدولة زمنياً لمعالجة الفجوات المرصودة قبل الزيارة القادمة.' },
-              { icon: '🔍', title: 'تقرير واقع المدرسة', desc: 'تشخيص دقيق يستعرض نقاط القوة وفرص التحسين وفق المعايير المعتمدة.' },
-              { icon: '🗂️', title: 'تقارير الزيارات والاحتفالات', desc: 'تعبئة آلية دورية لتوثيق الأنشطة والفعاليات المدرسية، وإنتاج ملفات PDF فورية.' },
-              { icon: '📁', title: 'حزمة النماذج المتنوعة', desc: 'مجموعة واسعة من السجلات والملفات التوثيقية التي تحتاجها الإدارة يومياً.' },
-              { icon: '💡', title: 'مستشارك الإداري الخبير', desc: 'شواهدي ما يبيعك مساحة تخزين فارغة — هو يرفع عنك العبء الورقي ويمنحك ملفات جاهزة للتوقيع.' },
+              { icon: 'trending', title: 'الخطة التشغيلية للمدرسة', desc: 'خطة متكاملة ومصاغة تربوياً، مخصصة لمدرستك بناءً على نتائج تقرير التقويم الفعلي.' },
+              { icon: 'target', title: 'خطة التحسين وتنفيذها', desc: 'خطة إجرائية مجدولة زمنياً لمعالجة الفجوات المرصودة قبل الزيارة القادمة.' },
+              { icon: 'search', title: 'تقرير واقع المدرسة', desc: 'تشخيص دقيق يستعرض نقاط القوة وفرص التحسين وفق المعايير المعتمدة.' },
+              { icon: 'calendar', title: 'تقارير الزيارات والاحتفالات', desc: 'تعبئة آلية دورية لتوثيق الأنشطة والفعاليات المدرسية، وإنتاج ملفات PDF فورية.' },
+              { icon: 'folder', title: 'حزمة النماذج المتنوعة', desc: 'مجموعة واسعة من السجلات والملفات التوثيقية التي تحتاجها الإدارة يومياً.' },
+              { icon: 'bulb', title: 'مستشارك الإداري الخبير', desc: 'شواهدي ما يبيعك مساحة تخزين فارغة — هو يرفع عنك العبء الورقي ويمنحك ملفات جاهزة للتوقيع.' },
             ].map(f => (
               <div key={f.title} style={{
-                padding: '1.7rem 1.7rem', background: 'rgba(255,255,255,0.04)',
-                borderRadius: 16, border: '1px solid rgba(138,212,196,0.2)'
+                padding: '1.6rem 1.6rem', background: '#fff',
+                borderRadius: 16, border: '1px solid rgba(0,84,72,0.06)', boxShadow: '0 10px 24px rgba(0,0,0,0.12)'
               }}>
-                <p style={{ fontSize: 30, margin: '0 0 12px' }}>{f.icon}</p>
-                <p style={{ fontWeight: 700, fontSize: 16, color: '#fff', margin: '0 0 8px' }}>{f.title}</p>
-                <p className="body-font" style={{ fontSize: 14, color: 'rgba(255,255,255,0.68)', margin: 0, lineHeight: 1.8 }}>{f.desc}</p>
+                <IconBadge icon={f.icon} color={NAVY} bg="rgba(47,171,153,0.13)" size={50} />
+                <p style={{ fontWeight: 700, fontSize: 16, color: NAVY, margin: '14px 0 8px' }}>{f.title}</p>
+                <p className="body-font" style={{ fontSize: 14, color: '#5A5648', margin: 0, lineHeight: 1.8 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -409,17 +617,17 @@ export default function Landing() {
         </div>
         <div className="domains-grid" style={{ maxWidth: 960, margin: '0 auto' }}>
           {[
-            { emoji: '🏫', label: 'الإدارة المدرسية', sub: '15 مؤشراً' },
-            { emoji: '📚', label: 'التعليم والتعلم', sub: '13 مؤشراً' },
-            { emoji: '📊', label: 'نواتج التعلم', sub: '13 مؤشراً' },
-            { emoji: '🏢', label: 'البيئة المدرسية', sub: '6 مؤشرات' },
+            { icon: 'school', label: 'الإدارة المدرسية', sub: '15 مؤشراً' },
+            { icon: 'book', label: 'التعليم والتعلم', sub: '13 مؤشراً' },
+            { icon: 'chart', label: 'نواتج التعلم', sub: '13 مؤشراً' },
+            { icon: 'building', label: 'البيئة المدرسية', sub: '6 مؤشرات' },
           ].map(d => (
             <div key={d.label} style={{
-              background: '#F6F7F6', borderRadius: 14, padding: '24px 14px', textAlign: 'center',
-              border: '1px solid rgba(0,84,72,0.06)'
+              background: '#F6F7F6', borderRadius: 16, padding: '26px 16px', textAlign: 'center',
+              border: '1px solid rgba(0,84,72,0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center'
             }}>
-              <p style={{ fontSize: 34, margin: '0 0 10px' }}>{d.emoji}</p>
-              <p style={{ fontSize: 14.5, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{d.label}</p>
+              <IconBadge icon={d.icon} color={NAVY} bg="rgba(47,171,153,0.13)" size={58} />
+              <p style={{ fontSize: 14.5, fontWeight: 700, color: NAVY, margin: '14px 0 4px' }}>{d.label}</p>
               <p className="body-font" style={{ fontSize: 12.5, color: '#8A8270', margin: 0 }}>{d.sub}</p>
             </div>
           ))}
@@ -453,7 +661,7 @@ export default function Landing() {
               <div style={{ textAlign: 'right', marginBottom: 32, flex: 1 }}>
                 {['مجال واحد من أصل 4', 'حجم رفع حتى 50 ميجابايت', 'رفع صور وملفات PDF', 'تقرير طباعة أساسي'].map(f => (
                   <p key={f} className="body-font" style={{ fontSize: 14.5, color: NAVY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ color: '#8A8270', fontWeight: 900, flexShrink: 0 }}>✓</span> {f}
+                    <Icon name="check" color="#8A8270" size={16} /> {f}
                   </p>
                 ))}
               </div>
@@ -501,7 +709,7 @@ export default function Landing() {
                 ].map(item => (
                   <div key={item.text} style={{ marginBottom: 14 }}>
                     <p className="body-font" style={{ fontSize: 14.5, color: '#fff', margin: 0, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                      <span style={{ color: GOLD_LIGHT, fontWeight: 900, flexShrink: 0 }}>✓</span> {item.text}
+                      <span style={{ paddingTop: 2, flexShrink: 0 }}><Icon name="check" color={GOLD_LIGHT} size={16} /></span> {item.text}
                     </p>
                     {item.sub && (
                       <div style={{ marginTop: 8, paddingRight: 26 }}>
@@ -532,7 +740,9 @@ export default function Landing() {
         <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
           <img src="/logo.png" alt="شواهدي" style={{ height: 56, marginBottom: 20 }} />
 
-          <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 8px' }}>🛡️ منصة آمنة وموثّقة بالكامل</p>
+          <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <Icon name="shield" color={GOLD} size={18} /> منصة آمنة وموثّقة بالكامل
+          </p>
           <p className="body-font" style={{ fontSize: 13.5, color: '#8A8270', margin: '0 0 8px', maxWidth: 560, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.8 }}>
             شواهدي منصة سعودية مستقلة تهدف لدعم قيادات المدارس، وهي <strong>غير مرتبطة رسمياً</strong> بهيئة تقويم التعليم والتدريب.
           </p>
@@ -558,8 +768,8 @@ export default function Landing() {
               <img src="/ecommerce-auth-qr.png" alt="باركود توثيق التجارة الإلكترونية" style={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <img src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 34, objectFit: 'contain' }} />
-                  <img src="/saudi-business-center-logo.png" alt="المركز السعودي للأعمال" style={{ height: 30, objectFit: 'contain' }} />
+                  <img className="footer-logo" src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 32, objectFit: 'contain' }} />
+                  <img className="footer-logo" src="/saudi-business-center-logo.png" alt="المركز السعودي للأعمال" style={{ height: 32, objectFit: 'contain' }} />
                 </div>
                 <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>موثّق إلكترونياً — المركز السعودي للأعمال</p>
               </div>
@@ -570,7 +780,7 @@ export default function Landing() {
               display: 'flex', alignItems: 'center', gap: 18, background: '#FAFAF7',
               border: '1px solid rgba(0,84,72,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
-              <img src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 68, objectFit: 'contain', flexShrink: 0 }} />
+              <img className="footer-logo" src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 68, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>وثيقة عمل حر</p>
                 <p className="body-font" style={{ fontSize: 13, color: '#8A8270', margin: 0 }}>رقم الوثيقة: FL-898950755</p>
