@@ -146,51 +146,56 @@ function TransformMockup() {
   const domainIcons = ['school', 'book', 'chart', 'building']
   return (
     <div style={{
-      background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.08)',
-      boxShadow: '0 20px 44px rgba(10,59,88,0.16)', padding: '2rem 1.5rem 1.7rem', width: '100%'
+      background: '#fff', borderRadius: 22, border: '1px solid rgba(10,59,88,0.08)',
+      boxShadow: '0 26px 60px rgba(10,59,88,0.18)', padding: '3.2rem 2rem 2.6rem', width: '100%',
+      boxSizing: 'border-box', minHeight: 360, display: 'flex', flexDirection: 'column', justifyContent: 'center'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div style={{
+        direction: 'ltr', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: 26, flexWrap: 'wrap', rowGap: 30
+      }}>
 
         {/* أوراق مبعثرة */}
-        <div style={{ position: 'relative', width: 62, height: 78, flexShrink: 0 }}>
-          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-11deg)', background: '#F5F8FA', border: '1px solid rgba(10,59,88,0.10)', borderRadius: 7 }} />
-          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(7deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.12)', borderRadius: 7 }} />
-          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-2deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.16)', borderRadius: 7, padding: 9 }}>
-            <div style={{ height: 3, width: '70%', background: 'rgba(10,59,88,0.28)', borderRadius: 2, marginBottom: 7 }} />
-            <div style={{ height: 3, width: '52%', background: 'rgba(31,110,150,0.4)', borderRadius: 2, marginBottom: 7 }} />
-            <div style={{ height: 3, width: '62%', background: 'rgba(10,59,88,0.16)', borderRadius: 2 }} />
+        <div style={{ position: 'relative', width: 92, height: 118, flexShrink: 0 }}>
+          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-11deg)', background: '#F5F8FA', border: '1px solid rgba(10,59,88,0.10)', borderRadius: 10 }} />
+          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(7deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.12)', borderRadius: 10 }} />
+          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-2deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.16)', borderRadius: 10, padding: 14 }}>
+            <div style={{ height: 4, width: '72%', background: 'rgba(10,59,88,0.28)', borderRadius: 2, marginBottom: 10 }} />
+            <div style={{ height: 4, width: '54%', background: 'rgba(31,110,150,0.42)', borderRadius: 2, marginBottom: 10 }} />
+            <div style={{ height: 4, width: '64%', background: 'rgba(10,59,88,0.16)', borderRadius: 2, marginBottom: 10 }} />
+            <div style={{ height: 4, width: '40%', background: 'rgba(10,59,88,0.16)', borderRadius: 2 }} />
           </div>
         </div>
 
         {/* حلقة التحوّل */}
         <div style={{
-          width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-          border: `5px solid ${GOLD}`, boxShadow: `0 0 16px rgba(31,110,150,0.5), 0 0 0 6px rgba(31,110,150,0.08)`
+          width: 62, height: 62, borderRadius: '50%', flexShrink: 0,
+          border: `7px solid ${GOLD}`, boxShadow: `0 0 22px rgba(31,110,150,0.55), 0 0 0 9px rgba(31,110,150,0.08)`
         }} />
 
         {/* ملفات منظمة بمؤشر إنجاز */}
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
           {domainIcons.map(icon => (
             <div key={icon} style={{
-              position: 'relative', width: 34, height: 78, borderRadius: 8,
+              position: 'relative', width: 50, height: 118, borderRadius: 11,
               background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
-              <Icon name={icon} color="#fff" size={15} sw={1.6} />
+              <Icon name={icon} color="#fff" size={22} sw={1.6} />
               <div style={{
-                position: 'absolute', top: -6, insetInlineStart: -6, width: 16, height: 16, borderRadius: '50%',
+                position: 'absolute', top: -8, insetInlineEnd: -8, width: 22, height: 22, borderRadius: '50%',
                 background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.18)'
+                boxShadow: '0 3px 7px rgba(0,0,0,0.2)'
               }}>
-                <Icon name="check" color="#16A34A" size={10} sw={2.6} />
+                <Icon name="check" color="#16A34A" size={13} sw={2.6} />
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ height: 1, background: 'rgba(10,59,88,0.08)', margin: '22px 0 16px' }} />
+      <div style={{ height: 1, background: 'rgba(10,59,88,0.08)', margin: '34px 0 22px' }} />
 
-      <p className="body-font" style={{ fontSize: 13, color: '#4C5A66', textAlign: 'center', margin: 0, lineHeight: 1.7 }}>
+      <p className="body-font" style={{ fontSize: 15.5, color: '#4C5A66', textAlign: 'center', margin: 0, lineHeight: 1.7 }}>
         من فوضى الشواهد المبعثرة، إلى ملفات منظمة لكل مجال
       </p>
     </div>
@@ -368,12 +373,7 @@ export default function Landing() {
 
           {/* موك أب المنصة - يسار */}
           <div style={{ paddingTop: 34 }}>
-            <div style={{
-              borderRadius: 18, overflow: 'hidden', boxShadow: '0 20px 44px rgba(10,59,88,0.16)',
-              border: '1px solid rgba(10,59,88,0.06)'
-            }}>
-              <img src="/hero-2.png" alt="من فوضى الشواهد إلى ملفات منظمة لكل مجال" style={{ width: '100%', height: 'auto', display: 'block' }} />
-            </div>
+            <TransformMockup />
           </div>
 
         </div>
