@@ -55,24 +55,31 @@ export default function RegisterPage() {
       const { data: authData, error: authError } = await supabase.auth.signUp({ email: form.email, password: form.password })
       if (authError) throw authError
 
-      const trialEnd = new Date()
-      trialEnd.setDate(trialEnd.getDate() + 7)
+      // إذا ما رجعت جلسة فورية (نادراً ما يصير)، نتأكد منها صراحة قبل أي إدراج
+      // يعتمد على auth.uid() — تفادياً لمشكلة "new row violates row-level security policy"
+      let session = authData.session
+      if (!session) {
+        const { data: sessionData } = await supabase.auth.getSession()
+        session = sessionData.session
+      }
+      if (!session) {
+        throw new Error('تعذّر تفعيل الجلسة بعد إنشاء الحساب. يرجى تسجيل الدخول يدوياً من صفحة الدخول.')
+      }
 
-      const { data: school, error: schoolError } = await supabase
-        .from('schools')
-        .insert({
-          name: form.school_name, school_number: form.school_number || null, region: form.region || null,
-          school_type: form.school_type, principal_name: form.principal_name, phone: form.phone || null,
-          email: form.email, subscription_status: 'trial',
-          subscription_start: new Date().toISOString(), subscription_end: trialEnd.toISOString(),
-        })
-        .select().single()
+      // إنشاء المدرسة وربطها بالمستخدم عبر دالة واحدة على الخادم (RPC)
+      // بدل إدراجين منفصلين من العميل — يتفادى مشاكل توقيت الجلسة مع RLS
+      // ويضمن أن العمليتين تتمّان معاً أو لا تتمّان (transaction واحدة)
+      const { error: schoolError } = await supabase.rpc('register_school', {
+        p_name: form.school_name,
+        p_school_number: form.school_number || '',
+        p_region: form.region || '',
+        p_school_type: form.school_type,
+        p_principal_name: form.principal_name,
+        p_phone: form.phone || '',
+        p_email: form.email,
+      })
 
       if (schoolError) throw schoolError
-
-      await supabase.from('school_users').insert({
-        school_id: school.id, auth_id: authData.user?.id, full_name: form.principal_name, role: 'principal',
-      })
 
       router.push('/dashboard')
     } catch (e: any) {
