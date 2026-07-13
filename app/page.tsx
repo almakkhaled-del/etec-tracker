@@ -141,59 +141,58 @@ function IconBadge({ icon, color = NAVY, bg = 'rgba(31,110,150,0.12)', size = 56
   )
 }
 
-/* ============ موك أب مصغّر للوحة التحكم (يستبدل الصورة المولدة بالذكاء الاصطناعي) ============ */
-function DashboardMockup() {
-  const domains = [
-    { label: 'الإدارة المدرسية', pct: 92 },
-    { label: 'التعليم والتعلم', pct: 78 },
-    { label: 'نواتج التعلم', pct: 65 },
-    { label: 'البيئة المدرسية', pct: 100 },
-  ]
+/* ============ موك أب الهيرو: من فوضى الشواهد إلى ملفات منظمة ============ */
+function TransformMockup() {
+  const domainIcons = ['school', 'book', 'chart', 'building']
   return (
     <div style={{
       background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.08)',
-      boxShadow: '0 20px 44px rgba(10,59,88,0.16)', padding: '1.4rem 1.4rem 1.6rem', width: '100%'
+      boxShadow: '0 20px 44px rgba(10,59,88,0.16)', padding: '2rem 1.5rem 1.7rem', width: '100%'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#F87171', display: 'inline-block' }} />
-          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#FBBF24', display: 'inline-block' }} />
-          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#34D399', display: 'inline-block' }} />
-        </div>
-        <span className="body-font" style={{ fontSize: 11.5, color: '#7A8896' }}>لوحة تحكم شواهدي</span>
-      </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-        <div style={{ position: 'relative', width: 74, height: 74, flexShrink: 0 }}>
-          <svg width="74" height="74" viewBox="0 0 74 74">
-            <circle cx="37" cy="37" r="31" fill="none" stroke="rgba(10,59,88,0.08)" strokeWidth="8" />
-            <circle cx="37" cy="37" r="31" fill="none" stroke={GOLD} strokeWidth="8" strokeLinecap="round"
-              strokeDasharray={`${2 * Math.PI * 31 * 0.84} ${2 * Math.PI * 31}`}
-              transform="rotate(-90 37 37)" />
-          </svg>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <span style={{ fontSize: 17, fontWeight: 800, color: NAVY }}>84%</span>
+        {/* أوراق مبعثرة */}
+        <div style={{ position: 'relative', width: 62, height: 78, flexShrink: 0 }}>
+          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-11deg)', background: '#F5F8FA', border: '1px solid rgba(10,59,88,0.10)', borderRadius: 7 }} />
+          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(7deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.12)', borderRadius: 7 }} />
+          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-2deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.16)', borderRadius: 7, padding: 9 }}>
+            <div style={{ height: 3, width: '70%', background: 'rgba(10,59,88,0.28)', borderRadius: 2, marginBottom: 7 }} />
+            <div style={{ height: 3, width: '52%', background: 'rgba(31,110,150,0.4)', borderRadius: 2, marginBottom: 7 }} />
+            <div style={{ height: 3, width: '62%', background: 'rgba(10,59,88,0.16)', borderRadius: 2 }} />
           </div>
         </div>
-        <div>
-          <p style={{ fontSize: 13.5, fontWeight: 800, color: NAVY, margin: '0 0 3px' }}>نسبة الجاهزية العامة</p>
-          <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>47 مؤشراً موزعة على 4 مجالات</p>
+
+        {/* حلقة التحوّل */}
+        <div style={{
+          width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+          border: `5px solid ${GOLD}`, boxShadow: `0 0 16px rgba(31,110,150,0.5), 0 0 0 6px rgba(31,110,150,0.08)`
+        }} />
+
+        {/* ملفات منظمة بمؤشر إنجاز */}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {domainIcons.map(icon => (
+            <div key={icon} style={{
+              position: 'relative', width: 34, height: 78, borderRadius: 8,
+              background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <Icon name={icon} color="#fff" size={15} sw={1.6} />
+              <div style={{
+                position: 'absolute', top: -6, insetInlineStart: -6, width: 16, height: 16, borderRadius: '50%',
+                background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.18)'
+              }}>
+                <Icon name="check" color="#16A34A" size={10} sw={2.6} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div style={{ display: 'grid', gap: 11 }}>
-        {domains.map(d => (
-          <div key={d.label}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-              <span className="body-font" style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>{d.label}</span>
-              <span className="body-font" style={{ fontSize: 12, color: '#7A8896' }}>{d.pct}%</span>
-            </div>
-            <div style={{ height: 6, borderRadius: 4, background: 'rgba(10,59,88,0.07)', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${d.pct}%`, borderRadius: 4, background: `linear-gradient(90deg, ${GOLD_LIGHT}, ${GOLD})` }} />
-            </div>
-          </div>
-        ))}
-      </div>
+      <div style={{ height: 1, background: 'rgba(10,59,88,0.08)', margin: '22px 0 16px' }} />
+
+      <p className="body-font" style={{ fontSize: 13, color: '#4C5A66', textAlign: 'center', margin: 0, lineHeight: 1.7 }}>
+        من فوضى الشواهد المبعثرة، إلى ملفات منظمة لكل مجال
+      </p>
     </div>
   )
 }
@@ -369,7 +368,12 @@ export default function Landing() {
 
           {/* موك أب المنصة - يسار */}
           <div style={{ paddingTop: 34 }}>
-            <DashboardMockup />
+            <div style={{
+              borderRadius: 18, overflow: 'hidden', boxShadow: '0 20px 44px rgba(10,59,88,0.16)',
+              border: '1px solid rgba(10,59,88,0.06)'
+            }}>
+              <img src="/hero-2.png" alt="من فوضى الشواهد إلى ملفات منظمة لكل مجال" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            </div>
           </div>
 
         </div>
