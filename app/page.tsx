@@ -141,67 +141,6 @@ function IconBadge({ icon, color = NAVY, bg = 'rgba(31,110,150,0.12)', size = 56
   )
 }
 
-/* ============ موك أب الهيرو: من فوضى الشواهد إلى ملفات منظمة ============ */
-function TransformMockup() {
-  const domainIcons = ['school', 'book', 'chart', 'building']
-  return (
-    <div style={{
-      background: '#fff', borderRadius: 22, border: '1px solid rgba(10,59,88,0.08)',
-      boxShadow: '0 26px 60px rgba(10,59,88,0.18)', padding: '3.2rem 2rem 2.6rem', width: '100%',
-      boxSizing: 'border-box', minHeight: 360, display: 'flex', flexDirection: 'column', justifyContent: 'center'
-    }}>
-      <div style={{
-        direction: 'ltr', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        gap: 26, flexWrap: 'wrap', rowGap: 30
-      }}>
-
-        {/* أوراق مبعثرة */}
-        <div style={{ position: 'relative', width: 92, height: 118, flexShrink: 0 }}>
-          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-11deg)', background: '#F5F8FA', border: '1px solid rgba(10,59,88,0.10)', borderRadius: 10 }} />
-          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(7deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.12)', borderRadius: 10 }} />
-          <div style={{ position: 'absolute', inset: 0, transform: 'rotate(-2deg)', background: '#fff', border: '1px solid rgba(10,59,88,0.16)', borderRadius: 10, padding: 14 }}>
-            <div style={{ height: 4, width: '72%', background: 'rgba(10,59,88,0.28)', borderRadius: 2, marginBottom: 10 }} />
-            <div style={{ height: 4, width: '54%', background: 'rgba(31,110,150,0.42)', borderRadius: 2, marginBottom: 10 }} />
-            <div style={{ height: 4, width: '64%', background: 'rgba(10,59,88,0.16)', borderRadius: 2, marginBottom: 10 }} />
-            <div style={{ height: 4, width: '40%', background: 'rgba(10,59,88,0.16)', borderRadius: 2 }} />
-          </div>
-        </div>
-
-        {/* حلقة التحوّل */}
-        <div style={{
-          width: 62, height: 62, borderRadius: '50%', flexShrink: 0,
-          border: `7px solid ${GOLD}`, boxShadow: `0 0 22px rgba(31,110,150,0.55), 0 0 0 9px rgba(31,110,150,0.08)`
-        }} />
-
-        {/* ملفات منظمة بمؤشر إنجاز */}
-        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-          {domainIcons.map(icon => (
-            <div key={icon} style={{
-              position: 'relative', width: 50, height: 118, borderRadius: 11,
-              background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              <Icon name={icon} color="#fff" size={22} sw={1.6} />
-              <div style={{
-                position: 'absolute', top: -8, insetInlineEnd: -8, width: 22, height: 22, borderRadius: '50%',
-                background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 3px 7px rgba(0,0,0,0.2)'
-              }}>
-                <Icon name="check" color="#16A34A" size={13} sw={2.6} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ height: 1, background: 'rgba(10,59,88,0.08)', margin: '34px 0 22px' }} />
-
-      <p className="body-font" style={{ fontSize: 15.5, color: '#4C5A66', textAlign: 'center', margin: 0, lineHeight: 1.7 }}>
-        من فوضى الشواهد المبعثرة، إلى ملفات منظمة لكل مجال
-      </p>
-    </div>
-  )
-}
-
 export default function Landing() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -255,21 +194,6 @@ export default function Landing() {
         .nav-links { display: flex; align-items: center; gap: 30px; }
         @media (max-width: 980px) { .nav-links { display: none; } }
 
-        .hero-split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
-        @media (max-width: 860px) {
-          .hero-split { grid-template-columns: 1fr; gap: 32px; }
-        }
-        @media (min-width: 1200px) {
-          .hero-split { gap: 100px; }
-        }
-
-        .hero-title { font-size: 44px; line-height: 1.65; }
-        @media (max-width: 640px) {
-          .hero-title { font-size: 32px; line-height: 1.6; }
-        }
-
-        .hero-ctas { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-
         .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         @media (max-width: 780px) { .comparison-grid { grid-template-columns: 1fr; } }
 
@@ -318,65 +242,13 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ============ نص + موك أب المنصة + مربع دخول ============ */}
-      <section style={{ padding: '4rem 2rem 5rem', maxWidth: 1400, margin: '0 auto', position: 'relative', zIndex: 2, background: `radial-gradient(circle at 100% 0%, rgba(31,110,150,0.07), transparent 45%)` }}>
-        <div className="hero-split">
-
-          {/* النص - يمين */}
-          <div style={{ textAlign: 'right' }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(62,138,176,0.14)', border: '1px solid rgba(31,110,150,0.35)',
-              color: '#175A7D', fontSize: 12, fontWeight: 600, padding: '6px 16px',
-              borderRadius: 30, marginBottom: 26, letterSpacing: 0.3
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1F6E96', display: 'inline-block' }} />
-              متوافق مع معايير هيئة تقويم التعليم والتدريب (إتقان)
-            </div>
-
-            <h1 className="hero-title" style={{ fontWeight: 900, color: '#0A3B58', marginBottom: 22 }}>
-              <span style={{ display: 'block', marginBottom: 6 }}>لا تبحث عن الشاهد المناسب</span>
-              <span style={{
-                display: 'block',
-                background: 'linear-gradient(135deg, #1F6E96, #175A7D)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              }}>شواهدي يرشدك إليه، وينشئه لك</span>
-            </h1>
-
-            <p className="body-font" style={{ fontSize: 17.5, color: '#4C5A66', lineHeight: 2, marginBottom: 30, maxWidth: 590 }}>
-              شواهدي منصة سعودية متكاملة تحوّل جمع شواهد الاعتماد المدرسي من مهمة مرهقة تُنجز في اللحظات الأخيرة، إلى مسار واضح ومنظم تسير عليه إدارتك طوال العام. ترفع الشاهد، والنظام يصنّفه ويرتبه تلقائياً تحت المؤشر الصحيح — لتصل يوم الزيارة بملف متكامل يعكس مستوى مدرستك الحقيقي.
-            </p>
-
-            <div className="hero-ctas">
-              <Link href="#login-box" className="cta-gold" style={{
-                display: 'inline-block', padding: '16px 40px', fontSize: 17, fontWeight: 700,
-                background: 'linear-gradient(135deg, #3E8AB0, #1F6E96)', color: '#0A3B58',
-                borderRadius: 10, textDecoration: 'none',
-                boxShadow: '0 8px 24px rgba(31,110,150,0.28)', transition: 'filter 0.2s'
-              }}>
-                سجّل مدرستك الآن (تجربة 7 أيام) ←
-              </Link>
-              <a href="#killer-feature" className="body-font" style={{
-                display: 'inline-block', padding: '15px 30px', fontSize: 15.5, fontWeight: 700,
-                background: '#fff', color: NAVY, border: '1px solid rgba(10,59,88,0.15)',
-                borderRadius: 10, textDecoration: 'none'
-              }}>
-                شوف أقوى ميزة بالمنصة ↓
-              </a>
-            </div>
-
-            <div className="body-font" style={{ marginTop: 18, display: 'flex', gap: 20, fontSize: 12.5, color: '#7A8896', flexWrap: 'wrap' }}>
-              <span>⏱ التسجيل يستغرق دقيقة واحدة</span>
-              <span>💳 لا يتطلب بطاقة ائتمانية</span>
-            </div>
-          </div>
-
-          {/* موك أب المنصة - يسار */}
-          <div style={{ paddingTop: 34 }}>
-            <TransformMockup />
-          </div>
-
-        </div>
+      {/* ============ الهيرو: صورة كاملة بدون نص ============ */}
+      <section style={{ padding: '2.2rem 2rem 2.8rem', maxWidth: 1400, margin: '0 auto' }}>
+        <img
+          src="/hero-3.png"
+          alt="شواهدي: من تقرير التقويم الخارجي إلى ملفات جاهزة للاعتماد والطباعة بضغطة زر"
+          style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 18 }}
+        />
       </section>
 
       {/* ============ نبذة عن شواهدي + تسجيل الدخول ============ */}
