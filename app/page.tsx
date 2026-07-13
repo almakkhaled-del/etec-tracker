@@ -243,11 +243,11 @@ export default function Landing() {
       </nav>
 
       {/* ============ الهيرو: صورة كاملة بدون نص ============ */}
-      <section style={{ padding: '2.2rem 2rem 2.8rem', maxWidth: 1400, margin: '0 auto' }}>
+      <section style={{ padding: 0, margin: 0 }}>
         <img
           src="/hero-3.png"
           alt="شواهدي: من تقرير التقويم الخارجي إلى ملفات جاهزة للاعتماد والطباعة بضغطة زر"
-          style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 18 }}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
         />
       </section>
 
