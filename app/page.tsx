@@ -188,8 +188,6 @@ export default function Landing() {
         .login-btn:hover { background: #04202F !important; }
         .about-split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 50px; align-items: start; }
         @media (max-width: 860px) { .about-split { grid-template-columns: 1fr; gap: 32px; } }
-        .footer-logo { filter: grayscale(1); opacity: 0.75; transition: filter 0.25s, opacity 0.25s; }
-        .footer-logo:hover { filter: grayscale(0); opacity: 1; }
 
         .nav-links { display: flex; align-items: center; gap: 30px; }
         @media (max-width: 980px) { .nav-links { display: none; } }
@@ -644,8 +642,8 @@ export default function Landing() {
               <img src="/ecommerce-auth-qr.png" alt="باركود توثيق التجارة الإلكترونية" style={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <img className="footer-logo" src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 32, objectFit: 'contain' }} />
-                  <img className="footer-logo" src="/saudi-business-center-logo.png" alt="المركز السعودي للأعمال" style={{ height: 32, objectFit: 'contain' }} />
+                  <img src="/ministry-of-commerce-logo.png" alt="وزارة التجارة" style={{ height: 32, objectFit: 'contain' }} />
+                  <img src="/saudi-business-center-logo.png" alt="المركز السعودي للأعمال" style={{ height: 32, objectFit: 'contain' }} />
                 </div>
                 <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: 0 }}>موثّق إلكترونياً — المركز السعودي للأعمال</p>
               </div>
@@ -656,7 +654,7 @@ export default function Landing() {
               display: 'flex', alignItems: 'center', gap: 18, background: '#F7F9FA',
               border: '1px solid rgba(10,59,88,0.08)', borderRadius: 16, padding: '18px 26px'
             }}>
-              <img className="footer-logo" src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 68, objectFit: 'contain', flexShrink: 0 }} />
+              <img src="/freelance-work-logo.png" alt="وثيقة العمل الحر" style={{ height: 68, objectFit: 'contain', flexShrink: 0 }} />
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>وثيقة عمل حر</p>
                 <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: 0 }}>رقم الوثيقة: FL-898950755</p>
