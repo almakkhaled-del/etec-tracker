@@ -304,7 +304,7 @@ export default function Landing() {
           <a href="#about" style={{ color: 'inherit', textDecoration: 'none' }}>عن المنصة</a>
           <a href="#comparison" style={{ color: 'inherit', textDecoration: 'none' }}>المقارنة</a>
           <a href="#killer-feature" style={{ color: 'inherit', textDecoration: 'none' }}>الميزة الذكية</a>
-          <a href="#domains" style={{ color: 'inherit', textDecoration: 'none' }}>معايير إتقان</a>
+          <a href="#domains" style={{ color: 'inherit', textDecoration: 'none' }}>معايير هيئة تقويم التعليم والتدريب</a>
           <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>الباقات</a>
         </div>
 
@@ -616,7 +616,7 @@ export default function Landing() {
       {/* ============ المجالات ============ */}
       <section id="domains" style={{ background: '#fff', borderBottom: '1px solid rgba(0,84,72,0.08)', padding: '4rem 1.5rem', scrollMarginTop: 76 }}>
         <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 30px' }}>
-          <h2 style={{ fontSize: 26, fontWeight: 800, color: NAVY, marginBottom: 10 }}>تغطية كاملة لمعايير إتقان — 47 مؤشراً</h2>
+          <h2 style={{ fontSize: 26, fontWeight: 800, color: NAVY, marginBottom: 10 }}>تغطية كاملة لمعايير هيئة تقويم التعليم والتدريب — 47 مؤشراً</h2>
           <p className="body-font" style={{ fontSize: 14.5, color: '#8A8270' }}>لا نترك مؤشراً واحداً للاجتهاد الشخصي — كل مؤشر له مكانه الواضح.</p>
         </div>
         <div className="domains-grid" style={{ maxWidth: 960, margin: '0 auto' }}>
