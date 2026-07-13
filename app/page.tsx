@@ -243,13 +243,17 @@ export default function Landing() {
         .cta-gold:hover { filter: brightness(1.08); }
         .login-input:focus { border-color: #2FAB99 !important; outline: none; }
         .login-btn:hover { background: #0a1830 !important; }
-        .login-visual-stack { position: relative; }
+        .login-visual-stack { position: relative; padding-left: 30px; }
         .mockup-peek {
-          position: absolute; top: -26px; left: -26px; width: 84%; z-index: 0;
-          transform: rotate(-5deg); opacity: 0.9; pointer-events: none;
+          position: absolute; top: -34px; left: 0; width: 78%; z-index: 0;
+          transform: rotate(-6deg); pointer-events: none;
         }
-        .login-card { position: relative; z-index: 1; }
-        @media (max-width: 860px) { .mockup-peek { display: none; } .login-visual-stack { padding-top: 0 !important; } }
+        .login-card { position: relative; z-index: 1; width: 100%; max-width: 400px; margin-right: 0; }
+        @media (max-width: 860px) {
+          .mockup-peek { display: none; }
+          .login-visual-stack { padding-top: 0 !important; padding-left: 0 !important; }
+          .login-card { max-width: 100% !important; }
+        }
         .footer-logo { filter: grayscale(1); opacity: 0.75; transition: filter 0.25s, opacity 0.25s; }
         .footer-logo:hover { filter: grayscale(0); opacity: 1; }
 
