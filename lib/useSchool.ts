@@ -9,6 +9,8 @@ export type SchoolData = {
   region: string | null
   city: string | null
   school_type: string
+  program: 'general' | 'early_childhood' | 'special_education'
+  inclusion_pattern: 'full_inclusion' | 'spatial_inclusion' | 'independent' | null
   principal_name: string | null
   phone: string | null
   email: string | null
