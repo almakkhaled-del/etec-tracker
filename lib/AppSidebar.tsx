@@ -8,6 +8,12 @@ const NAVY = '#0A3B58'
 const GOLD_LIGHT = '#7FB3CB'
 const DOMAIN_ICONS: Record<string, string> = { '1': '🏫', '2': '📚', '3': '📊', '4': '🏢' }
 
+const PROGRAM_INFO: Record<string, { label: string; icon: string }> = {
+  general: { label: 'التعليم العام', icon: '🏫' },
+  early_childhood: { label: 'الطفولة المبكرة', icon: '🧸' },
+  special_education: { label: 'برامج التربية الخاصة', icon: '🤝' },
+}
+
 type Domain = { id: number; code: string; name_ar: string; order_num: number; pct?: number }
 
 export default function AppSidebar({ activeDomainId }: { activeDomainId?: number }) {
@@ -17,6 +23,8 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
   const [schoolId, setSchoolId] = useState<string | null>(null)
   const [isTrial, setIsTrial] = useState(false)
   const [allowedDomains, setAllowedDomains] = useState<number[] | null>(null)
+  const [program, setProgram] = useState<string | null>(null)
+  const [schoolType, setSchoolType] = useState<string>('government')
 
   useEffect(() => {
     async function load() {
@@ -26,32 +34,47 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
       if (!schoolUser) return
       setSchoolId(schoolUser.school_id)
 
-      const { data: schoolData } = await supabase.from('schools').select('subscription_status, allowed_domains').eq('id', schoolUser.school_id).single()
+      const { data: schoolData } = await supabase.from('schools').select('subscription_status, allowed_domains, program, school_type').eq('id', schoolUser.school_id).single()
+      const schoolProgram = schoolData?.program || 'general'
+      const usingProgram = schoolProgram === 'early_childhood' || schoolProgram === 'special_education'
       if (schoolData) {
+        setProgram(schoolProgram)
+        setSchoolType(schoolData.school_type || 'government')
         const trial = schoolData.subscription_status === 'trial'
         setIsTrial(trial)
         if (trial) {
-          const list = schoolData.allowed_domains
-            ? schoolData.allowed_domains.split(',').map((s: string) => parseInt(s.trim())).filter((n: number) => !isNaN(n))
-            : [4]
-          setAllowedDomains(list)
+          if (usingProgram) {
+            setAllowedDomains(null) // القفل عند البرنامجين الجديدين يتحقق من الكود لا من رقم المجال
+          } else {
+            const list = schoolData.allowed_domains
+              ? schoolData.allowed_domains.split(',').map((s: string) => parseInt(s.trim())).filter((n: number) => !isNaN(n))
+              : [4]
+            setAllowedDomains(list)
+          }
         } else {
           setAllowedDomains(null)
         }
       }
 
-      const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
-      const { data: standards } = await supabase.from('standards').select('id, domain_id')
-      const { data: indicators } = await supabase.from('indicators').select('id, standard_id')
-      const { data: evidences } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', schoolUser.school_id)
+      const domainsTable = usingProgram ? 'program_domains' : 'domains'
+      const standardsTable = usingProgram ? 'program_standards' : 'standards'
+      const indicatorsTable = usingProgram ? 'program_indicators' : 'indicators'
+      const evField = usingProgram ? 'program_indicator_id' : 'indicator_id'
+
+      let domainsQuery = supabase.from(domainsTable).select('*').order('order_num')
+      if (usingProgram) domainsQuery = domainsQuery.eq('program', schoolProgram)
+      const { data: domainsData } = await domainsQuery
+      const { data: standards } = await supabase.from(standardsTable).select('id, domain_id')
+      const { data: indicators } = await supabase.from(indicatorsTable).select('id, standard_id')
+      const { data: evidences } = await supabase.from('evidences').select(`id, ${evField}`).eq('school_id', schoolUser.school_id)
 
       if (domainsData && standards && indicators) {
         const evByIndicator: Record<number, number> = {}
-        evidences?.forEach(e => { evByIndicator[e.indicator_id] = (evByIndicator[e.indicator_id] || 0) + 1 })
+        evidences?.forEach((e: any) => { const key = e[evField]; if (key != null) evByIndicator[key] = (evByIndicator[key] || 0) + 1 })
         const stdByDomain: Record<number, number[]> = {}
-        standards.forEach(s => { if (!stdByDomain[s.domain_id]) stdByDomain[s.domain_id] = []; stdByDomain[s.domain_id].push(s.id) })
+        standards.forEach((s: any) => { if (!stdByDomain[s.domain_id]) stdByDomain[s.domain_id] = []; stdByDomain[s.domain_id].push(s.id) })
         const indByStd: Record<number, number[]> = {}
-        indicators.forEach(i => { if (!indByStd[i.standard_id]) indByStd[i.standard_id] = []; indByStd[i.standard_id].push(i.id) })
+        indicators.forEach((i: any) => { if (!indByStd[i.standard_id]) indByStd[i.standard_id] = []; indByStd[i.standard_id].push(i.id) })
 
         const enriched = domainsData.map(d => {
           const stdIds = stdByDomain[d.id] || []
@@ -65,6 +88,9 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
     }
     load()
   }, [])
+
+  const isProgramSchool = program === 'early_childhood' || program === 'special_education'
+  const programInfo = program ? (PROGRAM_INFO[program] || PROGRAM_INFO.general) : null
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -81,11 +107,25 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         @media (max-width: 860px) { .sidebar-desktop { display: none !important; } }
       `}</style>
 
-      <div style={{ padding: '0 24px', marginBottom: 32 }}>
+      <div style={{ padding: '0 24px', marginBottom: 20 }}>
         <a href="https://www.shawahede.com" title="الصفحة الرئيسية">
           <img src="/logo.png" alt="شواهدي" style={{ height: 36, filter: 'brightness(0) invert(1)', cursor: 'pointer' }} />
         </a>
       </div>
+
+      {programInfo && (
+        <div style={{ padding: '0 24px', marginBottom: 24 }}>
+          <div title={`تتابع مجالات الهيئة لـ: ${programInfo.label}`} style={{
+            display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(127,179,203,0.12)',
+            border: '1px solid rgba(127,179,203,0.25)', borderRadius: 10, padding: '8px 12px'
+          }}>
+            <span style={{ fontSize: 15, flexShrink: 0 }}>{programInfo.icon}</span>
+            <span style={{ fontFamily: 'IBM Plex Sans Arabic, Tajawal, sans-serif', fontSize: 11.5, fontWeight: 600, color: GOLD_LIGHT, lineHeight: 1.4 }}>
+              {programInfo.label}
+            </span>
+          </div>
+        </div>
+      )}
 
       <nav style={{ flex: 1, padding: '0 14px' }}>
         <Link href="/dashboard" className="sidebar-link" style={{
@@ -104,7 +144,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
 
         {domains.map(domain => {
           const isActive = activeDomainId === domain.id
-          const locked = isTrial && allowedDomains != null && !allowedDomains.includes(domain.id)
+          const locked = isTrial && (isProgramSchool ? domain.code !== '4' : (allowedDomains != null && !allowedDomains.includes(domain.id)))
           if (locked) {
             return (
               <div key={domain.id} title="يتطلب الاشتراك" className="sidebar-link" style={{
@@ -156,24 +196,17 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span style={{ fontSize: 14, fontWeight: 500 }}>مولّد النماذج</span>
         </Link>
 
-        <Link href="/forms/improvement-plan" className="sidebar-link" style={{
+        {/* دُمج رابطا "خطة التحسين والتنفيذ وواقع المدرسة" و"الخطة التشغيلية
+            الذكية" برابط واحد /forms/build-plans — الصفحتان القديمتان بقيتا
+            شغّالتين بالكود (غير محذوفتين) لكن ما عادتا مرتبطتين من هنا. */}
+        <Link href="/forms/build-plans" className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
           textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/forms/improvement-plan' ? 'rgba(127,179,203,0.14)' : 'transparent',
-          color: pathname === '/forms/improvement-plan' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
+          background: pathname === '/forms/build-plans' ? 'rgba(127,179,203,0.14)' : 'transparent',
+          color: pathname === '/forms/build-plans' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🤖</span>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>بناء خطة التحسين والتنفيذ وواقع المدرسة</span>
-        </Link>
-
-        <Link href="/forms/operational-plan" className="sidebar-link" style={{
-          display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
-          textDecoration: 'none', marginBottom: 2,
-          background: pathname === '/forms/operational-plan' ? 'rgba(127,179,203,0.14)' : 'transparent',
-          color: pathname === '/forms/operational-plan' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
-        }}>
-          <span style={{ fontSize: 16 }}>📊</span>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>الخطة التشغيلية الذكية</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>بناء الخطط</span>
         </Link>
 
         <Link href="/print" className="sidebar-link" style={{
