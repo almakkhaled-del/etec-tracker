@@ -306,14 +306,18 @@ export const INDICATORS_SCHEMA = {
 const GEMINI_MODEL = 'gemini-3.1-flash-lite'
 
 // يرجع النص + finishReason عشان نقدر نكتشف القطع (truncation) بدل ما يضيع بصمت
-export async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode: boolean, schema?: any): Promise<{ text: string; finishReason: string }> {
+// modelOverride: لأغراض مقارنة النماذج الثلاثة (Gemini Flash-Lite / Gemini Flash
+// / Claude) بصفحة build-plans — يسمح لمسار مثل indicators-flash يستدعي
+// gemini-3.5-flash بدل النموذج الافتراضي، بدون التأثير على المسار الأساسي.
+export async function callGemini(b64: string, apiKey: string, prompt: string, jsonMode: boolean, schema?: any, modelOverride?: string): Promise<{ text: string; finishReason: string }> {
+  const model = modelOverride || GEMINI_MODEL
   const genConfig: any = { temperature: 0.1, maxOutputTokens: 32768, responseMimeType: 'application/json' }
   if (schema) genConfig.responseSchema = schema
 
   let lastStatus = 0
   for (let attempt = 1; attempt <= 3; attempt++) {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
