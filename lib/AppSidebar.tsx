@@ -26,6 +26,13 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
   const [program, setProgram] = useState<string | null>(null)
   const [schoolType, setSchoolType] = useState<string>('government')
 
+  // درج قابل للطي بالجوال — قبل هذا التعديل كان الشريط الجانبي يختفي تماماً
+  // بدون بديل بكل الصفحات ما عدا لوحة التحكم (اللي فيها بار سفلي منفصل خاص
+  // بها فقط). زر عائم (سهم) يفتح الدرج، وزر داخل الدرج (سهم بالاتجاه
+  // المعاكس) أو الخلفية المعتمة يقفله. يقفل تلقائياً عند الانتقال لصفحة جديدة.
+  const [mobileOpen, setMobileOpen] = useState(false)
+  useEffect(() => { setMobileOpen(false) }, [pathname])
+
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -98,14 +105,55 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
   }
 
   return (
-    <aside className="sidebar-desktop" style={{
-      width: 252, background: NAVY, flexShrink: 0, display: 'flex', flexDirection: 'column',
-      position: 'sticky', top: 0, height: '100vh', padding: '28px 0', overflowY: 'auto'
-    }}>
-      <style>{`
-        .sidebar-link:hover { background: rgba(255,255,255,0.06) !important; }
-        @media (max-width: 860px) { .sidebar-desktop { display: none !important; } }
-      `}</style>
+    <>
+      {/* زر فتح الدرج — عائم، يظهر فقط بالجوال، ويختفي والدرج مفتوح */}
+      {!mobileOpen && (
+        <button onClick={() => setMobileOpen(true)} aria-label="فتح القائمة" className="sidebar-mobile-toggle" style={{
+          display: 'none', position: 'fixed', top: 14, right: 14, zIndex: 120,
+          width: 42, height: 42, borderRadius: 12, background: NAVY, border: 'none',
+          color: '#fff', fontSize: 18, cursor: 'pointer', boxShadow: '0 4px 14px rgba(10,59,88,0.28)',
+          alignItems: 'center', justifyContent: 'center'
+        }}>‹</button>
+      )}
+
+      {/* خلفية معتمة تقفل الدرج عند الضغط عليها — بالجوال فقط والدرج مفتوح */}
+      {mobileOpen && (
+        <div onClick={() => setMobileOpen(false)} className="sidebar-overlay" style={{
+          position: 'fixed', inset: 0, background: 'rgba(10,30,45,0.5)', zIndex: 135
+        }} />
+      )}
+
+      <aside className={`sidebar-desktop${mobileOpen ? ' sidebar-open' : ''}`} style={{
+        width: 252, background: NAVY, flexShrink: 0, display: 'flex', flexDirection: 'column',
+        position: 'sticky', top: 0, height: '100vh', padding: '28px 0', overflowY: 'auto'
+      }}>
+        <style>{`
+          .sidebar-link:hover { background: rgba(255,255,255,0.06) !important; }
+          @media (max-width: 860px) {
+            .sidebar-mobile-toggle { display: flex !important; }
+            .sidebar-mobile-close { display: flex !important; }
+            .sidebar-desktop {
+              display: flex !important;
+              position: fixed !important;
+              top: 0 !important; bottom: 0 !important; right: 0 !important;
+              height: 100vh !important;
+              width: 80vw !important;
+              max-width: 300px !important;
+              z-index: 140;
+              transform: translateX(100%);
+              transition: transform 0.25s ease;
+              box-shadow: -8px 0 28px rgba(0,0,0,0.28);
+            }
+            .sidebar-desktop.sidebar-open { transform: translateX(0); }
+          }
+        `}</style>
+
+        {/* زر إغلاق الدرج — داخل الدرج نفسه، يظهر فقط بالجوال */}
+        <button onClick={() => setMobileOpen(false)} aria-label="إغلاق القائمة" className="sidebar-mobile-close" style={{
+          display: 'none', position: 'absolute', top: 18, left: 18, width: 32, height: 32,
+          borderRadius: 8, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
+          fontSize: 15, cursor: 'pointer', alignItems: 'center', justifyContent: 'center', zIndex: 1
+        }}>›</button>
 
       <div style={{ padding: '0 24px', marginBottom: 20 }}>
         <a href="https://www.shawahede.com" title="الصفحة الرئيسية">
@@ -239,7 +287,8 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           <span>تسجيل الخروج</span>
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }
 
