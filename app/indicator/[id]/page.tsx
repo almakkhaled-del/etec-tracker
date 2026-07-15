@@ -1,10 +1,11 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useSchool } from '@/lib/useSchool'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
+import { getEvidenceGuide } from '@/lib/indicatorEvidenceGuide'
 
 const NAVY = '#0A3B58'
 const GOLD = '#1F6E96'
@@ -16,8 +17,15 @@ type Evidence = {
   file_url: string; file_name: string; evidence_date: string; pdf_pages: string[] | null
 }
 
-export default function IndicatorPage() {
+function IndicatorPageInner() {
   const { id } = useParams()
+  const searchParams = useSearchParams()
+  const isProgram = searchParams.get('src') === 'program'
+  const evField = isProgram ? 'program_indicator_id' : 'indicator_id'
+  const indicatorsTable = isProgram ? 'program_indicators' : 'indicators'
+  const standardsTable = isProgram ? 'program_standards' : 'standards'
+  const domainsTable = isProgram ? 'program_domains' : 'domains'
+  const linkSuffix = isProgram ? '?src=program' : ''
   const { school, loading: schoolLoading, isTrial, allowedDomains } = useSchool()
   const [indicator, setIndicator] = useState<any>(null)
   const [standard, setStandard] = useState<any>(null)
@@ -47,28 +55,28 @@ export default function IndicatorPage() {
   }, [])
 
   async function loadEvidences(schoolId: string) {
-    const { data: evs } = await supabase.from('evidences').select('*').eq('indicator_id', Number(id)).eq('school_id', schoolId).order('created_at', { ascending: false })
+    const { data: evs } = await supabase.from('evidences').select('*').eq(evField, Number(id)).eq('school_id', schoolId).order('created_at', { ascending: false })
     setEvidences(evs || [])
   }
 
   useEffect(() => {
     async function load() {
-      const { data: ind } = await supabase.from('indicators').select('*').eq('id', id).single()
+      const { data: ind } = await supabase.from(indicatorsTable).select('*').eq('id', id).single()
       if (ind) {
         setIndicator(ind)
-        const { data: std } = await supabase.from('standards').select('*').eq('id', ind.standard_id).single()
+        const { data: std } = await supabase.from(standardsTable).select('*').eq('id', ind.standard_id).single()
         if (std) {
           setStandard(std)
-          const { data: dom } = await supabase.from('domains').select('*').eq('id', std.domain_id).single()
+          const { data: dom } = await supabase.from(domainsTable).select('*').eq('id', std.domain_id).single()
           setDomain(dom)
         }
       }
       setLoading(false)
     }
     load()
-  }, [id])
+  }, [id, isProgram])
 
-  useEffect(() => { if (school) loadEvidences(school.id) }, [school, id])
+  useEffect(() => { if (school) loadEvidences(school.id) }, [school, id, isProgram])
 
   async function convertPdfToImages(pdfFile: File): Promise<Blob[]> {
     const pdfjsLib = (window as any).pdfjsLib
@@ -145,7 +153,7 @@ export default function IndicatorPage() {
 
       setUploadStatus('جاري الحفظ...')
       await supabase.from('evidences').insert({
-        school_id: school.id, indicator_id: Number(id), title, description, evidence_type,
+        school_id: school.id, [evField]: Number(id), title, description, evidence_type,
         file_url, file_name, pdf_pages, evidence_date: date || null,
       })
 
@@ -165,6 +173,8 @@ export default function IndicatorPage() {
     if (school) await loadEvidences(school.id)
   }
 
+  const evidenceGuide = indicator ? getEvidenceGuide(indicator.name_ar) : null
+
   const status = evidences.length === 0 ? 'فارغ' : evidences.length < 3 ? 'بدأ' : evidences.length < 5 ? 'جيد' : 'ممتاز'
   const statusColor = evidences.length === 0 ? '#DC2626' : evidences.length < 3 ? '#D97706' : evidences.length < 5 ? '#1d4ed8' : '#16a34a'
   const statusBg = evidences.length === 0 ? '#FEF2F2' : evidences.length < 3 ? '#FFFBEB' : evidences.length < 5 ? '#EFF6FF' : '#F0FDF4'
@@ -179,7 +189,9 @@ export default function IndicatorPage() {
   // الدخول لمجال مقفول عبر الواجهة فقط، لكن بدون هذا الفحص هنا كان أي حساب
   // تجريبي يقدر يدخل مباشرة برابط /indicator/<id> من مجال غير المسموح
   // ويرفع شواهد بحرية تامة رغم القفل. هذا الفحص يمنع الوصول فعلياً.
-  const domainLocked = isTrial && allowedDomains != null && domain && !allowedDomains.includes(domain.id)
+  const domainLocked = isTrial && domain && (
+    isProgram ? domain.code !== '4' : (allowedDomains != null && !allowedDomains.includes(domain.id))
+  )
   if (domainLocked) return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -227,9 +239,9 @@ export default function IndicatorPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif', flexWrap: 'wrap' }}>
                 <Link href="/dashboard" style={{ color: '#7A8896', textDecoration: 'none' }}>الرئيسية</Link>
                 <span>←</span>
-                <Link href={`/domain/${domain?.id}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{domain?.name_ar}</Link>
+                <Link href={`/domain/${domain?.id}${linkSuffix}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{domain?.name_ar}</Link>
                 <span>←</span>
-                <Link href={`/standard/${standard?.id}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{standard?.name_ar}</Link>
+                <Link href={`/standard/${standard?.id}${linkSuffix}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{standard?.name_ar}</Link>
               </div>
               <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: '4px 0 0', lineHeight: 1.4, maxWidth: 600 }}>{indicator?.name_ar}</p>
             </div>
@@ -246,6 +258,58 @@ export default function IndicatorPage() {
                 {status} — {evidences.length} شواهد
               </span>
             </div>
+
+            {/* الشواهد المتوقعة لهذا المؤشر — من دليل هيئة تقويم التعليم والتدريب لأخصائي التقويم المدرسي */}
+            {evidenceGuide ? (
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 18 }}>📋</span>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: 0 }}>الشواهد المتوقعة لهذا المؤشر</p>
+                </div>
+                <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: '0 0 14px' }}>
+                  وفق الدليل الاسترشادي لأخصائي التقويم المدرسي الصادر عن هيئة تقويم التعليم والتدريب — يوضح ما الذي يفحصه الأخصائي وما الملفات المتوقع رفعها.
+                </p>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  {evidenceGuide.map(para => (
+                    <div key={para.n} style={{
+                      background: '#fff', border: '1px solid rgba(10,59,88,0.1)', borderRadius: 14,
+                      padding: '16px 18px'
+                    }}>
+                      <p style={{ fontSize: 13.5, fontWeight: 700, color: NAVY, margin: '0 0 10px', lineHeight: 1.7 }}>{para.text}</p>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                        <div style={{ background: CREAM, borderRadius: 10, padding: '9px 12px' }}>
+                          <p className="body-font" style={{ fontSize: 11, fontWeight: 700, color: GOLD, margin: '0 0 3px' }}>المصدر</p>
+                          <p className="body-font" style={{ fontSize: 12.5, color: NAVY, margin: 0, lineHeight: 1.6 }}>{para.source}</p>
+                        </div>
+                        <div style={{ background: CREAM, borderRadius: 10, padding: '9px 12px' }}>
+                          <p className="body-font" style={{ fontSize: 11, fontWeight: 700, color: GOLD, margin: '0 0 3px' }}>الوثائق المطلوبة</p>
+                          <p className="body-font" style={{ fontSize: 12.5, color: NAVY, margin: 0, lineHeight: 1.6 }}>{para.docs}</p>
+                        </div>
+                      </div>
+
+                      <p className="body-font" style={{ fontSize: 11, fontWeight: 700, color: GOLD, margin: '0 0 6px' }}>الشواهد المتوقع رفعها</p>
+                      <ul style={{ margin: '0 0 10px', paddingRight: 18 }}>
+                        {para.evidence.map((ev, i) => (
+                          <li key={i} className="body-font" style={{ fontSize: 12.5, color: '#3B4A57', lineHeight: 1.9 }}>{ev}</li>
+                        ))}
+                      </ul>
+
+                      <div style={{ background: 'rgba(31,110,150,0.06)', borderRadius: 10, padding: '9px 12px' }}>
+                        <p className="body-font" style={{ fontSize: 11, fontWeight: 700, color: GOLD, margin: '0 0 3px' }}>معيار التقييم</p>
+                        <p className="body-font" style={{ fontSize: 12, color: '#3B4A57', margin: 0, lineHeight: 1.7, whiteSpace: 'pre-line' }}>{para.rubric}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{ background: '#fff', border: '1px dashed rgba(10,59,88,0.15)', borderRadius: 14, padding: '14px 18px', marginBottom: 24 }}>
+                <p className="body-font" style={{ fontSize: 12.5, color: '#7A8896', margin: 0, lineHeight: 1.8 }}>
+                  لا يتوفر حالياً دليل شواهد تفصيلي لهذا المؤشر من هيئة تقويم التعليم والتدريب. ارفع شواهد متنوعة توثّق تحقق المؤشر وفق ممارسات مدرستكم.
+                </p>
+              </div>
+            )}
 
             {/* منطقة الرفع - Drag & Drop */}
             <div
@@ -357,5 +421,17 @@ export default function IndicatorPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function IndicatorPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F8FA', fontFamily: 'Tajawal, sans-serif' }}>
+        <p style={{ color: '#7A8896' }}>جاري التحميل...</p>
+      </div>
+    }>
+      <IndicatorPageInner />
+    </Suspense>
   )
 }
