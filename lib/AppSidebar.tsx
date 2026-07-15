@@ -106,15 +106,24 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
 
   return (
     <>
-      {/* زر فتح الدرج — عائم، يظهر فقط بالجوال، ويختفي والدرج مفتوح */}
-      {!mobileOpen && (
-        <button onClick={() => setMobileOpen(true)} aria-label="فتح القائمة" className="sidebar-mobile-toggle" style={{
-          display: 'none', position: 'fixed', top: 14, right: 14, zIndex: 120,
-          width: 42, height: 42, borderRadius: 12, background: NAVY, border: 'none',
-          color: '#fff', fontSize: 18, cursor: 'pointer', boxShadow: '0 4px 14px rgba(10,59,88,0.28)',
-          alignItems: 'center', justifyContent: 'center'
-        }}>‹</button>
-      )}
+      {/* شريط علوي ثابت بالجوال فقط — بديل عن الزر العائم القديم اللي كان
+          يتراكب فوق محتوى الصفحات (مثل بطاقة الترحيب بالرئيسية). كل الصفحات
+          تاخذ هامش علوي كافٍ (body padding-top بالستايل أدناه) عشان محتواها
+          ما يختفي تحت الشريط أبداً. */}
+      <div className="mobile-topbar" style={{
+        display: 'none', position: 'fixed', top: 0, left: 0, right: 0, height: 54,
+        background: NAVY, zIndex: 130, alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 14px', boxShadow: '0 2px 10px rgba(10,59,88,0.18)'
+      }}>
+        <img src="/logo.png" alt="شواهدي" style={{ height: 24, filter: 'brightness(0) invert(1)' }} />
+        {!mobileOpen && (
+          <button onClick={() => setMobileOpen(true)} aria-label="فتح القائمة" style={{
+            width: 36, height: 36, borderRadius: 9, background: 'rgba(255,255,255,0.12)', border: 'none',
+            color: '#fff', fontSize: 17, cursor: 'pointer', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', flexShrink: 0
+          }}>‹</button>
+        )}
+      </div>
 
       {/* خلفية معتمة تقفل الدرج عند الضغط عليها — بالجوال فقط والدرج مفتوح */}
       {mobileOpen && (
@@ -130,7 +139,8 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         <style>{`
           .sidebar-link:hover { background: rgba(255,255,255,0.06) !important; }
           @media (max-width: 860px) {
-            .sidebar-mobile-toggle { display: flex !important; }
+            .mobile-topbar { display: flex !important; }
+            body { padding-top: 54px !important; }
             .sidebar-mobile-close { display: flex !important; }
             .sidebar-desktop {
               display: flex !important;

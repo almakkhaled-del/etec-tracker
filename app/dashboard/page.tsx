@@ -18,6 +18,11 @@ const DOMAIN_COLORS: Record<string, string> = {
 const DOMAIN_ICONS: Record<string, string> = {
   '1': '🏫', '2': '📚', '3': '📊', '4': '🏢'
 }
+const PROGRAM_INFO: Record<string, { label: string; icon: string }> = {
+  general: { label: 'التعليم العام', icon: '🏫' },
+  early_childhood: { label: 'الطفولة المبكرة', icon: '🧸' },
+  special_education: { label: 'برامج التربية الخاصة', icon: '🤝' },
+}
 
 type Domain = {
   id: number; code: string; name_ar: string; order_num: number
@@ -67,17 +72,29 @@ function DashboardInner() {
   const principalFirstName = school?.principal_name?.split(' ')[0] || 'مدير المدرسة'
   const completion = stats.total ? Math.round((stats.completed / stats.total) * 100) : 0
 
+  const isProgramSchool = school?.program === 'early_childhood' || school?.program === 'special_education'
+
   useEffect(() => {
     if (!school) return
     async function load() {
-      const { data: domainsData } = await supabase.from('domains').select('*').order('order_num')
-      const { data: stds } = await supabase.from('standards').select('*').order('order_num')
-      const { data: inds } = await supabase.from('indicators').select('*').order('order_num')
-      const { data: evs } = await supabase.from('evidences').select('id, indicator_id').eq('school_id', school!.id)
+      const usingProgram = school!.program === 'early_childhood' || school!.program === 'special_education'
+      const domainsTable = usingProgram ? 'program_domains' : 'domains'
+      const standardsTable = usingProgram ? 'program_standards' : 'standards'
+      const indicatorsTable = usingProgram ? 'program_indicators' : 'indicators'
+      const evField = usingProgram ? 'program_indicator_id' : 'indicator_id'
 
+      let domainsQuery = supabase.from(domainsTable).select('*').order('order_num')
+      if (usingProgram) domainsQuery = domainsQuery.eq('program', school!.program)
+      const { data: domainsData } = await domainsQuery
+      const { data: stds } = await supabase.from(standardsTable).select('*').order('order_num')
+      const { data: inds } = await supabase.from(indicatorsTable).select('*').order('order_num')
+      const { data: evs } = await supabase.from('evidences').select(`id, ${evField}`).eq('school_id', school!.id)
+
+      // ملاحظة: مؤشرات "الأهلية والعالمية" تظهر لجميع المدارس بلا استثناء —
+      // الهيئة هي من تقرر مدى الانطباق عند التقييم، لا التطبيق يستبعدها مسبقاً.
       if (domainsData && stds && inds) {
         const evByInd: Record<number, number> = {}
-        evs?.forEach(e => { evByInd[e.indicator_id] = (evByInd[e.indicator_id] || 0) + 1 })
+        evs?.forEach((e: any) => { const key = e[evField]; if (key != null) evByInd[key] = (evByInd[key] || 0) + 1 })
 
         const stdByDomain: Record<number, number[]> = {}
         stds.forEach(s => { if (!stdByDomain[s.domain_id]) stdByDomain[s.domain_id] = []; stdByDomain[s.domain_id].push(s.id) })
@@ -106,20 +123,26 @@ function DashboardInner() {
     load()
   }, [school])
 
+  // في التعليم العام: القفل حسب قائمة allowed_domains. في البرنامجين الجديدين: نفس مجال
+  // "البيئة المدرسية" (code='4') مفتوح مجاناً، بقية المجالات مقفلة للحساب التجريبي.
+  function isDomainLocked(domain: Domain) {
+    if (!trialPlan) return false
+    if (isProgramSchool) return domain.code !== '4'
+    return allowedDomains != null && !allowedDomains.includes(domain.id)
+  }
+
   useEffect(() => {
     if (domainParam && domains.length > 0) {
       const target = domains.find(d => String(d.id) === domainParam || d.code === domainParam)
       if (target) {
-        const locked = trialPlan && allowedDomains != null && !allowedDomains.includes(target.id)
-        if (!locked) setExpandedDomain(target.id)
+        if (!isDomainLocked(target)) setExpandedDomain(target.id)
         window.history.replaceState(null, '', '/dashboard')
       }
     }
   }, [domainParam, domains])
 
   function handleDomainClick(domain: Domain) {
-    const locked = trialPlan && allowedDomains != null && !allowedDomains.includes(domain.id)
-    if (locked) { setShowUpgrade(true); return }
+    if (isDomainLocked(domain)) { setShowUpgrade(true); return }
     setExpandedDomain(prev => prev === domain.id ? null : domain.id)
     setExpandedStandard(null)
   }
@@ -171,6 +194,18 @@ function DashboardInner() {
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {school?.program && (
+                <span title={`تتابع مجالات الهيئة لـ: ${PROGRAM_INFO[school.program].label}`} style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: 'rgba(31,110,150,0.1)', color: '#175A7D',
+                  padding: mob ? '5px 8px' : '5px 12px', borderRadius: 20,
+                  border: '1px solid rgba(31,110,150,0.25)',
+                  fontSize: 11, fontWeight: 600, fontFamily: 'IBM Plex Sans Arabic, sans-serif'
+                }}>
+                  <span style={{ fontSize: 13 }}>{PROGRAM_INFO[school.program].icon}</span>
+                  {!mob && <span>{PROGRAM_INFO[school.program].label}</span>}
+                </span>
+              )}
               {isTrial && trialDaysLeft !== null && (
                 <Link href="/account" style={{ textDecoration: 'none' }}>
                   <span style={{
@@ -188,7 +223,7 @@ function DashboardInner() {
             </div>
           </header>
 
-          <main style={{ padding: mob ? '14px' : '28px', paddingBottom: mob ? 90 : 40, maxWidth: 1000, margin: '0 auto' }}>
+          <main style={{ padding: mob ? '14px' : '28px', paddingBottom: mob ? 40 : 40, maxWidth: 1000, margin: '0 auto' }}>
 
             {/* Stats */}
             <div style={{
@@ -227,7 +262,7 @@ function DashboardInner() {
                 const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
                 const c = DOMAIN_COLORS[domain.code] || NAVY
                 const isExpanded = expandedDomain === domain.id
-                const locked = trialPlan && allowedDomains != null && !allowedDomains.includes(domain.id)
+                const locked = isDomainLocked(domain)
                 const domStds = domainStandards(domain.id)
 
                 return (
@@ -337,7 +372,7 @@ function DashboardInner() {
                                   {stdInds.map((ind, idx) => {
                                     const hasEv = ind.evidence_count > 0
                                     return (
-                                      <Link key={ind.id} href={`/indicator/${ind.id}`} style={{ textDecoration: 'none' }}>
+                                      <Link key={ind.id} href={isProgramSchool ? `/indicator/${ind.id}?src=program` : `/indicator/${ind.id}`} style={{ textDecoration: 'none' }}>
                                         <div className="ind-chip" style={{
                                           position: 'relative',
                                           background: hasEv ? '#F0FDF4' : '#F7F9FA',
@@ -455,23 +490,9 @@ function DashboardInner() {
         </div>
       )}
 
-      {/* Bottom Nav — موبايل */}
-      {mob && (
-        <nav style={{ position: 'fixed', bottom: 0, right: 0, left: 0, zIndex: 100, background: '#fff', borderTop: '1px solid rgba(10,59,88,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-around', paddingTop: 10, paddingBottom: 20 }}>
-          {[
-            { href: '/dashboard', icon: '🏠', label: 'الرئيسية' },
-            { href: '/forms', icon: '📋', label: 'النماذج' },
-            { href: '/print', icon: '🖨️', label: 'التقرير' },
-            { href: 'https://wa.me/966555826838', icon: '💬', label: 'الدعم', external: true },
-          ].map(item => (
-            <a key={item.href} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none', flex: 1 }}>
-              <span style={{ fontSize: 22 }}>{item.icon}</span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: NAVY, fontFamily: 'Tajawal, sans-serif' }}>{item.label}</span>
-            </a>
-          ))}
-        </nav>
-      )}
+      {/* البار السفلي القديم بالجوال اتحذف — الدرج الجانبي الجديد (AppSidebar)
+          يغطي نفس الروابط عبر الشريط العلوي الثابت بالجوال، فما عاد فيه
+          داعي لتكرار التنقل مرتين. */}
     </div>
   )
 }
