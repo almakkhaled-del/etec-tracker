@@ -15,10 +15,23 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = useState(false)
   const [form, setForm] = useState({
     school_name: '', school_number: '', region: '', school_type: 'government',
+    program: 'general', inclusion_pattern: '',
     principal_name: '', phone: '', email: '', password: '', confirm_password: '',
   })
 
   const regions = ['الرياض', 'مكة المكرمة', 'المدينة المنورة', 'القصيم', 'المنطقة الشرقية', 'عسير', 'تبوك', 'حائل', 'الحدود الشمالية', 'جازان', 'نجران', 'الباحة', 'الجوف']
+
+  const programs = [
+    { value: 'general', label: 'التعليم العام' },
+    { value: 'early_childhood', label: 'الطفولة المبكرة ورياض الأطفال' },
+    { value: 'special_education', label: 'التربية الخاصة' },
+  ]
+  const inclusionPatterns = [
+    { value: 'full_inclusion', label: 'الدمج الكلي (فصول تعليم عام)' },
+    { value: 'spatial_inclusion', label: 'الدمج المكاني (فصول ملحقة)' },
+    { value: 'independent', label: 'مدرسة/مركز مستقل' },
+  ]
+  const needsInclusionPattern = form.program === 'early_childhood' || form.program === 'special_education'
 
   function handleChange(e: any) { setForm({ ...form, [e.target.name]: e.target.value }) }
 
@@ -30,6 +43,7 @@ export default function RegisterPage() {
     if (form.password !== form.confirm_password) { setError('كلمة المرور غير متطابقة'); return }
     if (form.password.length < 8) { setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return }
     if (!agreed) { setError('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية للمتابعة'); return }
+    if (needsInclusionPattern && !form.inclusion_pattern) { setError('يرجى اختيار نمط الدمج المناسب لمدرستك'); return }
 
     setLoading(true)
     try {
@@ -53,22 +67,36 @@ export default function RegisterPage() {
       }
 
       const { data: authData, error: authError } = await supabase.auth.signUp({ email: form.email, password: form.password })
-      if (authError) throw authError
 
-      // إذا ما رجعت جلسة فورية (نادراً ما يصير)، نتأكد منها صراحة قبل أي إدراج
-      // يعتمد على auth.uid() — تفادياً لمشكلة "new row violates row-level security policy"
-      let session = authData.session
-      if (!session) {
-        const { data: sessionData } = await supabase.auth.getSession()
-        session = sessionData.session
-      }
-      if (!session) {
-        throw new Error('تعذّر تفعيل الجلسة بعد إنشاء الحساب. يرجى تسجيل الدخول يدوياً من صفحة الدخول.')
+      let session = authData?.session
+
+      // حالتان تحتاجان معالجة خاصة هنا:
+      // 1) signUp رجع خطأ (غالباً "already registered") — قد يكون هذا الإيميل
+      //    عالقاً من محاولة سابقة أنشأت حساب دخول لكن فشلت قبل إنشاء صف المدرسة.
+      // 2) signUp نجح لكن ما رجعت جلسة فورية.
+      // في الحالتين نحاول تسجيل الدخول بنفس البيانات المُدخلة الآن؛ لو نجح
+      // نكون فعلياً "أكملنا" التسجيل المعلّق بدل ما نعلّق المستخدم بخطأ بلا حل.
+      if (authError || !session) {
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: form.email, password: form.password,
+        })
+
+        if (signInError || !signInData.session) {
+          if (authError && /already registered|already exists/i.test(authError.message)) {
+            throw new Error('هذا البريد الإلكتروني مسجّل مسبقاً بكلمة مرور مختلفة عن التي أدخلتها الآن. إذا كانت هذه محاولتك الأولى ونسيت كلمة المرور، استخدم "نسيت كلمة المرور" من صفحة تسجيل الدخول، أو تواصل معنا للمساعدة.')
+          }
+          throw authError || new Error('تعذّر تفعيل الجلسة بعد إنشاء الحساب. يرجى المحاولة مرة أخرى أو تسجيل الدخول يدوياً من صفحة الدخول.')
+        }
+
+        session = signInData.session
       }
 
       // إنشاء المدرسة وربطها بالمستخدم عبر دالة واحدة على الخادم (RPC)
       // بدل إدراجين منفصلين من العميل — يتفادى مشاكل توقيت الجلسة مع RLS
-      // ويضمن أن العمليتين تتمّان معاً أو لا تتمّان (transaction واحدة)
+      // ويضمن أن العمليتين تتمّان معاً أو لا تتمّان (transaction واحدة).
+      // ملاحظة: نفس الدالة تُستخدم هنا سواء كانت هذه محاولة جديدة أو محاولة
+      // إكمال لتسجيل عالق (auth موجود بلا مدرسة مرتبطة) — الدالة نفسها تتحقق
+      // من عدم وجود ربط سابق وتمنع التكرار الحقيقي.
       const { error: schoolError } = await supabase.rpc('register_school', {
         p_name: form.school_name,
         p_school_number: form.school_number || '',
@@ -77,9 +105,16 @@ export default function RegisterPage() {
         p_principal_name: form.principal_name,
         p_phone: form.phone || '',
         p_email: form.email,
+        p_program: form.program,
+        p_inclusion_pattern: needsInclusionPattern ? form.inclusion_pattern : null,
       })
 
-      if (schoolError) throw schoolError
+      if (schoolError) {
+        if (/مرتبط بمدرسة مسبقاً/.test(schoolError.message)) {
+          throw new Error('هذا الحساب مسجّل بالفعل بمدرسة. يرجى تسجيل الدخول من صفحة الدخول.')
+        }
+        throw schoolError
+      }
 
       router.push('/dashboard')
     } catch (e: any) {
@@ -137,6 +172,21 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          <label style={labelStyle}>البرنامج التعليمي</label>
+          <select name="program" value={form.program} onChange={handleChange} style={inputStyle}>
+            {programs.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+          </select>
+
+          {needsInclusionPattern && (
+            <>
+              <label style={labelStyle}>نمط الدمج</label>
+              <select name="inclusion_pattern" value={form.inclusion_pattern} onChange={handleChange} style={inputStyle}>
+                <option value="">اختر النمط</option>
+                {inclusionPatterns.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+              </select>
+            </>
+          )}
+
           <p style={sectionLabel}>بيانات مدير المدرسة</p>
 
           <label style={labelStyle}>اسم المدير *</label>
@@ -193,4 +243,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-
