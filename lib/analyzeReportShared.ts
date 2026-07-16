@@ -32,7 +32,6 @@ Extract from this Saudi school external evaluation report:
   "swot_weaknesses": ["نقطة ضعف 1", "نقطة ضعف 2"],
   "swot_opportunities": ["فرصة 1", "فرصة 2"],
   "swot_challenges": ["تحدٍ 1", "تحدٍ 2"],
-  "swot_solutions": ["آلية معالجة 1", "آلية معالجة 2"],
   "priority_admin": { "level": "عالي", "justification": "" },
   "priority_guidance": { "level": "متوسط", "justification": "" },
   "priority_activities": { "level": "متوسط", "justification": "" },
@@ -45,10 +44,10 @@ Extract from this Saudi school external evaluation report:
 Rules:
 - all string values single line only, max 80 chars per field (except the swot_* arrays below)
 - كل الحقول النصية الأساسية (school_name, principal_name, grade, gender, ministry_number, building_type, building_independence, period, admin_independence, shared_school, overall_level, outcomes_level, report_date, overall_avg, domain_admin, domain_teaching, domain_outcomes, domain_env, scope, phone) إلزامية بالرد — إذا فعلاً غير مذكورة صراحة بالتقرير المرفق، اكتب القيمة "غير مذكور بالتقرير" بدل ترك الحقل فارغاً أو حذفه
-- swot_strengths, swot_weaknesses, swot_opportunities, swot_challenges, swot_solutions يجب أن تكون مصفوفة (array) من نقاط منفصلة قصيرة، كل نقطة عنصر مستقل بالمصفوفة (سطر واحد لكل نقطة، بدون ترقيم أو رموز نقطية داخل النص نفسه)
+- swot_strengths, swot_weaknesses, swot_opportunities, swot_challenges يجب أن تكون مصفوفة (array) من نقاط منفصلة قصيرة، كل نقطة عنصر مستقل بالمصفوفة (سطر واحد لكل نقطة، بدون ترقيم أو رموز نقطية داخل النص نفسه)
 - swot_strengths و swot_weaknesses: استخرجها مباشرة من نص التقرير (المؤشرات والملاحظات الصريحة)
 - swot_opportunities و swot_challenges: تقارير التقويم الخارجي غالباً لا تذكر "الفرص" أو "التحديات" بالاسم صراحةً — لذلك استنتجها من سياق التقرير (نوع المدرسة، الموقع، النطاق، الإدارة، البيئة المحيطة، الشراكات المحتملة، المخاطر البيئية أو المجتمعية المحتملة) حتى لو لم تُذكر حرفياً. لا ترجعها فارغة إلا في حالة استحالة الاستنتاج التام
-- swot_solutions: لكل نقطة في swot_weaknesses اقترح آلية معالجة عملية ومحددة مقابلة لها — يجب أن يكون عدد عناصر swot_solutions قريباً من عدد عناصر swot_weaknesses، ولا تتركها فارغة طالما توجد نقاط ضعف
+- priority_* → justification: لا تختلق نص تبرير إذا لم يكن مذكوراً صراحة أو ضمنياً بالتقرير — اتركه نصاً فارغاً "" واكتفِ بتحديد level (عالي/متوسط/منخفض) المستنتج من الدرجات والنسب الفعلية بالتقرير
 - أرجع مصفوفة فارغة [] فقط إذا لم يوجد أي أساس منطقي للاستنتاج (نادر الحدوث)`
 
 // رجعنا لأربع مجموعات (مجال واحد لكل طلب) بعد اختبار حقيقي: مجموعتين كانت
@@ -66,86 +65,37 @@ const DOMAIN_GROUP_LABELS: Record<DomainGroup, string> = {
   environment: 'البيئة المدرسية',
 }
 
-// المدارس بالسعودية مقسّمة بنين/بنات، وحقل "gender" مستخرج أصلاً من تقرير
-// التقويم نفسه ضمن PROMPT_INFO. لكن بصفحة improvement-plan، طلب /info وطلبات
-// /indicators (لكل مجال) تنطلق كلها بالتوازي (Promise.all + stagger بسيط) —
-// نتيجة /info ما توصل قبل ما تبدأ طلبات المؤشرات، فما نقدر نمرر "gender"
-// جاهزاً من هناك بدون ما نكسر التوازي (اللي هو أصلاً حل مقصود لمشكلة rate
-// limit سابقة، موثقة بتعليق page.tsx). الحل: كل طلب indicators أصلاً يستقبل
-// نفس ملف التقرير (base64) كامل، فنطلب من النموذج نفسه يتعرف على الجنس من
-// التقرير مباشرة أثناء التوليد — بدون أي تمرير قيمة أو تعديل بالـroute أو
-// بالـpage. لو تحصل حالة مستقبلية نعرف فيها الجنس مسبقاً (مثلاً من عمود
-// schools.gender)، تقدر تمرره صراحة كـgender وتتجاوز خطوة الاستنتاج.
-function genderInstruction(gender?: string): string {
-  const g = (gender || '').trim()
-  const isGirls = /بنات|إناث|اناث|طالبات/.test(g)
-  const isBoys = /بنين|ذكور|طلاب(?!ات)/.test(g)
-
-  if (!isGirls && !isBoys) {
-    // ما فيه جنس معروف مسبقاً — النموذج يستنتجه بنفسه من نص التقرير المرفق
-    // بنفس الطلب (عادة مذكور صراحة به: "بنين"/"بنات").
-    return `
-
-⚠️ صياغة الجنس: حدّد أولاً من نص التقرير المرفق ما إذا كانت المدرسة "بنين" أو "بنات" (عادة مذكورة صراحة)، ثم التزم بالصيغة المطابقة (مذكر لبنين، مؤنث لبنات) حصراً في جميع النصوص المولّدة (need, actions, methods, responsible, executed_actions, school_committee) — بالأسماء والألقاب الوظيفية (بنات: الطالبات، المعلمات، مديرة المدرسة، وكيلة المدرسة، الموجهة الطلابية، رائدة النشاط، منسقة الموهوبين | بنين: الطلاب، المعلمون، مدير المدرسة، وكيل المدرسة، الموجه الطلابي، رائد النشاط، منسق الموهوبين) وبالأفعال والصفات المرتبطة بها. لا تخلط بين الصيغتين داخل النص نفسه.`
-  }
-
-  const label = isGirls ? 'بنات' : 'بنين'
-  const forms = isGirls
-    ? 'الطالبات (بدل الطلاب) | المعلمات (بدل المعلمون/المعلمين) | مديرة المدرسة (بدل مدير المدرسة) | وكيلة المدرسة (بدل وكيل المدرسة) | الموجهة الطلابية (بدل الموجه الطلابي) | رائدة النشاط (بدل رائد النشاط) | منسقة الموهوبين (بدل منسق الموهوبين)'
-    : 'الطلاب | المعلمون | مدير المدرسة | وكيل المدرسة | الموجه الطلابي | رائد النشاط | منسق الموهوبين'
-  return `
-
-⚠️ صياغة الجنس: هذه مدرسة ${label} (معروفة مسبقاً). يجب أن تكون جميع النصوص المولّدة (need, actions, methods, responsible, executed_actions, school_committee) بصيغة ${isGirls ? 'المؤنث' : 'المذكر'} حصراً — سواء بالأسماء والألقاب الوظيفية (مثال: ${forms}) أو بالأفعال والصفات المرتبطة بها (مثال: ${isGirls ? '"تفعّل المعلمات"، "تتابع الموجهة"' : '"يفعّل المعلمون"، "يتابع الموجه"'}). لا تخلط بين الصيغتين داخل النص نفسه.`
-}
-
-export function buildIndicatorsPrompt(domainGroup: DomainGroup, gender?: string): string {
+// ═══════════════════════════════════════════════════════════════════════
+// إعادة هندسة جذرية (بطلب صاحب المشروع بعد تجربة حقيقية أظهرت تفاوتاً كبيراً
+// بالجودة والتكلفة بين النماذج): بدل ما نطلب من النموذج "تأليف" محتوى كامل
+// لكل مؤشر (need/actions/methods/duration/responsible/executed_actions/
+// school_committee — مئات الكلمات لكل مؤشر)، صار عمل الذكاء الاصطناعي هنا
+// "تصنيف" بحت: يحدد أي المؤشرات ضعيفة (المرحلة أو النسبة) ويقتبس جملة قصيرة
+// (need_from_report) توضح سبب الضعف كما ورد بالتقرير — لا أكثر. بقية
+// المحتوى (actions/methods/duration/responsible/executed_actions/
+// school_committee) صار يُسحب من قالب ثابت مُراجَع مسبقاً بملف
+// lib/improvementPlansMap.ts (انظر mergeIndicatorWithTemplate أدناه)، بدل ما
+// يُعاد اختراعه بكل استدعاء. النتيجة: استهلاك توكنز مخرجة أقل بكثير (~20
+// كلمة بدل ~500 كلمة لكل مؤشر)، سرعة أعلى، وجودة ثابتة 100% لأن المحتوى
+// معتمد يدوياً وليس عرضة لتفاوت النماذج.
+export function buildIndicatorsPrompt(domainGroup: DomainGroup): string {
   const domainFilter = DOMAIN_GROUP_LABELS[domainGroup]
 
-  return `أنت خبير تربوي متخصص في تطوير خطط التحسين المدرسية وفق إطار إتقان السعودي.
-${genderInstruction(gender)}
-
-مهمتك: استخرج فقط مؤشرات مجال: ${domainFilter} التي تحقق الشرطين:
+  return `أنت محلل بيانات جودة تعليمية. مهمتك قراءة تقرير التقويم الخارجي المرفق فقط، واستخراج (بدون أي تأليف أو صياغة إضافية) المؤشرات في مجال: ${domainFilter} التي تحقق الشرطين:
 1. المرحلة = "تهيئة" أو "انطلاق"
 2. النسبة = 75% أو أقل
 
-لكل مؤشر، أنتج محتوى احترافياً مفصلاً يصلح مباشرة للوثيقة الرسمية، مستوحى من هذه الأمثلة:
+أخرج JSON array فقط. ابدأ بـ [ وانتهِ بـ ]. بدون markdown ولا أي نص قبله أو بعده.
 
-مثال على "الإجراءات المنفذة" الاحترافية — هذا هو المستوى المطلوب بالضبط:
-- "دورة استراتيجيات التدريس الحديثة – الأسبوع 5 | زيارات تبادلية مجدولة أسبوعياً من الأسبوع 6 | مجتمعات تعلم مهنية كل يوم ثالثاء | قائمة استراتيجيات موزعة على المعلمين – الأسبوع 2"
-- "تشكيل فريق التقويم الذاتي – الأسبوع 3 | تعبئة الاستمارات وفق المعايير – الأسبوع 10 | جمع الشواهد لكل مؤشر مستمر | مراجعة مع المشرف نهاية كل فصل"
-- "تحليل نتائج نافس – الأسبوع 3 | أوراق عمل ومهام تطبيقية متدرجة مستمرة | اختبارات تجريبية محاكاة نافس – الأسبوع 15 | إثراءات إلكترونية عبر مدرستي مستمرة"
-- "تفعيل منصة مدرستي – منذ الأسبوع 1 | دورة استخدام أجهزة العرض – الأسبوع 4 | مهام إلكترونية أسبوعية للطلاب مستمرة | تقرير متابعة شهري نهاية كل شهر"
-- "إطلاق نوادي العلوم والقراءة والبرمجة – الأسبوع 3 | تأهيل الطلاب للمسابقات المحلية مستمر | ركن الموهوبين أسبوعياً كل يوم خميس | معرض مواهب الطلاب نهاية كل فصل"
-
-⚠️ تنبيه مهم: حقل executed_actions يجب أن يكون بنفس مستوى التفصيل تماماً — 4 إجراءات على الأقل مع أرقام أسابيع محددة. هذا الحقل هو قلب نموذج التنفيذ ويجب أن يكون احترافياً ومفيداً للمدير.
-
-مثال على "أساليب وطرق التحسين" الاحترافية المتنوعة:
-- "الدورات التدريبية | القراءات الموجهة | الزيارات التبادلية | مجتمعات التعلم المهنية"
-- "التقويم الذاتي المنهجي | الشواهد والأدلة | المراجعة الإشرافية | الاستبانات الدورية"
-- "التحليل الرقمي | المهام التطبيقية | الاختبارات التجريبية | الإثراءات الإلكترونية"
-
-مثال على "لجان المدرسة" المتنوعة حسب المجال:
-- إدارة مدرسية: "لجنة التميز + مدير المدرسة + مشرف دعم التميز"
-- تعليم وتعلم: "لجنة التميز + المعلمون + وكيل الشؤون التعليمية"
-- نواتج التعلم: "لجنة التميز + لجنة التوجيه + معلمو المادة"
-- أنشطة: "لجنة التميز + اللجنة الإدارية + رائد النشاط"
-- توجيه: "لجنة التميز + المعلمون + الموجه الطلابي"
-- بيئة: "وكالء المدرسة + لجنة المرافق + مسؤول الأمن والسلامة"
-
-أخرج JSON array فقط. ابدأ بـ [ وانتهِ بـ ]. بدون markdown.
-
-لكل مؤشر هذا الهيكل (كل object في سطر واحد):
-{"id":"X-X-X-X","name":"اسم المؤشر كامل","domain":"المجال","score":65.5,"level":"تهيئة","need":"وصف الاحتياج الحقيقي من التقرير","actions":"إجراء 1 مع أسبوع | إجراء 2 مع أسبوع | إجراء 3 | إجراء 4","methods":"أسلوب 1 | أسلوب 2 | أسلوب 3 | أسلوب 4","duration":"فصل دراسي","responsible":"الجهة المناسبة للمؤشر","executed_actions":"الإجراء التفصيلي الأول – الأسبوع X | الإجراء التفصيلي الثاني – أسبوعياً من الأسبوع Y | الإجراء الثالث مستمر | الإجراء الرابع – نهاية كل فصل","school_committee":"لجنة التميز + اللجنة المناسبة للمجال + الجهة التنفيذية"}
+لكل مؤشر مؤهل هذا الهيكل فقط (كل object في سطر واحد):
+{"id":"X-X-X-X","score":65.5,"level":"تهيئة","need_from_report":"اقتباس أو تلخيص قصير جداً (15 كلمة كحد أقصى) لسبب الضعف كما ورد بالتقرير"}
 
 قواعد صارمة:
 - score رقم وليس نص
-- لا أسطر جديدة داخل أي قيمة نصية — استخدم | للفصل
-- استخرج كل المؤشرات المؤهلة في المجالات المطلوبة دون استثناء
-- executed_actions: 4 إجراءات تفصيلية على الأقل مع أرقام أسابيع — هذا أهم حقل في النموذج
-- actions: 3-4 إجراءات تخطيطية مرتبة منطقياً
-- methods: 4 أساليب متنوعة ومختلفة عن بعضها
-- school_committee: مناسبة لطبيعة كل مجال وتتضمن 2-3 جهات محددة
-- responsible: شخص أو جهة محددة وليس عاماً`
+- id يجب أن يطابق تماماً رمز المؤشر الرسمي بإطار إتقان (مثال: 1-1-1-1)
+- need_from_report: اقتباس/تلخيص من نص التقرير نفسه فقط — لا تؤلف أو تفترض، بحد أقصى 15 كلمة
+- استخرج كل المؤشرات المؤهلة في هذا المجال دون استثناء
+- لا تُخرج أي حقل آخر غير id/score/level/need_from_report — لا actions ولا methods ولا أي محتوى سردي إضافي`
 }
 
 // يلقى القوس المُطابق الفعلي (بعمق الأقواس، متجاهلاً ما بداخل النصوص) بدل
@@ -273,7 +223,6 @@ export const INFO_SCHEMA = {
     swot_weaknesses: { type: 'ARRAY', items: { type: 'STRING' } },
     swot_opportunities: { type: 'ARRAY', items: { type: 'STRING' } },
     swot_challenges: { type: 'ARRAY', items: { type: 'STRING' } },
-    swot_solutions: { type: 'ARRAY', items: { type: 'STRING' } },
     priority_admin: { type: 'OBJECT', properties: { level: { type: 'STRING' }, justification: { type: 'STRING' } } },
     priority_guidance: { type: 'OBJECT', properties: { level: { type: 'STRING' }, justification: { type: 'STRING' } } },
     priority_activities: { type: 'OBJECT', properties: { level: { type: 'STRING' }, justification: { type: 'STRING' } } },
@@ -294,29 +243,25 @@ export const INFO_SCHEMA = {
     'shared_school', 'overall_level', 'outcomes_level', 'report_date',
     'overall_avg', 'domain_admin', 'domain_teaching', 'domain_outcomes',
     'domain_env', 'scope', 'phone', 'swot_strengths', 'swot_weaknesses',
-    'swot_opportunities', 'swot_challenges', 'swot_solutions',
+    'swot_opportunities', 'swot_challenges',
     'priority_admin', 'priority_guidance', 'priority_activities',
     'priority_outcomes', 'priority_teaching', 'priority_env', 'recommendations',
   ]
 }
 
+// سكيمة تصنيف فقط — انظر التعليق أعلى buildIndicatorsPrompt لشرح إعادة
+// الهندسة. لم يعد النموذج يُنتج name/domain/actions/methods/duration/
+// responsible/executed_actions/school_committee إطلاقاً؛ هذي كلها تُستكمل
+// بالكود من lib/improvementPlansMap.ts عبر mergeIndicatorWithTemplate.
 export const INDICATORS_SCHEMA = {
   type: 'ARRAY',
   items: {
     type: 'OBJECT',
     properties: {
-      id: { type: 'STRING' }, name: { type: 'STRING' }, domain: { type: 'STRING' },
-      score: { type: 'NUMBER' }, level: { type: 'STRING' }, need: { type: 'STRING' },
-      actions: { type: 'STRING' }, methods: { type: 'STRING' }, duration: { type: 'STRING' },
-      responsible: { type: 'STRING' }, executed_actions: { type: 'STRING' },
-      school_committee: { type: 'STRING' },
+      id: { type: 'STRING' }, score: { type: 'NUMBER' }, level: { type: 'STRING' },
+      need_from_report: { type: 'STRING' },
     },
-    // كل الحقول السردية إلزامية الآن (كانت اختيارية سابقاً) — لأن هذا بالضبط
-    // سبب خروج نماذج فارغة جزئياً: النموذج كان يملأ need/responsible بانتظام
-    // لكن يتجاهل actions/methods/duration أحياناً لأنها لم تكن required
-    // بالسكيمة، فيتركها فارغة بمخرجات JSON، فتظهر خلايا فارغة بالمستند
-    // النهائي رغم إن المؤشر نفسه مكتشف وصحيح.
-    required: ['id', 'name', 'domain', 'score', 'level', 'need', 'actions', 'methods', 'duration', 'responsible', 'executed_actions', 'school_committee']
+    required: ['id', 'score', 'level', 'need_from_report']
   }
 }
 

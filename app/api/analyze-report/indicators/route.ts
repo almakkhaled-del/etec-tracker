@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { buildIndicatorsPrompt, callGemini, repairAndParseArray, DomainGroup, INDICATORS_SCHEMA } from '@/lib/analyzeReportShared'
+import { mergeIndicatorWithTemplate } from '@/lib/improvementPlansMap'
 
 // طلب مستقل بذاته لكل مجال (ميزانية 60 ثانية خاصة به عند Vercel) — العميل
 // يستدعي هذا المسار 4 مرات بالتوازي (admin/teaching/outcomes/environment).
@@ -23,8 +24,13 @@ export async function POST(req: NextRequest) {
 
     const res = await callGemini(base64, apiKey, buildIndicatorsPrompt(group as DomainGroup), true, INDICATORS_SCHEMA)
 
-    let indicators: any[] = []
-    try { indicators = repairAndParseArray(res.text) } catch {}
+    let raw: any[] = []
+    try { raw = repairAndParseArray(res.text) } catch {}
+    // النموذج الآن يرجع تصنيفاً فقط (id/score/level/need_from_report) —
+    // نكمّل بقية الحقول (name/domain/actions/methods/...) من القالب الثابت
+    // بـ lib/improvementPlansMap.ts قبل ما نرجّع النتيجة للعميل، عشان كود
+    // توليد المستندات بصفحة build-plans يستمر يشتغل بدون أي تعديل عليه.
+    const indicators = raw.map(mergeIndicatorWithTemplate)
 
     return NextResponse.json({
       group,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { buildIndicatorsPrompt, callGemini, repairAndParseArray, DomainGroup, INDICATORS_SCHEMA } from '@/lib/analyzeReportShared'
+import { mergeIndicatorWithTemplate } from '@/lib/improvementPlansMap'
 
 // نسخة Gemini 3.5 Flash (النموذج الأكبر) من /api/analyze-report/indicators —
 // لأغراض المقارنة والتجربة فقط، جنباً إلى جنب مع Flash-Lite الإنتاجي وClaude
@@ -20,8 +21,9 @@ export async function POST(req: NextRequest) {
 
     const res = await callGemini(base64, apiKey, buildIndicatorsPrompt(group as DomainGroup), true, INDICATORS_SCHEMA, 'gemini-3.5-flash')
 
-    let indicators: any[] = []
-    try { indicators = repairAndParseArray(res.text) } catch {}
+    let raw: any[] = []
+    try { raw = repairAndParseArray(res.text) } catch {}
+    const indicators = raw.map(mergeIndicatorWithTemplate)
 
     return NextResponse.json({
       group,

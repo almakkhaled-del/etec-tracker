@@ -1,8 +1,22 @@
 'use client'
 import { useState, useRef } from 'react'
 import { useSchool } from '@/lib/useSchool'
+import { supabase } from '@/lib/supabase'
 import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
+
+// يسجّل استخدام ميزة التحليل للمراقبة فقط من لوحة الأدمن — بدون أي تأثير على
+// المستخدم نفسه (لا نوقفه، ولا حتى نظهر له خطأ لو فشل التسجيل نفسه).
+async function trackUsage() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    await fetch('/api/analyze-report/track-usage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+    })
+  } catch { /* تتبع ثانوي — أي فشل هنا لا يجب أن يؤثر على تجربة المستخدم */ }
+}
 
 const NAVY = '#0A3B58'
 const GOLD = '#1F6E96'
@@ -34,7 +48,7 @@ interface AnalysisResult {
   overall_level: string; outcomes_level: string; report_date: string; overall_avg: string
   domain_admin: string; domain_teaching: string; domain_outcomes: string; domain_env: string
   swot_strengths: string[]; swot_weaknesses: string[]; swot_opportunities: string[]
-  swot_challenges: string[]; swot_solutions: string[]
+  swot_challenges: string[]
   priority_admin: Priority; priority_guidance: Priority; priority_activities: Priority
   priority_outcomes: Priority; priority_teaching: Priority; priority_env: Priority
   recommendations: string; weak_indicators: WeakIndicator[]
@@ -51,6 +65,15 @@ export default function ImprovementPlanPage() {
   const [docStatus, setDocStatus] = useState<Record<string, DocStatus>>({ doc1: 'idle', doc2: 'idle', doc3: 'idle' })
   const fileRef = useRef<HTMLInputElement>(null)
 
+  // حالة نافذة تجربة Claude — منفصلة تماماً عن نتيجة Gemini، لأغراض المقارنة
+  // فقط قبل اعتماد مزود نهائي. ما تُستخدم بأي مكان ثاني (الملفات القابلة
+  // للتحميل تبقى مبنية على نتيجة Gemini الأساسية لحد اعتماد القرار النهائي).
+  type ClaudeStep = 'idle' | 'analyzing' | 'ready' | 'error'
+  const [claudeStep, setClaudeStep] = useState<ClaudeStep>('idle')
+  const [claudeProgress, setClaudeProgress] = useState('')
+  const [claudeError, setClaudeError] = useState('')
+  const [claudeResult, setClaudeResult] = useState<AnalysisResult | null>(null)
+
   function handleDrop(e: React.DragEvent) {
     e.preventDefault(); setDragOver(false)
     const f = e.dataTransfer.files[0]
@@ -64,49 +87,170 @@ export default function ImprovementPlanPage() {
     else setError('يرجى رفع ملف PDF فقط')
   }
 
+  // كل مجموعة مؤشرات (ومعلومات المدرسة) صارت طلب HTTP مستقل بميزانية 60 ثانية
+  // خاصة به عند Vercel، بدل ما تتشارك كلها ميزانية واحدة داخل استدعاء واحد —
+  // هذا يحل مشكلة انتهاء المهلة على التقارير الطويلة من جذورها، ويسمح كمان
+  // إذا فشلت مجموعة واحدة (تقرير مزدحم من طرف Gemini) نكمل بالباقي بدل ما
+  // نسقط التحليل كامل.
+  async function fetchJson(url: string, body: any, label: string) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    // نقرأ الرد كنص أولاً بدل JSON.parse مباشر: لو انتهت مهلة الخادم (Vercel
+    // timeout) أو صار خطأ 502/504، الرد يرجع HTML/نص غير JSON ويطيح
+    // JSON.parse بخطأ غامض "Unexpected token 'A'... is not valid JSON".
+    const raw = await response.text()
+    if (!response.ok) {
+      if (response.status === 504 || response.status === 502) {
+        throw new Error(`انتهت مهلة الخادم أثناء تحليل (${label}) — حاول مرة أخرى بعد قليل`)
+      }
+      try {
+        const err = JSON.parse(raw)
+        throw new Error(err.error || `خطأ من الخادم (${label}): ${response.status}`)
+      } catch {
+        // نطبع الحالة الفعلية بدل رسالة عامة غامضة — لو كان الرد كبير جداً
+        // (مثلاً 413 Payload Too Large لأن Vercel يحد حجم الطلب بحدود 4.5MB)
+        // نقدر نشخصها فوراً من الرسالة بدل تخمين.
+        const snippet = raw.slice(0, 150).replace(/\s+/g, ' ').trim()
+        throw new Error(`حدث خطأ من الخادم (${label}) — الحالة: ${response.status}${snippet ? ` — ${snippet}` : ''}`)
+      }
+    }
+    try {
+      return JSON.parse(raw)
+    } catch {
+      throw new Error(`تعذّر قراءة نتيجة (${label}) — استجابة غير صالحة، حاول مرة أخرى`)
+    }
+  }
+
+  function readFileAsBase64(f: File): Promise<string> {
+    return new Promise<string>((res, rej) => {
+      const reader = new FileReader()
+      reader.onload = () => res((reader.result as string).split(',')[1])
+      reader.onerror = () => rej(new Error('فشل قراءة الملف'))
+      reader.readAsDataURL(f)
+    })
+  }
+
   async function handleAnalyze() {
     if (!file) return
     setStep('analyzing'); setProgress('جاري قراءة التقرير...'); setError('')
     try {
-      const base64 = await new Promise<string>((res, rej) => {
-        const reader = new FileReader()
-        reader.onload = () => res((reader.result as string).split(',')[1])
-        reader.onerror = () => rej(new Error('فشل قراءة الملف'))
-        reader.readAsDataURL(file)
-      })
+      const base64 = await readFileAsBase64(file)
       setProgress('يحلل النظام التقرير ويستخرج البيانات...')
-      const response = await fetch('/api/analyze-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ base64 })
+
+      const domainGroups = ['admin', 'teaching', 'outcomes', 'environment'] as const
+
+      // السبب الحقيقي لفشل عدة مجموعات مع بعض (لما طلب واحد كان ينجح دايماً):
+      // إطلاق 4-5 طلبات لنفس مفتاح Gemini API بنفس اللحظة تماماً (Promise.all)
+      // يشبه "دفعة" طلبات مركّزة تصطدم بتقييد معدل الاستخدام (rate limit/429)
+      // عند Gemini، حتى لو كل طلب لحاله خفيف وما يتعدى حصته. طلب واحد لوحده
+      // ما يصطدم بهذي المشكلة لأنه ما فيه تزامن. الحل: تأخير بسيط بين بداية
+      // كل طلب والثاني (staggering) بدل إطلاقهم كلهم بنفس اللحظة — يبقيهم
+      // طلبات مستقلة (كل واحد له ميزانيته الخاصة 60 ثانية عند Vercel) بس
+      // يفرّق لحظة انطلاقهم عن بعض فيتجنب التصادم مع Gemini.
+      const STAGGER_MS = 1500
+      const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
+
+      const infoPromise = fetchJson('/api/analyze-report/info', { base64 }, 'بيانات المدرسة')
+      const groupPromises = domainGroups.map((g, i) =>
+        delay(i * STAGGER_MS).then(() =>
+          fetchJson('/api/analyze-report/indicators', { base64, group: g }, g)
+            .catch((e: any) => ({ group: g, indicators: [], finishReason: 'ERROR', error: e.message }))
+        )
+      )
+      const [info, ...groupSettled] = await Promise.all([infoPromise, ...groupPromises])
+
+      const failedGroups = groupSettled.filter((g: any) => g.error)
+      const allIndicators = groupSettled.flatMap((g: any) => g.indicators || [])
+      const seen = new Set<string>()
+      const indicators = allIndicators.filter((ind: any, i: number) => {
+        if (!ind || !ind.name) return false
+        if (!ind.id) ind.id = `auto-${i}`
+        const key = `${(ind.domain || '').trim()}::${(ind.name || '').trim()}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
       })
-      // نقرأ الرد كنص أولاً بدل JSON.parse مباشر: لو انتهت مهلة الخادم (Vercel
-      // timeout) أو صار خطأ 502/504، الرد يرجع HTML/نص غير JSON ويطيح
-      // JSON.parse بخطأ غامض "Unexpected token 'A'... is not valid JSON".
-      // قراءة النص أولاً تتيح لنا نعطي المستخدم رسالة عربية واضحة بدل الكراش.
-      const raw = await response.text()
-      if (!response.ok) {
-        if (response.status === 504 || response.status === 502) {
-          throw new Error('انتهت مهلة الخادم أثناء تحليل التقرير — التقرير طويل جداً أو الخدمة مزدحمة، حاول مرة أخرى بعد قليل')
-        }
-        try {
-          const err = JSON.parse(raw)
-          throw new Error(err.error || `Server error: ${response.status}`)
-        } catch {
-          throw new Error(`حدث خطأ من الخادم (${response.status})، حاول مرة أخرى`)
-        }
+
+      if (indicators.length === 0 && failedGroups.length === domainGroups.length) {
+        // نظهر تفاصيل الخطأ الفعلي لكل مجموعة فشلت بدل رسالة عامة — حتى نعرف
+        // السبب الحقيقي (انتهاء مهلة، خطأ Gemini، إلخ) من أول مرة بدل التخمين.
+        const details = failedGroups.map((g: any) => `${g.group}: ${g.error}`).join(' | ')
+        throw new Error(`تعذّر استخراج أي مؤشرات — جرّب مرة أخرى بعد قليل — التفاصيل: ${details}`)
       }
-      let parsed: AnalysisResult
-      try {
-        parsed = JSON.parse(raw)
-      } catch {
-        throw new Error('تعذّر قراءة نتيجة التحليل — استجابة غير صالحة من الخادم، حاول مرة أخرى')
+
+      setResult({ ...info, weak_indicators: indicators })
+      if (failedGroups.length > 0) {
+        setError(`تنبيه: تعذّر تحليل ${failedGroups.length} من أصل ${domainGroups.length} مجموعات مؤشرات، فقد تكون بعض المؤشرات ناقصة. يمكنك إعادة المحاولة لاحقاً.`)
       }
-      setResult(parsed)
       setStep('ready')
+      trackUsage() // للمراقبة فقط — لا ننتظره ولا يوقف أي شي لو فشل
     } catch (err: any) {
       setError(err.message || 'حدث خطأ غير متوقع')
       setStep('error')
+    }
+  }
+
+  // نفس فكرة handleAnalyze بالضبط، لكن يستدعي مسارات Claude بدل Gemini —
+  // على نفس الملف المرفوع، لأغراض المقارنة قبل اعتماد مزود نهائي.
+  async function handleAnalyzeClaude() {
+    if (!file) return
+    setClaudeStep('analyzing'); setClaudeProgress('جاري التحليل عبر Claude...'); setClaudeError('')
+    try {
+      const base64 = await readFileAsBase64(file)
+      const domainGroups = ['admin', 'teaching', 'outcomes', 'environment'] as const
+      const STAGGER_MS = 1500
+      const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
+
+      const infoPromise = fetchJson('/api/analyze-report/claude-info', { base64 }, 'بيانات المدرسة (Claude)')
+      const groupPromises = domainGroups.map((g, i) =>
+        delay(i * STAGGER_MS).then(() =>
+          fetchJson('/api/analyze-report/claude-indicators', { base64, group: g }, g)
+            .catch((e: any) => ({ group: g, indicators: [], error: e.message }))
+        )
+      )
+      const [info, ...groupSettled] = await Promise.all([infoPromise, ...groupPromises])
+
+      const failedGroups = groupSettled.filter((g: any) => g.error)
+      const allIndicators = groupSettled.flatMap((g: any) => g.indicators || [])
+      const seen = new Set<string>()
+      const indicators = allIndicators.filter((ind: any, i: number) => {
+        if (!ind || !ind.name) return false
+        if (!ind.id) ind.id = `auto-${i}`
+        const key = `${(ind.domain || '').trim()}::${(ind.name || '').trim()}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+
+      if (indicators.length === 0 && failedGroups.length === domainGroups.length) {
+        const details = failedGroups.map((g: any) => `${g.group}: ${g.error}`).join(' | ')
+        throw new Error(`تعذّر استخراج أي مؤشرات عبر Claude — التفاصيل: ${details}`)
+      }
+
+      // نكتشف القطع الصامت (truncation): لو Claude توقف بسبب حد التوكنز
+      // (stopReason === 'max_tokens') قبل ما يكمل كل المؤشرات المؤهلة بمجال
+      // معين، هذا يفوّت مؤشرات بصمت بدون أي خطأ ظاهر — لازم نحذّر منه صراحة.
+      const truncatedGroups = groupSettled.filter((g: any) => g.stopReason === 'max_tokens')
+
+      setClaudeResult({ ...info, weak_indicators: indicators })
+      const warnings: string[] = []
+      if (failedGroups.length > 0) {
+        // نذكر اسم المجال اللي فشل والسبب صراحة (بدل رقم عام) — عشان نقدر
+        // نميّز فشل عشوائي متكرر بنفس المجال من حادثة منفردة.
+        const failDetails = failedGroups.map((g: any) => `${g.group}: ${g.error}`).join(' | ')
+        warnings.push(`تعذّر تحليل ${failedGroups.length} من أصل ${domainGroups.length} مجموعات مؤشرات عبر Claude (${failDetails})`)
+      }
+      if (truncatedGroups.length > 0) {
+        warnings.push(`رد Claude انقطع بسبب حد التوكنز بمجموعات: ${truncatedGroups.map((g: any) => g.group).join(', ')} — ممكن مؤشرات ناقصة`)
+      }
+      if (warnings.length > 0) setClaudeError(`تنبيه: ${warnings.join(' | ')}.`)
+      setClaudeStep('ready')
+    } catch (err: any) {
+      setClaudeError(err.message || 'حدث خطأ غير متوقع')
+      setClaudeStep('error')
     }
   }
 
@@ -451,7 +595,6 @@ export default function ImprovementPlanPage() {
             new TableRow({ children: [gCell('نقاط الضعف'), bulletCell(d.swot_weaknesses)] }),
             new TableRow({ children: [gCell('الفرص'), bulletCell(d.swot_opportunities)] }),
             new TableRow({ children: [gCell('التحديات'), bulletCell(d.swot_challenges)] }),
-            new TableRow({ children: [gCell('آلية معالجة نقاط الضعف'), bulletCell(d.swot_solutions)] }),
           ]
         }),
         gap(),
@@ -631,6 +774,11 @@ export default function ImprovementPlanPage() {
             {/* Ready step - show indicators summary + 3 separate download buttons */}
             {step === 'ready' && result && (
               <>
+                {error && (
+                  <div style={{ background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
+                    <p className="body-font" style={{ fontSize: 12.5, color: '#92400E', margin: 0, lineHeight: 1.8 }}>⚠️ {error}</p>
+                  </div>
+                )}
                 {/* Summary */}
                 <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)', marginBottom: 16 }}>
                   <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 12, padding: '14px 18px', marginBottom: 20, textAlign: 'center' }}>
@@ -711,6 +859,77 @@ export default function ImprovementPlanPage() {
                   🔄 تحليل تقرير آخر
                 </button>
               </>
+            )}
+
+            {/* نافذة تجربة Claude — مستقلة تماماً عن حالة Gemini أعلاه (تظهر
+                بمجرد اختيار ملف، حتى لو Gemini يحلل أو فشل أو لسا ما بدأ)،
+                لأن الهدف كان أصلاً أن ما نكون رهن مزود واحد. */}
+            {file && (
+              <div style={{ background: '#fff', borderRadius: 18, border: '1.5px solid #DDD6FE', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(91,33,182,0.06)', marginTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 20 }}>🧪</span>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: '#5B21B6', margin: 0 }}>تجربة Claude (مستقلة عن Gemini أعلاه)</h3>
+                  </div>
+                  {claudeStep !== 'analyzing' && (
+                    <button onClick={handleAnalyzeClaude} className="doc-btn"
+                      style={{ padding: '10px 18px', fontSize: 13, fontWeight: 700, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
+                      {claudeStep === 'ready' ? '🔄 إعادة التجربة' : '▶️ جرّب مع Claude'}
+                    </button>
+                  )}
+                </div>
+
+                {claudeStep === 'idle' && (
+                  <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: 0 }}>اضغط الزر لتحليل نفس الملف عبر Claude — يشتغل بغض النظر عن نتيجة Gemini أعلاه.</p>
+                )}
+
+                {claudeStep === 'analyzing' && (
+                  <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                    <svg width="40" height="40" viewBox="0 0 40 40" style={{ marginBottom: 10 }}>
+                      <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(91,33,182,0.12)" strokeWidth="5" />
+                      <circle cx="20" cy="20" r="16" fill="none" stroke="#7C3AED" strokeWidth="5" strokeLinecap="round" strokeDasharray="35 70" style={{ transformOrigin: '20px 20px', animation: 'spin 1.2s linear infinite' }} />
+                    </svg>
+                    <p className="body-font" style={{ fontSize: 13, color: '#5B21B6', margin: 0 }}>{claudeProgress}</p>
+                  </div>
+                )}
+
+                {claudeStep === 'error' && (
+                  <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px' }}>
+                    <p className="body-font" style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>⚠️ {claudeError}</p>
+                  </div>
+                )}
+
+                {claudeStep === 'ready' && claudeResult && (
+                  <>
+                    {claudeError && (
+                      <div style={{ background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+                        <p className="body-font" style={{ fontSize: 12.5, color: '#92400E', margin: 0 }}>⚠️ {claudeError}</p>
+                      </div>
+                    )}
+                    <div style={{ background: '#F5F3FF', border: '1.5px solid #DDD6FE', borderRadius: 12, padding: '14px 18px', marginBottom: 16, textAlign: 'center' }}>
+                      <p style={{ fontSize: 15, fontWeight: 800, color: '#5B21B6', margin: '0 0 4px' }}>✅ نتيجة Claude — {claudeResult.school_name}</p>
+                      <p className="body-font" style={{ fontSize: 12.5, color: '#6D28D9', margin: 0 }}>
+                        اكتشف {claudeResult.weak_indicators.length} مؤشر يحتاج تحسين
+                        {step === 'ready' && result ? ` (قارن مع ${result.weak_indicators.length} من Gemini)` : ''}
+                      </p>
+                    </div>
+                    <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid #DDD6FE', borderRadius: 10 }}>
+                      {claudeResult.weak_indicators.map((ind, i) => (
+                        <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(91,33,182,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#FAF9FF' }}>
+                          <div>
+                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}>{ind.id} · {ind.domain}</span>
+                            <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896' }}>{ind.level}</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: ind.score < 50 ? '#DC2626' : '#D97706', background: ind.score < 50 ? '#FEF2F2' : '#FFFBEB', padding: '2px 10px', borderRadius: 20 }}>{ind.score}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </main>
         </div>

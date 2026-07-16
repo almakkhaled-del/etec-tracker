@@ -52,7 +52,7 @@ interface AnalysisResult {
   overall_level: string; outcomes_level: string; report_date: string; overall_avg: string
   domain_admin: string; domain_teaching: string; domain_outcomes: string; domain_env: string
   swot_strengths: string[]; swot_weaknesses: string[]; swot_opportunities: string[]
-  swot_challenges: string[]; swot_solutions: string[]
+  swot_challenges: string[]
   priority_admin: Priority; priority_guidance: Priority; priority_activities: Priority
   priority_outcomes: Priority; priority_teaching: Priority; priority_env: Priority
   recommendations: string; weak_indicators: WeakIndicator[]
@@ -630,7 +630,6 @@ export default function BuildPlansPage() {
             new TableRow({ children: [gCell('نقاط الضعف'), bulletCell(d.swot_weaknesses)] }),
             new TableRow({ children: [gCell('الفرص'), bulletCell(d.swot_opportunities)] }),
             new TableRow({ children: [gCell('التحديات'), bulletCell(d.swot_challenges)] }),
-            new TableRow({ children: [gCell('آلية معالجة نقاط الضعف'), bulletCell(d.swot_solutions)] }),
           ]
         }),
         gap(),

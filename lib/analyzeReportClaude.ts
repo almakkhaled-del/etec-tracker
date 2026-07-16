@@ -33,7 +33,6 @@ export const CLAUDE_INFO_SCHEMA = {
     swot_weaknesses: { type: 'array', items: { type: 'string' } },
     swot_opportunities: { type: 'array', items: { type: 'string' } },
     swot_challenges: { type: 'array', items: { type: 'string' } },
-    swot_solutions: { type: 'array', items: { type: 'string' } },
     priority_admin: { type: 'object', properties: { level: { type: 'string' }, justification: { type: 'string' } } },
     priority_guidance: { type: 'object', properties: { level: { type: 'string' }, justification: { type: 'string' } } },
     priority_activities: { type: 'object', properties: { level: { type: 'string' }, justification: { type: 'string' } } },
@@ -50,12 +49,16 @@ export const CLAUDE_INFO_SCHEMA = {
     'shared_school', 'overall_level', 'outcomes_level', 'report_date',
     'overall_avg', 'domain_admin', 'domain_teaching', 'domain_outcomes',
     'domain_env', 'scope', 'phone', 'swot_strengths', 'swot_weaknesses',
-    'swot_opportunities', 'swot_challenges', 'swot_solutions',
+    'swot_opportunities', 'swot_challenges',
     'priority_admin', 'priority_guidance', 'priority_activities',
     'priority_outcomes', 'priority_teaching', 'priority_env', 'recommendations',
   ]
 }
 
+// سكيمة تصنيف فقط (نفس إعادة الهندسة المطبّقة بجهة Gemini — انظر التعليق
+// أعلى buildIndicatorsPrompt بملف analyzeReportShared.ts). Claude هنا يحدد
+// فقط أي المؤشرات ضعيفة + جملة قصيرة عن السبب، وبقية الحقول (actions/
+// methods/...) تُستكمل بالكود من lib/improvementPlansMap.ts.
 export const CLAUDE_INDICATORS_TOOL = 'extract_weak_indicators'
 export const CLAUDE_INDICATORS_SCHEMA = {
   type: 'object',
@@ -65,15 +68,10 @@ export const CLAUDE_INDICATORS_SCHEMA = {
       items: {
         type: 'object',
         properties: {
-          id: { type: 'string' }, name: { type: 'string' }, domain: { type: 'string' },
-          score: { type: 'number' }, level: { type: 'string' }, need: { type: 'string' },
-          actions: { type: 'string' }, methods: { type: 'string' }, duration: { type: 'string' },
-          responsible: { type: 'string' }, executed_actions: { type: 'string' },
-          school_committee: { type: 'string' },
+          id: { type: 'string' }, score: { type: 'number' }, level: { type: 'string' },
+          need_from_report: { type: 'string' },
         },
-        // نفس الإصلاح المطبّق بسكيمة Gemini — الحقول السردية إلزامية الآن
-        // عشان ما تطلع فارغة بالمستند النهائي حتى لو المؤشر نفسه صحيح.
-        required: ['id', 'name', 'domain', 'score', 'level', 'need', 'actions', 'methods', 'duration', 'responsible', 'executed_actions', 'school_committee']
+        required: ['id', 'score', 'level', 'need_from_report']
       }
     }
   },
