@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { buildIndicatorsPrompt, callGemini, repairAndParseArray, DomainGroup, INDICATORS_SCHEMA } from '@/lib/analyzeReportShared'
+import { buildIndicatorsPrompt, callGemini, repairAndParseArray, DomainGroup, INDICATORS_SCHEMA, filterQualifyingIndicators } from '@/lib/analyzeReportShared'
 import { mergeIndicatorWithTemplate } from '@/lib/improvementPlansMap'
 
 // طلب مستقل بذاته لكل مجال (ميزانية 60 ثانية خاصة به عند Vercel) — العميل
@@ -26,11 +26,13 @@ export async function POST(req: NextRequest) {
 
     let raw: any[] = []
     try { raw = repairAndParseArray(res.text) } catch {}
-    // النموذج الآن يرجع تصنيفاً فقط (id/score/level/need_from_report) —
-    // نكمّل بقية الحقول (name/domain/actions/methods/...) من القالب الثابت
-    // بـ lib/improvementPlansMap.ts قبل ما نرجّع النتيجة للعميل، عشان كود
-    // توليد المستندات بصفحة build-plans يستمر يشتغل بدون أي تعديل عليه.
-    const indicators = raw.map(mergeIndicatorWithTemplate)
+    // النموذج الآن يرجع حكماً لكل مؤشر رسمي (id/score/level/include/
+    // need_from_report) — نفلتر أولاً include=true (مع حزام أمان برمجي
+    // بـfilterQualifyingIndicators يتحقق من score/level فعلياً، لا يعتمد على
+    // التزام النموذج فقط)، ثم نكمّل بقية الحقول من القالب الثابت بـ
+    // lib/improvementPlansMap.ts قبل ما نرجّع النتيجة للعميل.
+    const qualifying = filterQualifyingIndicators(raw)
+    const indicators = qualifying.map(mergeIndicatorWithTemplate)
 
     return NextResponse.json({
       group,

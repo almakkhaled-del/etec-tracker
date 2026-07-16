@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   PROMPT_INFO, buildIndicatorsPrompt, callGemini,
   repairAndParseArray, repairAndParseObject, DomainGroup,
-  INFO_SCHEMA, INDICATORS_SCHEMA
+  INFO_SCHEMA, INDICATORS_SCHEMA, filterQualifyingIndicators
 } from '@/lib/analyzeReportShared'
 import { mergeIndicatorWithTemplate } from '@/lib/improvementPlansMap'
 
@@ -40,8 +40,7 @@ export async function POST(req: NextRequest) {
     // القالب الثابت أولاً (عشان name/domain تصير متوفرة)، وبعدها نفرز
     // التكرار بالاعتماد على id (أوثق من الاعتماد على name، خصوصاً إن id
     // مضمون الوجود دائماً من السكيمة، بعكس name اللي لم يعد يُطلب أصلاً).
-    const allIndicators = parsedGroups.flat()
-      .filter(ind => ind && ind.id)
+    const allIndicators = filterQualifyingIndicators(parsedGroups.flat())
       .map(mergeIndicatorWithTemplate)
     const seen = new Set<string>()
     const indicators = allIndicators.filter(ind => {

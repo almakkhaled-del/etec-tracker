@@ -69,9 +69,9 @@ export const CLAUDE_INDICATORS_SCHEMA = {
         type: 'object',
         properties: {
           id: { type: 'string' }, score: { type: 'number' }, level: { type: 'string' },
-          need_from_report: { type: 'string' },
+          include: { type: 'boolean' }, need_from_report: { type: 'string' },
         },
-        required: ['id', 'score', 'level', 'need_from_report']
+        required: ['id', 'score', 'level', 'include', 'need_from_report']
       }
     }
   },

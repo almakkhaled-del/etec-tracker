@@ -3,6 +3,7 @@ import {
   buildIndicatorsPrompt, callClaude, DomainGroup,
   CLAUDE_INDICATORS_TOOL, CLAUDE_INDICATORS_SCHEMA
 } from '@/lib/analyzeReportClaude'
+import { filterQualifyingIndicators } from '@/lib/analyzeReportShared'
 import { mergeIndicatorWithTemplate } from '@/lib/improvementPlansMap'
 
 // نسخة Claude من /api/analyze-report/indicators — لأغراض المقارنة والتجربة فقط.
@@ -26,7 +27,8 @@ export async function POST(req: NextRequest) {
     )
 
     const raw: any[] = res.input?.indicators || []
-    const indicators = raw.map(mergeIndicatorWithTemplate)
+    const qualifying = filterQualifyingIndicators(raw)
+    const indicators = qualifying.map(mergeIndicatorWithTemplate)
 
     return NextResponse.json({
       group,
