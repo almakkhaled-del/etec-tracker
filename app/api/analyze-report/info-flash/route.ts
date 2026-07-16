@@ -5,7 +5,7 @@ import { PROMPT_INFO, callGemini, repairAndParseObject, INFO_SCHEMA } from '@/li
 // لأغراض المقارنة والتجربة فقط، مع الصندوقين الآخرين (Flash-Lite الإنتاجي
 // وClaude) بصفحة build-plans. نفس منطق info/route.ts تماماً، فرق وحيد هو
 // تمرير modelOverride لـ callGemini.
-export const maxDuration = 60
+export const maxDuration = 120
 
 export async function POST(req: NextRequest) {
   try {

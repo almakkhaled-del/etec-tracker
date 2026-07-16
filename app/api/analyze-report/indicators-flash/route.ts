@@ -5,7 +5,7 @@ import { buildIndicatorsPrompt, callGemini, repairAndParseArray, DomainGroup, IN
 // لأغراض المقارنة والتجربة فقط، جنباً إلى جنب مع Flash-Lite الإنتاجي وClaude
 // بصفحة build-plans. نفس بنية indicators/route.ts تماماً (طلب مستقل لكل
 // مجال)، فرق وحيد هو تمرير modelOverride لـ callGemini.
-export const maxDuration = 60
+export const maxDuration = 120
 
 const VALID_GROUPS: DomainGroup[] = ['admin', 'teaching', 'outcomes', 'environment']
 
