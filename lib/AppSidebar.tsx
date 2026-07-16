@@ -115,14 +115,18 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
         background: NAVY, zIndex: 130, alignItems: 'center', justifyContent: 'space-between',
         padding: '0 14px', boxShadow: '0 2px 10px rgba(10,59,88,0.18)'
       }}>
-        <img src="/logo.png" alt="شواهدي" style={{ height: 24, filter: 'brightness(0) invert(1)' }} />
         {!mobileOpen && (
           <button onClick={() => setMobileOpen(true)} aria-label="فتح القائمة" style={{
             width: 36, height: 36, borderRadius: 9, background: 'rgba(255,255,255,0.12)', border: 'none',
-            color: '#fff', fontSize: 17, cursor: 'pointer', display: 'flex',
+            cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 4,
             alignItems: 'center', justifyContent: 'center', flexShrink: 0
-          }}>‹</button>
+          }}>
+            <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 1 }} />
+            <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 1 }} />
+            <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 1 }} />
+          </button>
         )}
+        <img src="/logo.png" alt="شواهدي" style={{ height: 24, filter: 'brightness(0) invert(1)' }} />
       </div>
 
       {/* خلفية معتمة تقفل الدرج عند الضغط عليها — بالجوال فقط والدرج مفتوح */}
