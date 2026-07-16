@@ -42,7 +42,18 @@ export const CLAUDE_INFO_SCHEMA = {
     priority_env: { type: 'object', properties: { level: { type: 'string' }, justification: { type: 'string' } } },
     recommendations: { type: 'string' },
   },
-  required: ['school_name']
+  // نفس إصلاح سكيمة Gemini بالضبط (analyzeReportShared.ts) — كل حقول
+  // البيانات الأساسية إلزامية الآن بدل school_name فقط.
+  required: [
+    'school_name', 'principal_name', 'grade', 'gender', 'ministry_number',
+    'building_type', 'building_independence', 'period', 'admin_independence',
+    'shared_school', 'overall_level', 'outcomes_level', 'report_date',
+    'overall_avg', 'domain_admin', 'domain_teaching', 'domain_outcomes',
+    'domain_env', 'scope', 'phone', 'swot_strengths', 'swot_weaknesses',
+    'swot_opportunities', 'swot_challenges', 'swot_solutions',
+    'priority_admin', 'priority_guidance', 'priority_activities',
+    'priority_outcomes', 'priority_teaching', 'priority_env', 'recommendations',
+  ]
 }
 
 export const CLAUDE_INDICATORS_TOOL = 'extract_weak_indicators'
@@ -60,7 +71,9 @@ export const CLAUDE_INDICATORS_SCHEMA = {
           responsible: { type: 'string' }, executed_actions: { type: 'string' },
           school_committee: { type: 'string' },
         },
-        required: ['id', 'name', 'domain', 'score', 'level']
+        // نفس الإصلاح المطبّق بسكيمة Gemini — الحقول السردية إلزامية الآن
+        // عشان ما تطلع فارغة بالمستند النهائي حتى لو المؤشر نفسه صحيح.
+        required: ['id', 'name', 'domain', 'score', 'level', 'need', 'actions', 'methods', 'duration', 'responsible', 'executed_actions', 'school_committee']
       }
     }
   },

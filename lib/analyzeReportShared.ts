@@ -44,6 +44,7 @@ Extract from this Saudi school external evaluation report:
 
 Rules:
 - all string values single line only, max 80 chars per field (except the swot_* arrays below)
+- كل الحقول النصية الأساسية (school_name, principal_name, grade, gender, ministry_number, building_type, building_independence, period, admin_independence, shared_school, overall_level, outcomes_level, report_date, overall_avg, domain_admin, domain_teaching, domain_outcomes, domain_env, scope, phone) إلزامية بالرد — إذا فعلاً غير مذكورة صراحة بالتقرير المرفق، اكتب القيمة "غير مذكور بالتقرير" بدل ترك الحقل فارغاً أو حذفه
 - swot_strengths, swot_weaknesses, swot_opportunities, swot_challenges, swot_solutions يجب أن تكون مصفوفة (array) من نقاط منفصلة قصيرة، كل نقطة عنصر مستقل بالمصفوفة (سطر واحد لكل نقطة، بدون ترقيم أو رموز نقطية داخل النص نفسه)
 - swot_strengths و swot_weaknesses: استخرجها مباشرة من نص التقرير (المؤشرات والملاحظات الصريحة)
 - swot_opportunities و swot_challenges: تقارير التقويم الخارجي غالباً لا تذكر "الفرص" أو "التحديات" بالاسم صراحةً — لذلك استنتجها من سياق التقرير (نوع المدرسة، الموقع، النطاق، الإدارة، البيئة المحيطة، الشراكات المحتملة، المخاطر البيئية أو المجتمعية المحتملة) حتى لو لم تُذكر حرفياً. لا ترجعها فارغة إلا في حالة استحالة الاستنتاج التام
@@ -280,7 +281,23 @@ export const INFO_SCHEMA = {
     priority_teaching: { type: 'OBJECT', properties: { level: { type: 'STRING' }, justification: { type: 'STRING' } } },
     priority_env: { type: 'OBJECT', properties: { level: { type: 'STRING' }, justification: { type: 'STRING' } } },
     recommendations: { type: 'STRING' },
-  }
+  },
+  // ما كان فيه أي required بهذي السكيمة سابقاً — يعني النموذج كان حراً
+  // يتجاهل أي حقل بيانات أساسية (رقم وزاري، جوال، اسم مدير...) فيطلع فارغاً
+  // بالمستند النهائي (تقرير واقع المدرسة) رغم إنه غالباً مذكور بالتقرير
+  // المرفق. الآن كل حقل نصي/مصفوفة/كائن إلزامي — مع تعليمة بالبرومبت (أدناه)
+  // تلزم النموذج يكتب "غير مذكور بالتقرير" بدل ترك القيمة فارغة إذا فعلاً
+  // ما لقى المعلومة، بدل ما يحذف الحقل كلياً من الرد.
+  required: [
+    'school_name', 'principal_name', 'grade', 'gender', 'ministry_number',
+    'building_type', 'building_independence', 'period', 'admin_independence',
+    'shared_school', 'overall_level', 'outcomes_level', 'report_date',
+    'overall_avg', 'domain_admin', 'domain_teaching', 'domain_outcomes',
+    'domain_env', 'scope', 'phone', 'swot_strengths', 'swot_weaknesses',
+    'swot_opportunities', 'swot_challenges', 'swot_solutions',
+    'priority_admin', 'priority_guidance', 'priority_activities',
+    'priority_outcomes', 'priority_teaching', 'priority_env', 'recommendations',
+  ]
 }
 
 export const INDICATORS_SCHEMA = {
@@ -294,7 +311,12 @@ export const INDICATORS_SCHEMA = {
       responsible: { type: 'STRING' }, executed_actions: { type: 'STRING' },
       school_committee: { type: 'STRING' },
     },
-    required: ['id', 'name', 'domain', 'score', 'level']
+    // كل الحقول السردية إلزامية الآن (كانت اختيارية سابقاً) — لأن هذا بالضبط
+    // سبب خروج نماذج فارغة جزئياً: النموذج كان يملأ need/responsible بانتظام
+    // لكن يتجاهل actions/methods/duration أحياناً لأنها لم تكن required
+    // بالسكيمة، فيتركها فارغة بمخرجات JSON، فتظهر خلايا فارغة بالمستند
+    // النهائي رغم إن المؤشر نفسه مكتشف وصحيح.
+    required: ['id', 'name', 'domain', 'score', 'level', 'need', 'actions', 'methods', 'duration', 'responsible', 'executed_actions', 'school_committee']
   }
 }
 

@@ -455,14 +455,17 @@ export default function BuildPlansPage() {
               hCell('مدة الإنجاز', 2199),
               hCell('التنفيذ والمسؤولية', 2199),
             ]}),
+            // fallback نصي لكل حقل سردي — احتياط إضافي فوق إلزام السكيمة
+            // (analyzeReportShared.ts / analyzeReportClaude.ts)، عشان ما
+            // تطلع خلية فارغة تماماً حتى لو النموذج تجاهل حقل نادراً.
             ...d.weak_indicators.map(ind => new TableRow({ children: [
-              dCell(ind.domain, 2198),
+              dCell(ind.domain || 'غير محدد', 2198),
               dCell(`${ind.name} - ${ind.score}%`, 2198),
-              dCell(ind.need, 2198),
-              dCell(ind.actions, 2198),
-              dCell(ind.methods, 2198),
-              dCell(ind.duration, 2199),
-              dCell(ind.responsible, 2199),
+              dCell(ind.need || 'لم يُحدد', 2198),
+              dCell(ind.actions || 'لم يُحدد', 2198),
+              dCell(ind.methods || 'لم يُحدد', 2198),
+              dCell(ind.duration || 'فصل دراسي', 2199),
+              dCell(ind.responsible || 'مدير المدرسة', 2199),
             ]}))
           ]
         }),
@@ -541,12 +544,15 @@ export default function BuildPlansPage() {
               hCell('لجان المدرسة'),
               hCell('المشرف التربوي'),
             ]}),
+            // "المشرف التربوي" تُترك فارغة عمداً (تُعبّأ يدوياً من قبل
+            // المشرف الفعلي عند المراجعة الميدانية — لا يمكن للنموذج
+            // استنتاجها من التقرير). بقية الحقول لها fallback نصي احتياطي.
             ...d.weak_indicators.map(ind => new TableRow({ children: [
-              dCell(ind.domain),
+              dCell(ind.domain || 'غير محدد'),
               dCell(ind.name),
-              dCell(ind.executed_actions || ''),
-              dCell(ind.methods),
-              dCell(ind.school_committee || ''),
+              dCell(ind.executed_actions || 'لم يُحدد'),
+              dCell(ind.methods || 'لم يُحدد'),
+              dCell(ind.school_committee || 'لجنة التميز المدرسي'),
               dCell(''),
             ]}))
           ]
