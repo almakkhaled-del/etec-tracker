@@ -3,6 +3,8 @@
 // 60 ثانية خاصة به عند Vercel، بدل ما تتشارك كل الطلبات بميزانية واحدة
 // داخل نفس استدعاء الدالة (كان هذا سبب انتهاء المهلة على تقارير أطول).
 
+import { IMPROVEMENT_PLANS_MAP } from './improvementPlansMap'
+
 export const PROMPT_INFO = `Return ONLY valid JSON object. No markdown. No text before or after. Start with { end with }.
 
 Extract from this Saudi school external evaluation report:
@@ -65,6 +67,13 @@ const DOMAIN_GROUP_LABELS: Record<DomainGroup, string> = {
   environment: 'البيئة المدرسية',
 }
 
+// بادئة رمز المؤشر الرسمي حسب المجال (نفس ترقيم إطار إتقان: 1=إدارة،
+// 2=تعليم وتعلم، 3=نواتج تعلم، 4=بيئة مدرسية) — تُستخدم لفلترة القائمة
+// الرسمية أدناه من lib/improvementPlansMap.ts حسب كل مجال.
+const DOMAIN_GROUP_PREFIX: Record<DomainGroup, string> = {
+  admin: '1-', teaching: '2-', outcomes: '3-', environment: '4-',
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // إعادة هندسة جذرية (بطلب صاحب المشروع بعد تجربة حقيقية أظهرت تفاوتاً كبيراً
 // بالجودة والتكلفة بين النماذج): بدل ما نطلب من النموذج "تأليف" محتوى كامل
@@ -78,12 +87,32 @@ const DOMAIN_GROUP_LABELS: Record<DomainGroup, string> = {
 // يُعاد اختراعه بكل استدعاء. النتيجة: استهلاك توكنز مخرجة أقل بكثير (~20
 // كلمة بدل ~500 كلمة لكل مؤشر)، سرعة أعلى، وجودة ثابتة 100% لأن المحتوى
 // معتمد يدوياً وليس عرضة لتفاوت النماذج.
+// أول تشغيل حقيقي للبرومبت المُصغّر (بعد إعادة الهندسة) أظهر مشكلة: النماذج
+// الثلاثة أحياناً "تخترع" رمز مؤشر غير موجود فعلياً بإطار إتقان (تشابه
+// بالترقيم يوقعها بالخلط، مثل افتراض 1-1-1-3 مع إن معيار "التخطيط" فيه
+// مؤشران فقط) — فيفشل الدمج مع القالب الثابت ويظهر "مؤشر غير معروف" رغم
+// إن المؤشر الحقيقي المقصود موجود ومغطى بالقالب. الحل: بدل ما نعتمد على
+// معرفة النموذج الداخلية بالترقيم، نزوّده صراحة بقائمة الرموز والأسماء
+// الصحيحة لهذا المجال تحديداً (من نفس القالب الثابت الذي سيُدمج معه لاحقاً
+// — مصدر واحد للحقيقة)، ونطلب منه الاختيار منها حصراً لا اختراع غيرها.
+function officialIndicatorsListFor(domainGroup: DomainGroup): string {
+  const prefix = DOMAIN_GROUP_PREFIX[domainGroup]
+  return Object.entries(IMPROVEMENT_PLANS_MAP)
+    .filter(([id]) => id.startsWith(prefix))
+    .map(([id, t]) => `${id}: ${t.name}`)
+    .join('\n')
+}
+
 export function buildIndicatorsPrompt(domainGroup: DomainGroup): string {
   const domainFilter = DOMAIN_GROUP_LABELS[domainGroup]
+  const officialList = officialIndicatorsListFor(domainGroup)
 
   return `أنت محلل بيانات جودة تعليمية. مهمتك قراءة تقرير التقويم الخارجي المرفق فقط، واستخراج (بدون أي تأليف أو صياغة إضافية) المؤشرات في مجال: ${domainFilter} التي تحقق الشرطين:
 1. المرحلة = "تهيئة" أو "انطلاق"
 2. النسبة = 75% أو أقل
+
+⚠️ قائمة رموز المؤشرات الرسمية الصحيحة لهذا المجال (اختر id حصراً من هذي القائمة بالضبط كما هو مكتوب، ولا تخترع أو تخمّن رمزاً غير موجود فيها مهما بدا منطقياً):
+${officialList}
 
 أخرج JSON array فقط. ابدأ بـ [ وانتهِ بـ ]. بدون markdown ولا أي نص قبله أو بعده.
 
@@ -92,9 +121,9 @@ export function buildIndicatorsPrompt(domainGroup: DomainGroup): string {
 
 قواعد صارمة:
 - score رقم وليس نص
-- id يجب أن يطابق تماماً رمز المؤشر الرسمي بإطار إتقان (مثال: 1-1-1-1)
+- id يجب أن يكون طبق الأصل (نسخ حرفي) من القائمة الرسمية أعلاه — لا فراغات إضافية ولا حروف مختلفة
 - need_from_report: اقتباس/تلخيص من نص التقرير نفسه فقط — لا تؤلف أو تفترض، بحد أقصى 15 كلمة
-- استخرج كل المؤشرات المؤهلة في هذا المجال دون استثناء
+- استخرج كل المؤشرات المؤهلة من القائمة أعلاه دون استثناء
 - لا تُخرج أي حقل آخر غير id/score/level/need_from_report — لا actions ولا methods ولا أي محتوى سردي إضافي`
 }
 

@@ -861,7 +861,7 @@ export default function BuildPlansPage() {
                     {result.weak_indicators.map((ind, i) => (
                       <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(10,59,88,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#F7F9FA' }}>
                         <div>
-                          <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}>{ind.id} · {ind.domain}</span>
+                          <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}><bdi>{ind.id}</bdi> · {ind.domain}</span>
                           <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -977,7 +977,7 @@ export default function BuildPlansPage() {
                       {flashResult.weak_indicators.map((ind, i) => (
                         <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(194,65,12,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#FFFBF5' }}>
                           <div>
-                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}>{ind.id} · {ind.domain}</span>
+                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}><bdi>{ind.id}</bdi> · {ind.domain}</span>
                             <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1045,7 +1045,7 @@ export default function BuildPlansPage() {
                       {claudeResult.weak_indicators.map((ind, i) => (
                         <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(91,33,182,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#FAF9FF' }}>
                           <div>
-                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}>{ind.id} · {ind.domain}</span>
+                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}><bdi>{ind.id}</bdi> · {ind.domain}</span>
                             <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

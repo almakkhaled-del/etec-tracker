@@ -220,19 +220,28 @@ export const IMPROVEMENT_PLANS_MAP: Record<string, ImprovementPlanTemplate> = {
     'إعداد جدول النظافة اليومي – الأسبوع 1 | جولة تفقدية أولى لمتابعة النظافة – الأسبوع 2 | حملة توعوية لتعزيز ثقافة النظافة – الأسبوع 4 | تقرير متابعة النظافة الدوري – نهاية كل شهر'),
 }
 
+// تطبيع رمز المؤشر قبل البحث بالقالب — احتياط إضافي فوق تزويد البرومبت
+// بالقائمة الرسمية (analyzeReportShared.ts/officialIndicatorsListFor):
+// بعض النماذج ترجع أحياناً مسافات زائدة أو نوع شرطة مختلف (– أو — بدل -)
+// حتى مع رمز صحيح منطقياً، فتفشل المطابقة الحرفية بلا داعٍ.
+function normalizeId(id: string): string {
+  return (id || '').toString().trim().replace(/[–—−]/g, '-').replace(/\s+/g, '')
+}
+
 // يدمج نتيجة تصنيف الذكاء الاصطناعي (id/score/level/need_from_report) مع
 // القالب الثابت المطابق لنفس id، وينتج الشكل الكامل اللي يحتاجه كود توليد
 // المستندات بصفحة build-plans (نفس الحقول القديمة تماماً: name/domain/
 // need/actions/methods/duration/responsible/executed_actions/
 // school_committee) — بدون أي تغيير على كود توليد الـdocx نفسه.
 export function mergeIndicatorWithTemplate(ai: { id: string; score: number; level: string; need_from_report?: string }) {
-  const t = IMPROVEMENT_PLANS_MAP[ai.id]
+  const normalizedId = normalizeId(ai.id)
+  const t = IMPROVEMENT_PLANS_MAP[normalizedId]
   if (!t) {
     // مؤشر رجعه النموذج بكود غير معروف بالقالب (نادر — إما خطأ كتابة من
     // النموذج أو مؤشر خارج نطاق الـ47 الحالية). نرجع كائناً بأدنى بيانات
     // بدل ما نطيح كل الطلب، مع تعليم واضح إنه غير مكتمل.
     return {
-      id: ai.id, name: `مؤشر غير معروف (${ai.id})`, domain: 'غير محدد',
+      id: normalizedId, name: `مؤشر غير معروف (${normalizedId})`, domain: 'غير محدد',
       score: ai.score, level: ai.level,
       need: ai.need_from_report || 'لم يُحدد',
       actions: 'لم يُحدد', methods: 'لم يُحدد', duration: 'فصل دراسي',
@@ -241,7 +250,7 @@ export function mergeIndicatorWithTemplate(ai: { id: string; score: number; leve
     }
   }
   return {
-    id: ai.id, name: t.name, domain: t.domain,
+    id: normalizedId, name: t.name, domain: t.domain,
     score: ai.score, level: ai.level,
     need: ai.need_from_report || 'لم يُحدد',
     actions: t.actions, methods: t.methods, duration: t.duration,
