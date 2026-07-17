@@ -1,8 +1,6 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 
 const NAVY = '#0A3B58'
 const GOLD = '#1F6E96'
@@ -142,42 +140,10 @@ function IconBadge({ icon, color = NAVY, bg = 'rgba(31,110,150,0.12)', size = 56
 }
 
 export default function Landing() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loginLoading, setLoginLoading] = useState(false)
-  const [loginError, setLoginError] = useState('')
   // قائمة الجوال: روابط الأقسام كانت تختفي كلياً تحت 980px بدون أي بديل
   const [menuOpen, setMenuOpen] = useState(false)
-
-  async function handleLogin() {
-    setLoginError('')
-    if (!email || !password) { setLoginError('يرجى تعبئة البريد الإلكتروني وكلمة المرور'); return }
-    setLoginLoading(true)
-    try {
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-      if (authError) throw authError
-
-      const { data: user } = await supabase.auth.getUser()
-      const { data: schoolUser } = await supabase
-        .from('school_users').select('school_id').eq('auth_id', user.user?.id).single()
-
-      if (schoolUser) {
-        const { data: school } = await supabase
-          .from('schools').select('subscription_status, subscription_end').eq('id', schoolUser.school_id).single()
-        if (school) {
-          const isExpired = new Date(school.subscription_end) < new Date()
-          if (isExpired || school.subscription_status === 'expired') {
-            router.push('/expired'); return
-          }
-        }
-      }
-      router.push('/dashboard')
-    } catch (e: any) {
-      setLoginError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
-    }
-    setLoginLoading(false)
-  }
+  // تسجيل الدخول نُقل لصفحة مستقلة /login (كانت مضمّنة وسط الصفحة التعريفية
+  // وتشتّت الزائر الجديد). كل روابط "دخول المدارس" توجّه لـ/login الآن.
 
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl', color: NAVY }}>
@@ -188,8 +154,15 @@ export default function Landing() {
         .cta-gold:hover { filter: brightness(1.08); }
         .login-input:focus { border-color: #1F6E96 !important; outline: none; }
         .login-btn:hover { background: #04202F !important; }
-        .about-split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 50px; align-items: start; }
-        @media (max-width: 860px) { .about-split { grid-template-columns: 1fr; gap: 32px; } }
+        .about-split { display: block; }
+        .hero-split { display: grid; grid-template-columns: 1fr 1.05fr; gap: 52px; align-items: center; }
+        .hero-cta { transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease; }
+        .hero-cta:hover { transform: translateY(-2px); }
+        @media (max-width: 900px) {
+          .hero-split { grid-template-columns: 1fr; gap: 34px; text-align: center; }
+          .hero-actions { justify-content: center !important; }
+          .hero-eyebrow { justify-content: center !important; }
+        }
 
         .nav-links { display: flex; align-items: center; gap: 30px; }
         .nav-burger { display: none; }
@@ -203,6 +176,8 @@ export default function Landing() {
         .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         @media (max-width: 780px) { .comparison-grid { grid-template-columns: 1fr; } }
 
+        .bento-card { transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+        .bento-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.075) !important; border-color: rgba(127,179,203,0.34) !important; }
         .killer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         @media (max-width: 980px) { .killer-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 640px) { .killer-grid { grid-template-columns: 1fr; } }
@@ -234,11 +209,11 @@ export default function Landing() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <a href="#login-box" className="body-font" style={{
+          <Link href="/login" className="body-font" style={{
             fontSize: 13.5, fontWeight: 700, color: NAVY, textDecoration: 'none', padding: '9px 8px'
           }}>
             دخول المدارس
-          </a>
+          </Link>
           <Link href="/register" style={{
             padding: '9px 22px', fontSize: 13, fontWeight: 700, color: '#fff',
             textDecoration: 'none', background: NAVY, borderRadius: 8
@@ -280,13 +255,82 @@ export default function Landing() {
         </div>
       )}
 
-      {/* ============ الهيرو: صورة كاملة بدون نص ============ */}
-      <section style={{ padding: 0, margin: 0 }}>
-        <img
-          src="/hero-3.png"
-          alt="شواهدي: من تقرير التقويم الخارجي إلى ملفات جاهزة للاعتماد والطباعة بضغطة زر"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
-        />
+      {/* ============ الهيرو: عمودان — نص + صورة داخل إطار متصفح ============ */}
+      <section style={{ padding: '4.5rem 1.5rem 4rem', maxWidth: 1200, margin: '0 auto' }}>
+        <div className="hero-split">
+
+          {/* النصوص + أزرار الدعوة */}
+          <div>
+            <div className="hero-eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+              <span style={{ width: 22, height: 2, background: GOLD, borderRadius: 2 }} />
+              <span className="body-font" style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1 }}>
+                منصة شواهد الاعتماد المدرسي
+              </span>
+            </div>
+            <h1 style={{ fontSize: 42, fontWeight: 900, color: NAVY, lineHeight: 1.35, margin: '0 0 20px' }}>
+              جهّز شواهد الاعتماد المدرسي<br />
+              <span style={{ color: GOLD }}>بثقة، ومن دون فوضى</span>
+            </h1>
+            <p className="body-font" style={{ fontSize: 18, color: '#4C5A66', lineHeight: 2, margin: '0 0 30px', maxWidth: 520 }}>
+              شواهدي يرتّب شواهد معايير هيئة تقويم التعليم والتدريب <strong style={{ color: NAVY }}>(إتقان)</strong> تلقائياً تحت المؤشر الصحيح — وتطبع ملفك كاملاً منظّماً وجاهزاً للجنة بضغطة زر.
+            </p>
+            <div className="hero-actions" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <Link href="/register" className="hero-cta" style={{
+                padding: '15px 30px', fontSize: 16, fontWeight: 800, color: '#fff',
+                textDecoration: 'none', background: NAVY, borderRadius: 12,
+                boxShadow: '0 10px 24px rgba(10,59,88,0.22)'
+              }}>
+                ابدأ تجربتك المجانية ←
+              </Link>
+              <Link href="/login" className="hero-cta" style={{
+                padding: '15px 28px', fontSize: 16, fontWeight: 700, color: NAVY,
+                textDecoration: 'none', background: '#fff', borderRadius: 12,
+                border: '1.5px solid rgba(10,59,88,0.16)'
+              }}>
+                دخول المدارس
+              </Link>
+            </div>
+          </div>
+
+          {/* الصورة داخل إطار متصفح وهمي + توهّج محيطي */}
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              position: 'absolute', width: 340, height: 340, borderRadius: '50%',
+              background: 'rgba(31,110,150,0.20)', filter: 'blur(70px)', top: -60, insetInlineEnd: -50, zIndex: 0
+            }} />
+            <div style={{
+              position: 'absolute', width: 260, height: 260, borderRadius: '50%',
+              background: 'rgba(127,179,203,0.24)', filter: 'blur(65px)', bottom: -50, insetInlineStart: -40, zIndex: 0
+            }} />
+            <div style={{
+              position: 'relative', zIndex: 1, background: '#fff', borderRadius: 16,
+              border: '1px solid rgba(10,59,88,0.1)', overflow: 'hidden',
+              boxShadow: '0 30px 60px rgba(10,59,88,0.18)'
+            }}>
+              <div style={{
+                height: 40, background: '#F1F4F6', borderBottom: '1px solid rgba(10,59,88,0.07)',
+                display: 'flex', alignItems: 'center', gap: 7, padding: '0 16px'
+              }}>
+                <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#F0655A' }} />
+                <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#F5BE4F' }} />
+                <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#5AC05A' }} />
+                <div style={{
+                  flex: 1, height: 22, background: '#fff', borderRadius: 6, marginInlineStart: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  border: '1px solid rgba(10,59,88,0.06)'
+                }}>
+                  <span style={{ fontSize: 11, color: '#9AA6B0', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>shawahede.com</span>
+                </div>
+              </div>
+              <img
+                src="/hero-3.png"
+                alt="شواهدي: من تقرير التقويم الخارجي إلى ملفات جاهزة للاعتماد والطباعة بضغطة زر"
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+          </div>
+
+        </div>
       </section>
 
       {/* ============ نبذة عن شواهدي + تسجيل الدخول ============ */}
@@ -294,8 +338,8 @@ export default function Landing() {
         <div style={{ width: '100%' }}>
           <div className="about-split" style={{ marginBottom: 48 }}>
 
-            {/* النبذة - أقصى يمين */}
-            <div style={{ textAlign: 'right' }}>
+            {/* النبذة */}
+            <div style={{ textAlign: 'right', maxWidth: 860, margin: '0 auto' }}>
               <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1.5, marginBottom: 10 }}>نبذة عن المنصة</p>
               <h2 style={{ fontSize: 34, fontWeight: 800, color: NAVY, marginBottom: 24 }}>وش هو شواهدي بالضبط؟</h2>
 
@@ -310,72 +354,6 @@ export default function Landing() {
                   شواهدي يقلب هذي المعادلة: بدل ما تبحث عن الشاهد المناسب وتتساءل "وش أرفع هنا؟"، تدخل على كل مؤشر وتلقى إرشاداً واضحاً لما هو مطلوب، ترفع صورة أو ملف PDF مباشرة، والنظام يحوّله ويرتبه تلقائياً تحت المؤشر الصحيح. وفي أي وقت تحتاج، تطبع تقريراً كاملاً منظماً حسب المجالات والمعايير جاهزاً للجنة التقويم.
                 </p>
               </div>
-            </div>
-
-            {/* صندوق الدخول - أقصى يسار */}
-            <div id="login-box" style={{
-              background: '#fff', borderRadius: 20, padding: '2.2rem 2rem',
-              border: '1px solid rgba(10,59,88,0.07)', boxShadow: '0 16px 44px rgba(10,59,88,0.10)',
-              scrollMarginTop: 100
-            }}>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: NAVY, marginBottom: 6, textAlign: 'center' }}>تسجيل الدخول</h3>
-              <p className="body-font" style={{ fontSize: 13, color: '#7A8896', marginBottom: 22, textAlign: 'center' }}>
-                أدخل بيانات مدرستك للمتابعة
-              </p>
-
-              <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
-                البريد الإلكتروني
-              </label>
-              <input
-                type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="example@school.edu.sa" className="login-input"
-                onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                style={{
-                  width: '100%', padding: '12px 16px', border: '1px solid rgba(10,59,88,0.15)',
-                  borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                  boxSizing: 'border-box', marginBottom: 16, background: '#F5F8FA', color: NAVY
-                }}
-              />
-
-              <label style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 7, display: 'block', fontFamily: 'Tajawal, sans-serif' }}>
-                كلمة المرور
-              </label>
-              <input
-                type="password" value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••" className="login-input"
-                onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                style={{
-                  width: '100%', padding: '12px 16px', border: '1px solid rgba(10,59,88,0.15)',
-                  borderRadius: 10, fontSize: 14, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                  boxSizing: 'border-box', marginBottom: 20, background: '#F5F8FA', color: NAVY
-                }}
-              />
-
-              {loginError && (
-                <div style={{
-                  background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10,
-                  padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#DC2626',
-                  fontFamily: 'IBM Plex Sans Arabic, sans-serif'
-                }}>
-                  {loginError}
-                </div>
-              )}
-
-              <button onClick={handleLogin} disabled={loginLoading} className="login-btn" style={{
-                width: '100%', padding: '13px', fontSize: 15, fontWeight: 700,
-                background: loginLoading ? '#9ca3af' : NAVY, color: '#fff',
-                border: 'none', borderRadius: 10, cursor: loginLoading ? 'not-allowed' : 'pointer',
-                fontFamily: 'Tajawal, sans-serif', marginBottom: 16, transition: 'background 0.2s'
-              }}>
-                {loginLoading ? 'جاري الدخول...' : 'دخول ←'}
-              </button>
-
-              <p style={{ textAlign: 'center', fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                ليس لديك حساب؟{' '}
-                <Link href="/register" style={{ color: GOLD, textDecoration: 'none', fontWeight: 700 }}>
-                  سجّل مدرستك مجاناً
-                </Link>
-              </p>
             </div>
 
           </div>
@@ -473,7 +451,7 @@ export default function Landing() {
       </section>
 
       {/* ============ الميزة الذكية: تحليل التقرير وتوليد الخطط ============ */}
-      <section id="killer-feature" style={{ background: NAVY, padding: '5.5rem 1.5rem', scrollMarginTop: 76 }}>
+      <section id="killer-feature" style={{ background: 'linear-gradient(180deg, #0A3352 0%, #071F33 55%, #05141F 100%)', padding: '5.5rem 1.5rem', scrollMarginTop: 76 }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', maxWidth: 700, margin: '0 auto 48px' }}>
             <span className="body-font" style={{
@@ -500,13 +478,15 @@ export default function Landing() {
               { icon: 'folder', title: 'حزمة النماذج المتنوعة', desc: 'مجموعة واسعة من السجلات والملفات التوثيقية التي تحتاجها الإدارة يومياً.' },
               { icon: 'bulb', title: 'مستشارك الإداري الخبير', desc: 'شواهدي ما يبيعك مساحة تخزين فارغة — هو يرفع عنك العبء الورقي ويمنحك ملفات جاهزة للتوقيع.' },
             ].map(f => (
-              <div key={f.title} style={{
-                padding: '1.6rem 1.6rem', background: '#fff',
-                borderRadius: 16, border: '1px solid rgba(10,59,88,0.06)', boxShadow: '0 10px 24px rgba(0,0,0,0.12)'
+              <div key={f.title} className="bento-card" style={{
+                padding: '1.9rem 1.7rem',
+                background: 'rgba(255,255,255,0.045)',
+                borderRadius: 18, border: '1px solid rgba(127,179,203,0.16)',
+                backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)'
               }}>
-                <IconBadge icon={f.icon} color={NAVY} bg="rgba(31,110,150,0.13)" size={50} />
-                <p style={{ fontWeight: 700, fontSize: 16, color: NAVY, margin: '14px 0 8px' }}>{f.title}</p>
-                <p className="body-font" style={{ fontSize: 14, color: '#4C5A66', margin: 0, lineHeight: 1.8 }}>{f.desc}</p>
+                <IconBadge icon={f.icon} color={GOLD_LIGHT} bg="rgba(127,179,203,0.14)" size={52} />
+                <p style={{ fontWeight: 800, fontSize: 18.5, color: '#fff', margin: '16px 0 9px' }}>{f.title}</p>
+                <p className="body-font" style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.72)', margin: 0, lineHeight: 1.85 }}>{f.desc}</p>
               </div>
             ))}
           </div>

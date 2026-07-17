@@ -166,7 +166,9 @@ function DashboardInner() {
         .fade-in { animation: fadeUp 0.35s cubic-bezier(0.4,0,0.2,1) both; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         .domain-card { transition: all 0.22s ease; cursor: pointer; }
-        .domain-card:hover { box-shadow: 0 8px 24px rgba(10,59,88,0.10) !important; }
+        .dom-card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+        .dom-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(10,59,88,0.13) !important; border-color: rgba(10,59,88,0.16) !important; }
+        .dom-card:hover .dom-bar { filter: brightness(1.08); }
         .std-row:hover { background: rgba(10,59,88,0.03) !important; }
         .ind-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10,59,88,0.10) !important; }
         .tree-expand { animation: treeOpen 0.3s cubic-bezier(0.4,0,0.2,1) both; }
@@ -255,9 +257,9 @@ function DashboardInner() {
 
             {/* Domain Cards */}
             <p style={{ fontSize: mob ? 16 : 19, fontWeight: 800, color: NAVY, marginBottom: mob ? 14 : 18 }}>المجالات الأربعة</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: mob ? 12 : 16, marginBottom: mob ? 24 : 30 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: mob ? '1fr' : '1fr 1fr', gap: mob ? 12 : 16, marginBottom: mob ? 24 : 30, alignItems: 'start' }}>
               {loading ? [1,2,3,4].map(i => (
-                <div key={i} style={{ background: '#fff', borderRadius: 18, height: 90, opacity: 0.4 }} />
+                <div key={i} style={{ background: '#fff', borderRadius: 18, height: 150, opacity: 0.4 }} />
               )) : domains.map(domain => {
                 const pct = domain.total_indicators ? Math.round((domain.completed / domain.total_indicators) * 100) : 0
                 const c = DOMAIN_COLORS[domain.code] || NAVY
@@ -266,11 +268,12 @@ function DashboardInner() {
                 const domStds = domainStandards(domain.id)
 
                 return (
-                  <div key={domain.id} style={{
+                  <div key={domain.id} className={isExpanded ? '' : 'dom-card'} style={{
                     background: '#fff', borderRadius: 18,
+                    gridColumn: isExpanded ? '1 / -1' : 'auto',
                     border: `1.5px solid ${isExpanded ? c + '40' : 'rgba(10,59,88,0.07)'}`,
                     boxShadow: isExpanded ? `0 4px 20px ${c}18` : '0 2px 8px rgba(10,59,88,0.05)',
-                    overflow: 'hidden', transition: 'all 0.25s ease'
+                    overflow: 'hidden', transition: 'box-shadow 0.25s ease, border-color 0.25s ease'
                   }}>
                     {/* Domain Header Row */}
                     <div onClick={() => handleDomainClick(domain)} className="domain-card" style={{
@@ -310,6 +313,15 @@ function DashboardInner() {
                         <span style={{ fontSize: 14, color: locked ? '#A8B4BC' : c }}>{locked ? '🔒' : '←'}</span>
                       </div>
                     </div>
+
+                    {/* شريط تقدّم البطاقة — يظهر عند الطي فقط */}
+                    {!isExpanded && !locked && (
+                      <div style={{ padding: mob ? '0 18px 16px' : '0 28px 22px' }}>
+                        <div style={{ height: 6, background: '#EDF1F3', borderRadius: 99, overflow: 'hidden' }}>
+                          <div className="dom-bar" style={{ width: `${pct || 2}%`, height: '100%', background: c, borderRadius: 99, transition: 'width 0.6s ease' }} />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Tree: Standards + Indicators */}
                     {isExpanded && (
