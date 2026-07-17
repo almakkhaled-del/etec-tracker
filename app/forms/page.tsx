@@ -93,7 +93,7 @@ export default function FormsPage() {
         <AppSidebar />
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <header style={{
+          <header className="page-header" style={{
             background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             position: 'sticky', top: 0, zIndex: 50
@@ -104,19 +104,21 @@ export default function FormsPage() {
                 {forms.length} نموذجاً جاهزاً للتحميل — حقيبة السجلات المدرسية 1448هـ
               </p>
             </div>
+            {/* header-search: بالجوال ينزل لسطر مستقل بعرض كامل (قاعدة globals.css)
+                بدل العرض الثابت 240px اللي كان يكسر الهيدر بالشاشات الصغيرة */}
             <input
               type="text" placeholder="🔍 ابحث عن نموذج..."
               value={search} onChange={e => setSearch(e.target.value)}
-              className="body-font"
+              className="body-font header-search"
               style={{
                 padding: '10px 16px', border: '1px solid rgba(10,59,88,0.15)', borderRadius: 10,
                 fontSize: 14, width: 240, fontFamily: 'IBM Plex Sans Arabic, sans-serif',
-                outline: 'none', background: CREAM
+                outline: 'none', background: CREAM, boxSizing: 'border-box'
               }}
             />
           </header>
 
-          <main style={{ padding: '28px', maxWidth: 1100, margin: '0 auto' }}>
+          <main className="page-main" style={{ padding: '28px', maxWidth: 1100, margin: '0 auto' }}>
 
             {/* نوتة المصادر */}
             <div style={{

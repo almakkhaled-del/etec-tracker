@@ -72,7 +72,7 @@ export default function StandardPage() {
         <AppSidebar activeDomainId={domain?.id} />
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <header style={{
+          <header className="page-header" style={{
             background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             position: 'sticky', top: 0, zIndex: 50
@@ -87,7 +87,7 @@ export default function StandardPage() {
             </div>
           </header>
 
-          <main style={{ padding: '32px 28px', maxWidth: 880, margin: '0 auto' }}>
+          <main className="page-main" style={{ padding: '32px 28px', maxWidth: 880, margin: '0 auto' }}>
 
             <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: '20px 24px', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 20 }}>
               <div style={{

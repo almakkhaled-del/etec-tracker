@@ -292,6 +292,17 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
       </nav>
 
       <div style={{ padding: '0 14px' }}>
+        {/* "حسابي" كان الوصول له فقط عبر الأفاتار بهيدر لوحة التحكم —
+            أُضيف هنا ليكون متاحاً من كل صفحات المنصة مع تمييز نشط. */}
+        <Link href="/account" className="sidebar-link" style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10,
+          textDecoration: 'none', marginBottom: 2,
+          background: pathname === '/account' ? 'rgba(127,179,203,0.14)' : 'transparent',
+          color: pathname === '/account' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
+        }}>
+          <span style={{ fontSize: 16 }}>👤</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>حسابي</span>
+        </Link>
         <button onClick={handleLogout} className="sidebar-link" style={{
           display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '11px 14px',
           borderRadius: 10, background: 'transparent', border: 'none', cursor: 'pointer',

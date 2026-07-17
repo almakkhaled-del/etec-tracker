@@ -230,7 +230,7 @@ function IndicatorPageInner() {
         <AppSidebar activeDomainId={domain?.id} />
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <header style={{
+          <header className="page-header" style={{
             background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)',
             padding: '0 28px', height: 80, display: 'flex', alignItems: 'center',
             position: 'sticky', top: 0, zIndex: 50
@@ -239,7 +239,9 @@ function IndicatorPageInner() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif', flexWrap: 'wrap' }}>
                 <Link href="/dashboard" style={{ color: '#7A8896', textDecoration: 'none' }}>الرئيسية</Link>
                 <span>←</span>
-                <Link href={`/domain/${domain?.id}${linkSuffix}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{domain?.name_ar}</Link>
+                {/* رابط مباشر للوحة مع فتح المجال — بدل /domain/[id] اللي كان
+                    صفحة تحويل وسيطة تسبب قفزة "جاري التحويل..." محسوسة */}
+                <Link href={`/dashboard?domain=${domain?.id}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{domain?.name_ar}</Link>
                 <span>←</span>
                 <Link href={`/standard/${standard?.id}${linkSuffix}`} style={{ color: '#7A8896', textDecoration: 'none' }}>{standard?.name_ar}</Link>
               </div>
@@ -247,7 +249,7 @@ function IndicatorPageInner() {
             </div>
           </header>
 
-          <main style={{ padding: '32px 28px', maxWidth: 760, margin: '0 auto' }}>
+          <main className="page-main" style={{ padding: '32px 28px', maxWidth: 760, margin: '0 auto' }}>
 
             {/* حالة المؤشر */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>

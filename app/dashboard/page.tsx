@@ -178,7 +178,7 @@ function DashboardInner() {
         <div style={{ flex: 1, minWidth: 0 }}>
 
           {/* Header */}
-          <header style={{
+          <header className="page-header" style={{
             background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)',
             padding: mob ? '0 16px' : '0 28px',
             height: mob ? 64 : 80,
@@ -223,7 +223,7 @@ function DashboardInner() {
             </div>
           </header>
 
-          <main style={{ padding: mob ? '14px' : '28px', paddingBottom: mob ? 40 : 40, maxWidth: 1000, margin: '0 auto' }}>
+          <main className="page-main" style={{ padding: mob ? '14px' : '28px', paddingBottom: mob ? 40 : 40, maxWidth: 1000, margin: '0 auto' }}>
 
             {/* Stats */}
             <div style={{

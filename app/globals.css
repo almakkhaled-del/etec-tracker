@@ -1,14 +1,30 @@
-/* ===== Dashboard Grids — Desktop Default ===== */
-.stats-grid   { grid-template-columns: repeat(4, 1fr); }
-.domains-grid { grid-template-columns: repeat(2, 1fr); }
-.action-grid  { grid-template-columns: 1fr 1fr; }
-.bottom-nav   { display: none !important; }
+/* =====================================================================
+   قواعد مركزية للصفحات الداخلية (تُطبَّق بالجوال فقط ≤860px)
 
-/* ===== Mobile ===== */
+   .page-header   : هيدر الصفحة — يثبت تحت الشريط العلوي الكحلي (54px)
+                    بدل ما ينزلق تحته ويختفي عند التمرير.
+   .page-main     : حاوية المحتوى — هوامش مريحة بالجوال بدل 28px الثابتة.
+   .header-search : حقل بحث داخل الهيدر — ينزل لسطر مستقل بعرض كامل.
+
+   ملاحظة: كانت هنا قواعد قديمة (stats-grid / bottom-nav / main-content)
+   لواجهة لوحة تحكم سابقة — حُذفت لأنها ميتة، وكانت domains-grid تتعارض
+   مع شبكة المجالات بالصفحة الرئيسية العامة بين 700-860px.
+   ===================================================================== */
+
 @media (max-width: 860px) {
-  .stats-grid   { grid-template-columns: repeat(2, 1fr) !important; }
-  .domains-grid { grid-template-columns: 1fr !important; }
-  .action-grid  { grid-template-columns: 1fr !important; }
-  .main-content { padding: 16px !important; padding-bottom: 90px !important; }
-  .bottom-nav   { display: flex !important; }
+  .page-header {
+    top: 54px !important;
+    height: auto !important;
+    min-height: 56px !important;
+    padding: 10px 16px !important;
+    gap: 10px !important;
+    flex-wrap: wrap;
+  }
+  .page-main {
+    padding: 14px !important;
+  }
+  .header-search {
+    width: 100% !important;
+    order: 3;
+  }
 }

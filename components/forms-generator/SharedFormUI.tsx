@@ -152,7 +152,7 @@ export function PageShell({ title, subtitle, children }: {
   title: string; subtitle: string; children: React.ReactNode
 }) {
   return (
-    <main style={{ padding: '24px 28px', maxWidth: 640, margin: '0 auto' }}>
+    <main className="page-main" style={{ padding: '24px 28px', maxWidth: 640, margin: '0 auto' }}>
       <div style={{ marginBottom: 16 }}>
         <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>{title}</p>
         <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{subtitle}</p>

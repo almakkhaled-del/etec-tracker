@@ -147,6 +147,8 @@ export default function Landing() {
   const [password, setPassword] = useState('')
   const [loginLoading, setLoginLoading] = useState(false)
   const [loginError, setLoginError] = useState('')
+  // قائمة الجوال: روابط الأقسام كانت تختفي كلياً تحت 980px بدون أي بديل
+  const [menuOpen, setMenuOpen] = useState(false)
 
   async function handleLogin() {
     setLoginError('')
@@ -190,7 +192,13 @@ export default function Landing() {
         @media (max-width: 860px) { .about-split { grid-template-columns: 1fr; gap: 32px; } }
 
         .nav-links { display: flex; align-items: center; gap: 30px; }
-        @media (max-width: 980px) { .nav-links { display: none; } }
+        .nav-burger { display: none; }
+        @media (max-width: 980px) {
+          .nav-links { display: none; }
+          .nav-burger { display: flex; }
+        }
+        .nav-mobile-menu a:active { background: rgba(10,59,88,0.05); }
+        @media (min-width: 981px) { .nav-mobile-menu { display: none !important; } }
 
         .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         @media (max-width: 780px) { .comparison-grid { grid-template-columns: 1fr; } }
@@ -237,8 +245,40 @@ export default function Landing() {
           }}>
             جرّب مجاناً ←
           </Link>
+          <button className="nav-burger" onClick={() => setMenuOpen(o => !o)} aria-label="قائمة الأقسام" style={{
+            width: 38, height: 38, borderRadius: 9, background: 'rgba(10,59,88,0.07)', border: 'none',
+            cursor: 'pointer', flexDirection: 'column', gap: 4, alignItems: 'center', justifyContent: 'center'
+          }}>
+            <span style={{ width: 17, height: 2, background: NAVY, borderRadius: 1 }} />
+            <span style={{ width: 17, height: 2, background: NAVY, borderRadius: 1 }} />
+            <span style={{ width: 17, height: 2, background: NAVY, borderRadius: 1 }} />
+          </button>
         </div>
       </nav>
+
+      {/* قائمة أقسام منسدلة بالجوال — تظهر تحت شريط التنقل الثابت مباشرة */}
+      {menuOpen && (
+        <div className="nav-mobile-menu body-font" style={{
+          position: 'sticky', top: 76, zIndex: 99, background: '#fff',
+          borderBottom: '1px solid rgba(10,59,88,0.1)', boxShadow: '0 12px 28px rgba(10,59,88,0.10)',
+          display: 'flex', flexDirection: 'column', padding: '6px 0'
+        }}>
+          {[
+            { href: '#about', label: 'عن المنصة' },
+            { href: '#comparison', label: 'المقارنة' },
+            { href: '#killer-feature', label: 'الميزة الذكية' },
+            { href: '#domains', label: 'معايير هيئة تقويم التعليم والتدريب' },
+            { href: '#pricing', label: 'الباقات' },
+          ].map(l => (
+            <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)} style={{
+              padding: '13px 24px', fontSize: 14.5, fontWeight: 600, color: NAVY,
+              textDecoration: 'none', borderBottom: '1px solid rgba(10,59,88,0.05)'
+            }}>
+              {l.label}
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* ============ الهيرو: صورة كاملة بدون نص ============ */}
       <section style={{ padding: 0, margin: 0 }}>

@@ -17,7 +17,7 @@ export default function FormsGeneratorPage({ schoolPrincipalName, schoolName }: 
   const selectedMeta = TEMPLATES.find(t => t.id === selected)
 
   return (
-    <main style={{ padding: '24px 28px', maxWidth: 640, margin: '0 auto' }}>
+    <main className="page-main" style={{ padding: '24px 28px', maxWidth: 640, margin: '0 auto' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
         {TEMPLATES.map(t => {
           const isSelected = selected === t.id

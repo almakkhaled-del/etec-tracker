@@ -1,4 +1,8 @@
 'use client'
+// ⚠️ ملف ميت — غير مستورد من أي مكان بالمشروع. السايدبار الفعلي هو
+// lib/AppSidebar.tsx. روابط هذا الملف قديمة (يوجّه لـ /domain/[id] وينقصه
+// مولّد النماذج وبناء الخطط وحسابي). لا تعدّل هنا — احذفه عند أول فرصة:
+// git rm components/forms-generator/AppSidebar.tsx
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
