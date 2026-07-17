@@ -12,7 +12,9 @@ const GOLD_LIGHT = '#7FB3CB'
 const CREAM = '#F5F8FA'
 
 export default function SubscribePage() {
-  const { school, loading: schoolLoading } = useSchool()
+  // allowExpired: منتهي الاشتراك لازم يوصل هنا ليجدد — بدونها يصير loop مع /expired
+  // nextPath: الزائر غير المسجل (من الصفحة الرئيسية) يرجع هنا تلقائياً بعد الدخول
+  const { school, loading: schoolLoading } = useSchool({ allowExpired: true, nextPath: '/subscribe' })
   const [busy, setBusy] = useState(false)
   const [notConfigured, setNotConfigured] = useState(false)
   const [error, setError] = useState('')

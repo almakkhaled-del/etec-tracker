@@ -47,7 +47,12 @@ export default function LoginPage() {
         }
       }
 
-      router.push('/dashboard')
+      // دعم ?next=: لو وصل المستخدم من صفحة تتطلب دخولاً (مثل /subscribe من
+      // الصفحة الرئيسية) نرجعه لها بدل اللوحة. نقرأ من window مباشرة بدل
+      // useSearchParams لتفادي اشتراط Suspense عند البناء. نقبل فقط مسارات
+      // داخلية تبدأ بـ / (حماية من open redirect).
+      const next = new URLSearchParams(window.location.search).get('next')
+      router.push(next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard')
     } catch (e: any) {
       setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
     }

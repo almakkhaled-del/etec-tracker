@@ -25,9 +25,14 @@ import { ANNUAL_PLAN } from './plan'
 // إعادة تصدير للـ API routes — مكونات العميل تستورد من '@/lib/plan' مباشرة
 export { ANNUAL_PLAN }
 
-// بيئة السعودية لدى جيديا (تختلف عن مصر والإمارات)
-const GEIDEA_API_BASE = 'https://api.ksamerchant.geidea.net'
-const GEIDEA_HPP_BASE = 'https://www.ksamerchant.geidea.net'
+// بيئة السعودية لدى جيديا (تختلف عن مصر والإمارات).
+// لو وصلك حساب تجريبي على بيئة أخرى، تقدر تتجاوز الروابط بمتغيري بيئة
+// اختياريين بدون تعديل الكود:
+//   GEIDEA_API_BASE = https://api.merchant.geidea.net      (مثال: بيئة مصر التجريبية)
+//   GEIDEA_HPP_BASE = https://www.merchant.geidea.net
+// عند عدم وجودهما نستخدم بيئة السعودية الرسمية (الإنتاج).
+const GEIDEA_API_BASE = process.env.GEIDEA_API_BASE || 'https://api.ksamerchant.geidea.net'
+const GEIDEA_HPP_BASE = process.env.GEIDEA_HPP_BASE || 'https://www.ksamerchant.geidea.net'
 
 export type CheckoutSession = {
   url: string

@@ -637,7 +637,10 @@ export default function Landing() {
                   </div>
                 ))}
               </div>
-              <a href="https://wa.me/966555826838?text=أبي أشترك بالباقة المتكاملة" target="_blank" rel="noreferrer" style={{
+              {/* يوجّه لصفحة الاشتراك داخل المنصة (تتطلب دخولاً — نحتاج بيانات
+                  المدرسة كاملة قبل الدفع). غير المسجل يُحوَّل للدخول ثم يرجع
+                  لصفحة الاشتراك تلقائياً عبر ?next=. */}
+              <a href="/subscribe" style={{
                 display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
                 background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none'
               }}>

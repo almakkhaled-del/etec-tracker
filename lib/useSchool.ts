@@ -21,7 +21,11 @@ export type SchoolData = {
   allowed_domains: string | null
 }
 
-export function useSchool() {
+// opts (اختيارية — كل الصفحات الحالية تشتغل بدون تغيير):
+//   allowExpired: صفحة الاشتراك تحتاجها — منتهي الاشتراك لازم يقدر يدفع!
+//     بدونها كان يصير loop: expired ← subscribe ← expired ...
+//   nextPath: يُمرَّر لصفحة الدخول (?next=) ليرجع المستخدم لنفس الصفحة بعد الدخول.
+export function useSchool(opts?: { allowExpired?: boolean; nextPath?: string }) {
   const router = useRouter()
   const [school, setSchool] = useState<SchoolData | null>(null)
   const [role, setRole] = useState<string | null>(null)
@@ -29,8 +33,9 @@ export function useSchool() {
 
   useEffect(() => {
     async function load() {
+      const loginUrl = opts?.nextPath ? `/login?next=${encodeURIComponent(opts.nextPath)}` : '/login'
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setLoading(false); router.push('/login'); return }
+      if (!user) { setLoading(false); router.push(loginUrl); return }
 
       const { data: schoolUser } = await supabase
         .from('school_users')
@@ -38,7 +43,7 @@ export function useSchool() {
         .eq('auth_id', user.id)
         .single()
 
-      if (!schoolUser) { setLoading(false); router.push('/login'); return }
+      if (!schoolUser) { setLoading(false); router.push(loginUrl); return }
 
       setRole(schoolUser.role)
 
@@ -48,10 +53,10 @@ export function useSchool() {
         .eq('id', schoolUser.school_id)
         .single()
 
-      if (!schoolData) { setLoading(false); router.push('/login'); return }
+      if (!schoolData) { setLoading(false); router.push(loginUrl); return }
 
       const isExpired = new Date(schoolData.subscription_end) < new Date()
-      if (isExpired || schoolData.subscription_status === 'expired') {
+      if ((isExpired || schoolData.subscription_status === 'expired') && !opts?.allowExpired) {
         setLoading(false)
         router.push('/expired')
         return
