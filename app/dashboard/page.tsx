@@ -186,10 +186,10 @@ function DashboardInner() {
             position: 'sticky', top: 0, zIndex: 50
           }}>
             <div>
-              <p style={{ fontSize: mob ? 15 : 17, fontWeight: 800, color: NAVY, margin: '0 0 2px' }}>
+              <p style={{ fontSize: mob ? 16 : 19, fontWeight: 800, color: NAVY, margin: '0 0 3px' }}>
                 مرحباً، {principalFirstName} 👋
               </p>
-              <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+              <p style={{ fontSize: mob ? 12 : 13, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 {school?.name} — 1448هـ
               </p>
             </div>
@@ -223,39 +223,39 @@ function DashboardInner() {
             </div>
           </header>
 
-          <main className="page-main" style={{ padding: mob ? '14px' : '28px', paddingBottom: mob ? 40 : 40, maxWidth: 1000, margin: '0 auto' }}>
+          <main className="page-main" style={{ padding: mob ? '14px' : '32px 40px', paddingBottom: mob ? 40 : 48, maxWidth: 1280, margin: '0 auto' }}>
 
             {/* Stats */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: mob ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-              gap: mob ? 10 : 14, marginBottom: mob ? 16 : 28
+              gap: mob ? 10 : 16, marginBottom: mob ? 16 : 32
             }}>
-              <div style={{ background: NAVY, borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>نسبة الاكتمال</p>
-                <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#fff', margin: '0 0 8px' }}>{loading ? '—' : `${completion}%`}</p>
+              <div style={{ background: NAVY, borderRadius: 16, padding: mob ? '18px 16px' : '26px 24px' }}>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.62)', margin: '0 0 6px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>نسبة الاكتمال</p>
+                <p style={{ fontSize: mob ? 28 : 40, fontWeight: 800, color: '#fff', margin: '0 0 8px' }}>{loading ? '—' : `${completion}%`}</p>
                 <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.12)', borderRadius: 99 }}>
                   <div style={{ width: `${completion || 2}%`, height: '100%', background: GOLD_LIGHT, borderRadius: 99 }} />
                 </div>
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
-                <p style={{ fontSize: 11, color: '#7A8896', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي المؤشرات</p>
-                <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
+              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '18px 16px' : '26px 24px' }}>
+                <p style={{ fontSize: 13, color: '#7A8896', margin: '0 0 6px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي المؤشرات</p>
+                <p style={{ fontSize: mob ? 28 : 40, fontWeight: 800, color: '#1d4ed8', margin: 0 }}>{loading ? '—' : stats.total}</p>
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
-                <p style={{ fontSize: 11, color: '#7A8896', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>مؤشرات مكتملة</p>
-                <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: '#16a34a', margin: '0 0 3px' }}>{loading ? '—' : stats.completed}</p>
+              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '18px 16px' : '26px 24px' }}>
+                <p style={{ fontSize: 13, color: '#7A8896', margin: '0 0 6px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>مؤشرات مكتملة</p>
+                <p style={{ fontSize: mob ? 28 : 40, fontWeight: 800, color: '#16a34a', margin: '0 0 3px' }}>{loading ? '—' : stats.completed}</p>
                 {!loading && <p style={{ fontSize: 11, color: '#DC2626', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>متبقي {stats.total - stats.completed}</p>}
               </div>
-              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '16px 14px' : '22px 20px' }}>
-                <p style={{ fontSize: 11, color: '#7A8896', margin: '0 0 4px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي الشواهد</p>
-                <p style={{ fontSize: mob ? 26 : 32, fontWeight: 800, color: GOLD, margin: 0 }}>{loading ? '—' : stats.evidences}</p>
+              <div style={{ background: '#fff', border: '1px solid rgba(10,59,88,0.07)', borderRadius: 16, padding: mob ? '18px 16px' : '26px 24px' }}>
+                <p style={{ fontSize: 13, color: '#7A8896', margin: '0 0 6px', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>إجمالي الشواهد</p>
+                <p style={{ fontSize: mob ? 28 : 40, fontWeight: 800, color: GOLD, margin: 0 }}>{loading ? '—' : stats.evidences}</p>
               </div>
             </div>
 
             {/* Domain Cards */}
-            <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 14 }}>المجالات الأربعة</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+            <p style={{ fontSize: mob ? 16 : 19, fontWeight: 800, color: NAVY, marginBottom: mob ? 14 : 18 }}>المجالات الأربعة</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: mob ? 12 : 16, marginBottom: mob ? 24 : 30 }}>
               {loading ? [1,2,3,4].map(i => (
                 <div key={i} style={{ background: '#fff', borderRadius: 18, height: 90, opacity: 0.4 }} />
               )) : domains.map(domain => {
@@ -274,28 +274,28 @@ function DashboardInner() {
                   }}>
                     {/* Domain Header Row */}
                     <div onClick={() => handleDomainClick(domain)} className="domain-card" style={{
-                      padding: mob ? '16px 18px' : '20px 24px',
-                      display: 'flex', alignItems: 'center', gap: mob ? 14 : 20,
+                      padding: mob ? '16px 18px' : '24px 28px',
+                      display: 'flex', alignItems: 'center', gap: mob ? 14 : 22,
                       opacity: locked ? 0.75 : 1,
                       borderBottom: isExpanded ? `1px solid ${c}20` : 'none',
                     }}>
                       <div style={{ position: 'relative', flexShrink: 0 }}>
-                        <CircleProgress percent={locked ? 0 : pct} color={locked ? '#A8B4BC' : c} size={mob ? 64 : 72} />
+                        <CircleProgress percent={locked ? 0 : pct} color={locked ? '#A8B4BC' : c} size={mob ? 64 : 82} />
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={{ fontSize: locked ? (mob ? 20 : 24) : (mob ? 13 : 15), fontWeight: 800, color: locked ? '#A8B4BC' : NAVY }}>
+                          <span style={{ fontSize: locked ? (mob ? 20 : 26) : (mob ? 13 : 17), fontWeight: 800, color: locked ? '#A8B4BC' : NAVY }}>
                             {locked ? '🔒' : `${pct}%`}
                           </span>
                         </div>
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-                          <span style={{ fontSize: mob ? 18 : 20 }}>{DOMAIN_ICONS[domain.code]}</span>
-                          <p style={{ fontWeight: 700, fontSize: mob ? 14 : 16, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
+                          <span style={{ fontSize: mob ? 18 : 22 }}>{DOMAIN_ICONS[domain.code]}</span>
+                          <p style={{ fontWeight: 800, fontSize: mob ? 15 : 18, color: NAVY, margin: 0 }}>{domain.name_ar}</p>
                         </div>
                         {locked ? (
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(31,110,150,0.12)', color: '#175A7D', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 20, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>🔒 يتطلب الاشتراك</span>
                         ) : (
-                          <p style={{ fontSize: 12, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+                          <p style={{ fontSize: mob ? 12 : 13.5, color: '#7A8896', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                             {domain.completed} من {domain.total_indicators} مؤشراً · {domain.total_evidences} شاهد · {domStds.length} معايير
                           </p>
                         )}
@@ -426,20 +426,20 @@ function DashboardInner() {
             </div>
 
             {/* Quick Links */}
-            <div style={{ display: 'grid', gridTemplateColumns: mob ? '1fr' : '1fr 1fr', gap: mob ? 10 : 14 }}>
-              <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #175A7D)`, borderRadius: 16, padding: mob ? '14px 18px' : '18px 24px', textDecoration: 'none' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: mob ? '1fr' : '1fr 1fr', gap: mob ? 10 : 16 }}>
+              <Link href="/print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${GOLD}, #175A7D)`, borderRadius: 16, padding: mob ? '14px 18px' : '22px 28px', textDecoration: 'none' }}>
                 <div>
-                  <p style={{ fontSize: mob ? 13 : 15, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>🖨️ التقرير الكامل</p>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>اطبع ملف شواهد مدرستك كاملاً</p>
+                  <p style={{ fontSize: mob ? 14 : 16, fontWeight: 800, color: '#fff', margin: '0 0 3px' }}>🖨️ التقرير الكامل</p>
+                  <p style={{ fontSize: mob ? 12 : 13, color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>اطبع ملف شواهد مدرستك كاملاً</p>
                 </div>
-                <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+                <span style={{ fontSize: 20, color: '#fff' }}>←</span>
               </Link>
-              <Link href="/forms" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: NAVY, borderRadius: 16, padding: mob ? '14px 18px' : '18px 24px', textDecoration: 'none' }}>
+              <Link href="/forms" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: NAVY, borderRadius: 16, padding: mob ? '14px 18px' : '22px 28px', textDecoration: 'none' }}>
                 <div>
-                  <p style={{ fontSize: mob ? 13 : 15, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>📋 النماذج الجاهزة</p>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>29 نموذجاً جاهزاً للتحميل</p>
+                  <p style={{ fontSize: mob ? 14 : 16, fontWeight: 800, color: '#fff', margin: '0 0 3px' }}>📋 النماذج الجاهزة</p>
+                  <p style={{ fontSize: mob ? 12 : 13, color: 'rgba(255,255,255,0.7)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>29 نموذجاً جاهزاً للتحميل</p>
                 </div>
-                <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+                <span style={{ fontSize: 20, color: '#fff' }}>←</span>
               </Link>
             </div>
 
