@@ -72,10 +72,10 @@ export default function SubscribePage() {
               boxShadow: '0 16px 40px rgba(10,59,88,0.18)', marginBottom: 20
             }}>
               <p style={{ fontSize: 13, fontWeight: 700, color: GOLD_LIGHT, marginBottom: 10 }}>👑 الباقة {ANNUAL_PLAN.name}</p>
+              {/* السعر محجوب مؤقتاً حتى يُثبَّت — يُعرض "قريباً". مبلغ الدفع الفعلي
+                  (ANNUAL_PLAN.amount) يبقى مستخدماً بطبقة الدفع دون تغيير. */}
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
-                <p style={{ fontSize: 44, fontWeight: 900, margin: 0, lineHeight: 1 }}>{ANNUAL_PLAN.amount}</p>
-                <p style={{ fontSize: 22, fontWeight: 700, color: 'rgba(255,255,255,0.45)', margin: 0, textDecoration: 'line-through' }}>{ANNUAL_PLAN.originalAmount}</p>
-                <p className="body-font" style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>{ANNUAL_PLAN.label}</p>
+                <p style={{ fontSize: 38, fontWeight: 900, margin: 0, lineHeight: 1 }}>قريباً</p>
               </div>
               <p className="body-font" style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', margin: '10px 0 26px', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 جميع المجالات الأربعة، رفع ملفات غير محدود، التحليل الذكي لتقرير التقويم الخارجي، ومولّد النماذج الكامل.

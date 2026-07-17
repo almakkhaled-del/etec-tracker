@@ -34,12 +34,10 @@ export default function ExpiredPage() {
             لمتابعة استخدام المنصة، اشترك بالباقة المتكاملة.
           </p>
 
-          {/* السعر: عرض التدشين 599 بجانب السعر الأصلي 699 مشطوباً */}
+          {/* السعر محجوب مؤقتاً حتى يُثبَّت — يُعرض "قريباً" (مبلغ الدفع الفعلي في lib/plan.ts دون تغيير) */}
           <div style={{ background: NAVY, borderRadius: 16, padding: '1.4rem 1.25rem', marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 12, marginBottom: 6 }}>
-              <p style={{ fontSize: 40, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>599</p>
-              <p style={{ fontSize: 22, fontWeight: 700, color: 'rgba(255,255,255,0.45)', margin: 0, textDecoration: 'line-through' }}>699</p>
-              <p style={{ fontSize: 14, color: GOLD_LIGHT, margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>ريال / عام دراسي</p>
+              <p style={{ fontSize: 34, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>قريباً</p>
             </div>
             <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.7)', margin: 0, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               🎉 عرض تدشين المنصة — جميع المجالات + بناء الخطط الذكية + مكتبة النماذج

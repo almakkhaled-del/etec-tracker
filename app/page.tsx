@@ -584,10 +584,9 @@ export default function Landing() {
 
               <p style={{ fontSize: 15, fontWeight: 700, color: GOLD_LIGHT, marginBottom: 14 }}>👑 المتكاملة</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 6 }}>
-                <p style={{ fontSize: 56, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>599</p>
-                <p style={{ fontSize: 26, fontWeight: 700, color: 'rgba(255,255,255,0.45)', margin: 0, textDecoration: 'line-through' }}>699</p>
+                <p style={{ fontSize: 48, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>قريباً</p>
               </div>
-              <p className="body-font" style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.6)', marginBottom: 30 }}>ريال / عام دراسي — بمناسبة الافتتاح وتدشين المنصة</p>
+              <p className="body-font" style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.6)', marginBottom: 30 }}>سعر عرض التدشين يُعلن قريباً — بمناسبة الافتتاح</p>
               <div style={{ textAlign: 'right', marginBottom: 32, flex: 1 }}>
                 {[
                   { text: 'جميع المجالات الأربعة' },
