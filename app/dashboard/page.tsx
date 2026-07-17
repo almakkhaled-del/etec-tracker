@@ -456,8 +456,8 @@ function DashboardInner() {
             <p style={{ fontSize: 13, color: '#7A8896', margin: '0 0 20px', lineHeight: 1.9, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
               في النسخة التجريبية يتاح مجال <b>البيئة المدرسية</b> فقط. اشترك الآن لفتح المجالات الأربعة كاملة.
             </p>
-            <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 10 }}>💬 تواصل للاشتراك</button>
+            <a href="/subscribe" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 10 }}>⭐ اشترك الآن</button>
             </a>
             <button onClick={() => setShowUpgrade(false)} style={{ width: '100%', padding: '11px', fontSize: 13, fontWeight: 600, background: 'transparent', color: '#7A8896', border: 'none', cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>لاحقاً</button>
           </div>

@@ -268,7 +268,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
           color: pathname === '/forms/build-plans' ? GOLD_LIGHT : 'rgba(255,255,255,0.78)'
         }}>
           <span style={{ fontSize: 16 }}>🤖</span>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>بناء الخطط</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>بناء الخطط الذكية</span>
         </Link>
 
         <Link href="/print" className="sidebar-link" style={{

@@ -71,22 +71,9 @@ export default function BuildPlansPage() {
   const [docStatus, setDocStatus] = useState<Record<string, DocStatus>>({ doc1: 'idle', doc2: 'idle', doc3: 'idle', doc4: 'idle' })
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // مقارنة النماذج الثلاثة (Gemini Flash-Lite الإنتاجي أعلاه / Gemini Flash
-  // 3.5 / Claude Haiku) — مؤقتة لأغراض التجربة قبل اعتماد نموذج نهائي، حسب
-  // طلب صاحب المشروع صراحة. الصندوقان هنا مستقلان تماماً عن result/
-  // operationalAiData (اللي تُبنى عليها الملفات الأربعة القابلة للتحميل) —
-  // لا تأثير لهما على الإنتاج مهما كانت نتيجتهما. تُحذف هذي المقارنة بالكامل
-  // بعد اعتماد نموذج نهائي.
-  type CompareStep = 'idle' | 'analyzing' | 'ready' | 'error'
-  const [flashStep, setFlashStep] = useState<CompareStep>('idle')
-  const [flashProgress, setFlashProgress] = useState('')
-  const [flashError, setFlashError] = useState('')
-  const [flashResult, setFlashResult] = useState<AnalysisResult | null>(null)
-
-  const [claudeStep, setClaudeStep] = useState<CompareStep>('idle')
-  const [claudeProgress, setClaudeProgress] = useState('')
-  const [claudeError, setClaudeError] = useState('')
-  const [claudeResult, setClaudeResult] = useState<AnalysisResult | null>(null)
+  // ملاحظة: كانت هنا مقارنة مؤقتة بين ثلاثة نماذج (Flash-Lite / Flash 3.5 /
+  // Claude) لأغراض التجربة — حُذفت بعد اعتماد Gemini Flash-Lite نموذجاً
+  // نهائياً للإنتاج (دقة 26/26 مطابقة للمراجعة اليدوية).
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault(); setDragOver(false)
@@ -210,110 +197,6 @@ export default function BuildPlansPage() {
     } catch (err: any) {
       setError(err.message || 'حدث خطأ غير متوقع')
       setStep('error')
-    }
-  }
-
-  // نفس فكرة handleAnalyze بالضبط لكن عبر مسارات Gemini Flash (3.5) — لأغراض
-  // المقارنة فقط، بدون توليد الخطة التشغيلية (تجربة المؤشرات فقط تكفي للمقارنة).
-  async function handleAnalyzeFlash() {
-    if (!file) return
-    setFlashStep('analyzing'); setFlashProgress('جاري التحليل عبر Gemini Flash...'); setFlashError('')
-    try {
-      const base64 = await readFileAsBase64(file)
-      const domainGroups = ['admin', 'teaching', 'outcomes', 'environment'] as const
-      const STAGGER_MS = 1500
-      const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
-
-      const infoPromise = fetchJson('/api/analyze-report/info-flash', { base64 }, 'بيانات المدرسة (Gemini Flash)')
-      const groupPromises = domainGroups.map((g, i) =>
-        delay(i * STAGGER_MS).then(() =>
-          fetchJson('/api/analyze-report/indicators-flash', { base64, group: g }, g)
-            .catch((e: any) => ({ group: g, indicators: [], error: e.message }))
-        )
-      )
-      const [info, ...groupSettled] = await Promise.all([infoPromise, ...groupPromises])
-
-      const failedGroups = groupSettled.filter((g: any) => g.error)
-      const allIndicators = groupSettled.flatMap((g: any) => g.indicators || [])
-      const seen = new Set<string>()
-      const indicators = allIndicators.filter((ind: any, i: number) => {
-        if (!ind || !ind.name) return false
-        if (!ind.id) ind.id = `auto-${i}`
-        const key = `${(ind.domain || '').trim()}::${(ind.name || '').trim()}`
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      })
-
-      if (indicators.length === 0 && failedGroups.length === domainGroups.length) {
-        const details = failedGroups.map((g: any) => `${g.group}: ${g.error}`).join(' | ')
-        throw new Error(`تعذّر استخراج أي مؤشرات عبر Gemini Flash — التفاصيل: ${details}`)
-      }
-
-      setFlashResult({ ...info, weak_indicators: indicators })
-      if (failedGroups.length > 0) {
-        const failDetails = failedGroups.map((g: any) => `${g.group}: ${g.error}`).join(' | ')
-        setFlashError(`تنبيه: تعذّر تحليل ${failedGroups.length} من أصل ${domainGroups.length} مجموعات عبر Gemini Flash (${failDetails})`)
-      }
-      setFlashStep('ready')
-    } catch (err: any) {
-      setFlashError(err.message || 'حدث خطأ غير متوقع')
-      setFlashStep('error')
-    }
-  }
-
-  // نفس الفكرة عبر مسارات Claude الموجودة أصلاً (claude-info/claude-indicators).
-  async function handleAnalyzeClaude() {
-    if (!file) return
-    setClaudeStep('analyzing'); setClaudeProgress('جاري التحليل عبر Claude...'); setClaudeError('')
-    try {
-      const base64 = await readFileAsBase64(file)
-      const domainGroups = ['admin', 'teaching', 'outcomes', 'environment'] as const
-      const STAGGER_MS = 1500
-      const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
-
-      const infoPromise = fetchJson('/api/analyze-report/claude-info', { base64 }, 'بيانات المدرسة (Claude)')
-      const groupPromises = domainGroups.map((g, i) =>
-        delay(i * STAGGER_MS).then(() =>
-          fetchJson('/api/analyze-report/claude-indicators', { base64, group: g }, g)
-            .catch((e: any) => ({ group: g, indicators: [], error: e.message }))
-        )
-      )
-      const [info, ...groupSettled] = await Promise.all([infoPromise, ...groupPromises])
-
-      const failedGroups = groupSettled.filter((g: any) => g.error)
-      const allIndicators = groupSettled.flatMap((g: any) => g.indicators || [])
-      const seen = new Set<string>()
-      const indicators = allIndicators.filter((ind: any, i: number) => {
-        if (!ind || !ind.name) return false
-        if (!ind.id) ind.id = `auto-${i}`
-        const key = `${(ind.domain || '').trim()}::${(ind.name || '').trim()}`
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      })
-
-      if (indicators.length === 0 && failedGroups.length === domainGroups.length) {
-        const details = failedGroups.map((g: any) => `${g.group}: ${g.error}`).join(' | ')
-        throw new Error(`تعذّر استخراج أي مؤشرات عبر Claude — التفاصيل: ${details}`)
-      }
-
-      const truncatedGroups = groupSettled.filter((g: any) => g.stopReason === 'max_tokens')
-
-      setClaudeResult({ ...info, weak_indicators: indicators })
-      const warnings: string[] = []
-      if (failedGroups.length > 0) {
-        const failDetails = failedGroups.map((g: any) => `${g.group}: ${g.error}`).join(' | ')
-        warnings.push(`تعذّر تحليل ${failedGroups.length} من أصل ${domainGroups.length} مجموعات عبر Claude (${failDetails})`)
-      }
-      if (truncatedGroups.length > 0) {
-        warnings.push(`رد Claude انقطع بسبب حد التوكنز بمجموعات: ${truncatedGroups.map((g: any) => g.group).join(', ')} — ممكن مؤشرات ناقصة`)
-      }
-      if (warnings.length > 0) setClaudeError(`تنبيه: ${warnings.join(' | ')}.`)
-      setClaudeStep('ready')
-    } catch (err: any) {
-      setClaudeError(err.message || 'حدث خطأ غير متوقع')
-      setClaudeStep('error')
     }
   }
 
@@ -711,12 +594,12 @@ export default function BuildPlansPage() {
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
             <div style={{ background: '#fff', borderRadius: 22, maxWidth: 440, width: '100%', padding: '38px 30px', textAlign: 'center', boxShadow: '0 8px 30px rgba(10,59,88,0.08)' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>🔒</div>
-              <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>بناء الخطط يتطلب الاشتراك</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: NAVY, margin: '0 0 10px' }}>بناء الخطط الذكية تتطلب الاشتراك</p>
               <p style={{ fontSize: 13.5, color: '#7A8896', margin: '0 0 24px', lineHeight: 2, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
                 هذه الميزة متاحة في الاشتراك المدفوع فقط. اشترك الآن للوصول الكامل.
               </p>
-              <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>💬 تواصل للاشتراك</button>
+              <a href="/subscribe" style={{ textDecoration: 'none' }}>
+                <button style={{ width: '100%', padding: '15px', fontSize: 15, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', marginBottom: 12 }}>⭐ اشترك الآن</button>
               </a>
               <Link href="/dashboard" style={{ textDecoration: 'none' }}>
                 <button style={{ width: '100%', padding: '12px', fontSize: 13, fontWeight: 600, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>← رجوع للوحة</button>
@@ -738,7 +621,7 @@ export default function BuildPlansPage() {
           <header className="page-header" style={{ background: '#fff', borderBottom: '1px solid rgba(10,59,88,0.08)', padding: '0 28px', height: 80, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50 }}>
             <Link href="/forms" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(10,59,88,0.06)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#7A8896', fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>← النماذج</Link>
             <div>
-              <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>بناء الخطط</p>
+              <p style={{ fontSize: 16, fontWeight: 800, color: NAVY, margin: '0 0 1px' }}>بناء الخطط الذكية</p>
               <p className="body-font" style={{ fontSize: 12, color: '#7A8896', margin: 0 }}>ارفع تقرير التقويم الخارجي — يولّد 4 ملفات رسمية مستقلة</p>
             </div>
           </header>
@@ -832,9 +715,6 @@ export default function BuildPlansPage() {
                 )}
 
                 <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(10,59,88,0.07)', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(10,59,88,0.06)', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(10,59,88,0.06)', color: NAVY, padding: '4px 12px', borderRadius: 20 }}>🟢 Gemini Flash-Lite — الإنتاج الحالي</span>
-                  </div>
                   <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 12, padding: '14px 18px', marginBottom: 20, textAlign: 'center' }}>
                     <p style={{ fontSize: 16, fontWeight: 800, color: GREEN, margin: '0 0 4px' }}>✅ اكتمل التحليل — {result.school_name}</p>
                     <p className="body-font" style={{ fontSize: 13, color: '#166534', margin: 0 }}>تم اكتشاف {result.weak_indicators.length} مؤشر يحتاج تحسين · حمّل كل ملف بشكل مستقل</p>
@@ -911,8 +791,6 @@ export default function BuildPlansPage() {
                 <button onClick={() => {
                   setStep('upload'); setFile(null); setResult(null); setOperationalAiData(null); setOperationalError('')
                   setDocStatus({ doc1: 'idle', doc2: 'idle', doc3: 'idle', doc4: 'idle' })
-                  setFlashStep('idle'); setFlashResult(null); setFlashError('')
-                  setClaudeStep('idle'); setClaudeResult(null); setClaudeError('')
                 }}
                   style={{ width: '100%', padding: '14px', fontSize: 14, fontWeight: 700, background: 'rgba(10,59,88,0.06)', color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
                   🔄 تحليل تقرير آخر
@@ -920,145 +798,6 @@ export default function BuildPlansPage() {
               </>
             )}
 
-            {/* مقارنة النماذج — صندوقان إضافيان (Gemini Flash / Claude) مستقلان
-                عن نتيجة الإنتاج (Gemini Flash-Lite) أعلاه، يظهران بمجرد اختيار
-                ملف بغض النظر عن حالة التحليل الرئيسي. مؤقتان لأغراض التجربة
-                فقط قبل اعتماد نموذج نهائي — يُحذفان بعد ذلك. */}
-            {file && (
-              <div style={{ background: '#fff', borderRadius: 18, border: '1.5px solid #FED7AA', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(194,120,3,0.06)', marginTop: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 20 }}>🧪</span>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: '#9A3412', margin: 0 }}>تجربة Gemini Flash 3.5 (مستقلة عن الإنتاج أعلاه)</h3>
-                  </div>
-                  {flashStep !== 'analyzing' && (
-                    <button onClick={handleAnalyzeFlash} className="doc-btn"
-                      style={{ padding: '10px 18px', fontSize: 13, fontWeight: 700, background: 'linear-gradient(135deg, #FB923C, #C2410C)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
-                      {flashStep === 'ready' ? '🔄 إعادة التجربة' : '▶️ جرّب مع Gemini Flash'}
-                    </button>
-                  )}
-                </div>
-
-                {flashStep === 'idle' && (
-                  <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: 0 }}>اضغط الزر لتحليل نفس الملف عبر Gemini Flash (3.5) — يشتغل بغض النظر عن نتيجة Flash-Lite أعلاه.</p>
-                )}
-
-                {flashStep === 'analyzing' && (
-                  <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                    <svg width="40" height="40" viewBox="0 0 40 40" style={{ marginBottom: 10 }}>
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(194,65,12,0.12)" strokeWidth="5" />
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="#C2410C" strokeWidth="5" strokeLinecap="round" strokeDasharray="35 70" style={{ transformOrigin: '20px 20px', animation: 'spin 1.2s linear infinite' }} />
-                    </svg>
-                    <p className="body-font" style={{ fontSize: 13, color: '#9A3412', margin: 0 }}>{flashProgress}</p>
-                  </div>
-                )}
-
-                {flashStep === 'error' && (
-                  <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px' }}>
-                    <p className="body-font" style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>⚠️ {flashError}</p>
-                  </div>
-                )}
-
-                {flashStep === 'ready' && flashResult && (
-                  <>
-                    {flashError && (
-                      <div style={{ background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
-                        <p className="body-font" style={{ fontSize: 12.5, color: '#92400E', margin: 0 }}>⚠️ {flashError}</p>
-                      </div>
-                    )}
-                    <div style={{ background: '#FFF7ED', border: '1.5px solid #FED7AA', borderRadius: 12, padding: '14px 18px', marginBottom: 16, textAlign: 'center' }}>
-                      <p style={{ fontSize: 15, fontWeight: 800, color: '#9A3412', margin: '0 0 4px' }}>✅ نتيجة Gemini Flash — {flashResult.school_name}</p>
-                      <p className="body-font" style={{ fontSize: 12.5, color: '#C2410C', margin: 0 }}>
-                        اكتشف {flashResult.weak_indicators.length} مؤشر يحتاج تحسين
-                        {result ? ` (قارن مع ${result.weak_indicators.length} من Flash-Lite${claudeResult ? ` و${claudeResult.weak_indicators.length} من Claude` : ''})` : ''}
-                      </p>
-                    </div>
-                    <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid #FED7AA', borderRadius: 10 }}>
-                      {flashResult.weak_indicators.map((ind, i) => (
-                        <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(194,65,12,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#FFFBF5' }}>
-                          <div>
-                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}><bdi>{ind.id}</bdi> · {ind.domain}</span>
-                            <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896' }}>{ind.level}</span>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: ind.score < 50 ? '#DC2626' : '#D97706', background: ind.score < 50 ? '#FEF2F2' : '#FFFBEB', padding: '2px 10px', borderRadius: 20 }}>{ind.score}%</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {file && (
-              <div style={{ background: '#fff', borderRadius: 18, border: '1.5px solid #DDD6FE', padding: '1.5rem 1.8rem', boxShadow: '0 4px 16px rgba(91,33,182,0.06)', marginTop: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 20 }}>🧪</span>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: '#5B21B6', margin: 0 }}>تجربة Claude (مستقلة عن الإنتاج أعلاه)</h3>
-                  </div>
-                  {claudeStep !== 'analyzing' && (
-                    <button onClick={handleAnalyzeClaude} className="doc-btn"
-                      style={{ padding: '10px 18px', fontSize: 13, fontWeight: 700, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
-                      {claudeStep === 'ready' ? '🔄 إعادة التجربة' : '▶️ جرّب مع Claude'}
-                    </button>
-                  )}
-                </div>
-
-                {claudeStep === 'idle' && (
-                  <p className="body-font" style={{ fontSize: 13, color: '#7A8896', margin: 0 }}>اضغط الزر لتحليل نفس الملف عبر Claude — يشتغل بغض النظر عن نتيجة Flash-Lite أعلاه.</p>
-                )}
-
-                {claudeStep === 'analyzing' && (
-                  <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                    <svg width="40" height="40" viewBox="0 0 40 40" style={{ marginBottom: 10 }}>
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(91,33,182,0.12)" strokeWidth="5" />
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="#7C3AED" strokeWidth="5" strokeLinecap="round" strokeDasharray="35 70" style={{ transformOrigin: '20px 20px', animation: 'spin 1.2s linear infinite' }} />
-                    </svg>
-                    <p className="body-font" style={{ fontSize: 13, color: '#5B21B6', margin: 0 }}>{claudeProgress}</p>
-                  </div>
-                )}
-
-                {claudeStep === 'error' && (
-                  <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px' }}>
-                    <p className="body-font" style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>⚠️ {claudeError}</p>
-                  </div>
-                )}
-
-                {claudeStep === 'ready' && claudeResult && (
-                  <>
-                    {claudeError && (
-                      <div style={{ background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
-                        <p className="body-font" style={{ fontSize: 12.5, color: '#92400E', margin: 0 }}>⚠️ {claudeError}</p>
-                      </div>
-                    )}
-                    <div style={{ background: '#F5F3FF', border: '1.5px solid #DDD6FE', borderRadius: 12, padding: '14px 18px', marginBottom: 16, textAlign: 'center' }}>
-                      <p style={{ fontSize: 15, fontWeight: 800, color: '#5B21B6', margin: '0 0 4px' }}>✅ نتيجة Claude — {claudeResult.school_name}</p>
-                      <p className="body-font" style={{ fontSize: 12.5, color: '#6D28D9', margin: 0 }}>
-                        اكتشف {claudeResult.weak_indicators.length} مؤشر يحتاج تحسين
-                        {result ? ` (قارن مع ${result.weak_indicators.length} من Flash-Lite${flashResult ? ` و${flashResult.weak_indicators.length} من Gemini Flash` : ''})` : ''}
-                      </p>
-                    </div>
-                    <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid #DDD6FE', borderRadius: 10 }}>
-                      {claudeResult.weak_indicators.map((ind, i) => (
-                        <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid rgba(91,33,182,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : '#FAF9FF' }}>
-                          <div>
-                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896', display: 'block' }}><bdi>{ind.id}</bdi> · {ind.domain}</span>
-                            <span style={{ fontSize: 13, color: NAVY }}>{ind.name}</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span className="body-font" style={{ fontSize: 11, color: '#7A8896' }}>{ind.level}</span>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: ind.score < 50 ? '#DC2626' : '#D97706', background: ind.score < 50 ? '#FEF2F2' : '#FFFBEB', padding: '2px 10px', borderRadius: 20 }}>{ind.score}%</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
           </main>
         </div>
       </div>

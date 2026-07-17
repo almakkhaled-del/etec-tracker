@@ -1,55 +1,93 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { generateCallbackSignature, schoolIdFromReference, ANNUAL_PLAN } from '@/lib/payment'
 
-// نقطة استقبال إشعارات بوابة الدفع (Webhook) — تُستدعى من خوادم البوابة نفسها
-// (مو من المتصفح)، فتحتاج مفتاح service_role عشان تكتب في قاعدة البيانات بدون
-// المرور بسياسات RLS العادية (المستخدم العادي أصلاً ما يقدر يكتب بجدول payments).
+// نقطة استقبال إشعارات جيديا (Callback/Webhook) — تُستدعى من خوادم جيديا نفسها
+// (مو من المتصفح) بعد اكتمال أو فشل الدفع. هذا هو المصدر الموثوق الوحيد لتفعيل
+// الاشتراك — صفحة النجاح اللي يرجع لها المستخدم للعرض فقط.
 //
-// ⚠️ قبل التفعيل الفعلي، لازم نضيف SUPABASE_SERVICE_ROLE_KEY في متغيرات البيئة
-// (Vercel > Settings > Environment Variables) — تجده في Supabase Dashboard > Project Settings > API.
-// هذا المفتاح سري جداً، لا يُستخدم إلا هنا على الخادم، ولا يظهر أبداً في كود العميل.
+// التوثيق: https://docs.geidea.net/docs/sample-callback-responses
+// شكل الحمولة: { order: { orderId, amount, currency, status, merchantReferenceId, ... },
+//                signature, timestamp? }
 //
-// ⚠️ كل بوابة دفع لها طريقتها الخاصة للتحقق من أن الطلب فعلاً منها (signature/secret) —
-// لازم نضيف هذا التحقق أول شيء بالدالة قبل الوثوق بأي بيانات بالـ body، وإلا أي حد
-// يقدر يرسل طلب مزوّر يفعّل اشتراك مجاني. راجع توثيق البوابة المختارة لمعرفة الآلية بالضبط.
+// الحماية (طبقتان):
+// 1) توقيع جيديا: Base64(HMAC-SHA256(publicKey+amount+currency+orderId+status+refId+timestamp, apiPassword))
+// 2) مطابقة المبلغ والعملة مع قيمة الباقة عندنا — حسب تحذير جيديا الصريح بالتوثيق.
+//
+// ⚠️ قبل التفعيل الفعلي تأكد من وجود متغيرات البيئة في Vercel:
+//   SUPABASE_SERVICE_ROLE_KEY (للكتابة بجدولي payments/schools متجاوزاً RLS)
+//   GEIDEA_MERCHANT_PUBLIC_KEY + GEIDEA_API_PASSWORD (للتحقق من التوقيع)
 
 export async function POST(req: NextRequest) {
   try {
-    // إنشاء العميل يتم هنا داخل الدالة (لا في أعلى الملف) عمداً — حتى لا يفشل
-    // بناء المشروع (build) في حال المتغير غير موجود بعد بمتغيرات البيئة.
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json({ error: 'البوابة غير مفعّلة بعد (SUPABASE_SERVICE_ROLE_KEY غير موجود)' }, { status: 503 })
     }
+    const publicKey = process.env.GEIDEA_MERCHANT_PUBLIC_KEY
+    const apiPassword = process.env.GEIDEA_API_PASSWORD
+    if (!publicKey || !apiPassword) {
+      return NextResponse.json({ error: 'البوابة غير مفعّلة بعد (مفاتيح جيديا غير موجودة)' }, { status: 503 })
+    }
+
+    const body = await req.json()
+
+    // جيديا ترسل تفاصيل الطلب داخل كائن order (وبعض الإصدارات ترسلها بالجذر مباشرة)
+    const order = body.order ?? body
+    const orderId: string | undefined = order.orderId || order.id
+    const reference: string | undefined = order.merchantReferenceId || body.merchantReferenceId
+    const amount = Number(order.amount)
+    const currency: string | undefined = order.currency
+    const status: string = order.status || ''
+    const detailedStatus: string = order.detailedStatus || ''
+
+    if (!orderId || !reference) {
+      return NextResponse.json({ received: true, ignored: 'missing orderId or merchantReferenceId' })
+    }
+
+    // ── التحقق من التوقيع ──────────────────────────────────────────────
+    // نرفض أي إشعار توقيعه غير صالح — وإلا أي أحد يقدر يرسل طلباً مزوّراً
+    // يفعّل اشتراكاً مجانياً. ملاحظة: موضع timestamp قد يكون بالجذر أو داخل
+    // order حسب إصدار الحمولة، نجرب الاثنين قبل الرفض.
+    const signature: string | undefined = body.signature
+    const timestamps = [body.timestamp, order.timestamp].filter(Boolean) as string[]
+    const signatureValid = Boolean(signature) && timestamps.some(ts =>
+      generateCallbackSignature(publicKey, amount, currency || '', orderId, status, reference, apiPassword, ts) === signature
+    )
+    if (!signatureValid) {
+      // نسجّل الإشعار للفحص اليدوي بدل تجاهله بصمت — أول أسبوع تشغيل مهم
+      // نراقب هل صيغة التوقيع الفعلية من جيديا مطابقة للتوثيق.
+      console.error('[geidea-webhook] rejected: invalid signature', { orderId, reference, status })
+      return NextResponse.json({ error: 'توقيع غير صالح' }, { status: 401 })
+    }
+
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY
     )
 
-    const body = await req.json()
-
-    // TODO: تحقق من توقيع/سر البوابة هنا قبل أي شيء آخر — مثال عام:
-    // const signature = req.headers.get('x-gateway-signature')
-    // if (!isValidSignature(signature, body)) return NextResponse.json({ error: 'توقيع غير صالح' }, { status: 401 })
-
-    // TODO: شكل الحقول أدناه افتراضي مؤقت — يتغيّر حسب شكل payload البوابة الفعلي بعد اختيارها
-    const schoolId: string | undefined = body.metadata?.school_id || body.school_id
-    const gatewayReference: string | undefined = body.id || body.reference
-    const isSuccessful = body.status === 'paid' || body.status === 'succeeded' || body.status === 'captured'
-
-    if (!schoolId || !gatewayReference) {
-      return NextResponse.json({ received: true, ignored: 'missing school_id or reference' })
+    const schoolId = schoolIdFromReference(reference)
+    if (!schoolId) {
+      return NextResponse.json({ received: true, ignored: 'reference not in SCH-<id>-<ts> format' })
     }
+
+    const isSuccessful = status === 'Paid' || detailedStatus === 'Paid'
 
     if (!isSuccessful) {
       await supabaseAdmin.from('payments').upsert({
-        school_id: schoolId, gateway_reference: gatewayReference, status: 'failed',
+        school_id: schoolId, gateway_reference: orderId, status: 'failed',
       }, { onConflict: 'gateway_reference' })
       return NextResponse.json({ received: true })
     }
 
-    // تفادي معالجة نفس عملية الدفع مرتين لو البوابة أعادت إرسال نفس الإشعار
+    // ── مطابقة المبلغ والعملة (تحذير صريح بتوثيق جيديا) ─────────────────
+    if (amount !== ANNUAL_PLAN.amount || currency !== ANNUAL_PLAN.currency) {
+      console.error('[geidea-webhook] rejected: amount/currency mismatch', { orderId, amount, currency })
+      return NextResponse.json({ error: 'المبلغ أو العملة لا يطابق قيمة الباقة' }, { status: 400 })
+    }
+
+    // تفادي معالجة نفس عملية الدفع مرتين لو جيديا أعادت إرسال نفس الإشعار
     const { data: existing } = await supabaseAdmin
-      .from('payments').select('id, status').eq('gateway_reference', gatewayReference).maybeSingle()
+      .from('payments').select('id, status').eq('gateway_reference', orderId).maybeSingle()
     if (existing?.status === 'paid') {
       return NextResponse.json({ received: true, duplicate: true })
     }
@@ -58,8 +96,8 @@ export async function POST(req: NextRequest) {
     end.setFullYear(end.getFullYear() + 1)
 
     await supabaseAdmin.from('payments').upsert({
-      school_id: schoolId, amount: 599, currency: 'SAR', status: 'paid',
-      gateway_reference: gatewayReference, paid_at: new Date().toISOString(),
+      school_id: schoolId, amount: ANNUAL_PLAN.amount, currency: ANNUAL_PLAN.currency, status: 'paid',
+      gateway_reference: orderId, paid_at: new Date().toISOString(),
     }, { onConflict: 'gateway_reference' })
 
     await supabaseAdmin.from('schools').update({

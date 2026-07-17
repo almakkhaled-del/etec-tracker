@@ -79,7 +79,7 @@ export default function AccountPage() {
                 </div>
               </div>
               {isTrial && (
-                <a href="https://wa.me/966555826838" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <a href="/subscribe" style={{ textDecoration: 'none' }}>
                   <button style={{ width: '100%', marginTop: 18, padding: '13px', fontSize: 14, fontWeight: 800, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, border: 'none', borderRadius: 12, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}>
                     ⭐ ترقية للاشتراك الكامل
                   </button>
