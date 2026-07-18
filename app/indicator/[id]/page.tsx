@@ -6,7 +6,7 @@ import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
 import { getEvidenceGuide } from '@/lib/indicatorEvidenceGuide'
-import { getFormNumbersForIndicator } from '@/lib/indicatorForms'
+import { getFormNumbersForIndicator, getSmartPlanHint } from '@/lib/indicatorForms'
 
 const NAVY = '#0A3B58'
 const GOLD = '#1F6E96'
@@ -192,6 +192,7 @@ function IndicatorPageInner() {
   }
 
   const evidenceGuide = indicator ? getEvidenceGuide(indicator.name_ar) : null
+  const smartPlanHint = !isProgram ? getSmartPlanHint(Number(id)) : null
 
   const status = evidences.length === 0 ? 'فارغ' : evidences.length < 3 ? 'بدأ' : evidences.length < 5 ? 'جيد' : 'ممتاز'
   const statusColor = evidences.length === 0 ? '#DC2626' : evidences.length < 3 ? '#D97706' : evidences.length < 5 ? '#1d4ed8' : '#16a34a'
@@ -290,6 +291,20 @@ function IndicatorPageInner() {
                 <span style={{ fontSize: 18, color: '#fff' }}>←</span>
               </div>
             </Link>
+
+            {/* بناء الخطط الذكية — للمؤشرات التي تتطلب خطة تشغيلية/تحسين/واقع المدرسة */}
+            {smartPlanHint && (
+              <Link href="/forms/build-plans" style={{ textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, background: 'linear-gradient(110deg, #0A3B58, #1F6E96)', borderRadius: 14, padding: '14px 18px', boxShadow: '0 6px 18px rgba(10,59,88,0.24)' }}>
+                  <span style={{ fontSize: 22 }}>🤖</span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: '0 0 2px' }}>أنشئ «{smartPlanHint}» آلياً من بناء الخطط الذكية</p>
+                    <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: 0 }}>حلّل تقرير الهيئة الخارجي وولّد الخطة جاهزة للطباعة كشاهد.</p>
+                  </div>
+                  <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+                </div>
+              </Link>
+            )}
 
             {/* النماذج الجاهزة المرتبطة بالمؤشر — تحميل مباشر */}
             {relatedForms.length > 0 && (

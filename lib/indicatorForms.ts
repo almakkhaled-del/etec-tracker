@@ -40,3 +40,16 @@ export const INDICATOR_FORMS: Record<number, number[]> = {
 export function getFormNumbersForIndicator(indicatorId: number): number[] {
   return INDICATOR_FORMS[indicatorId] || []
 }
+
+// المؤشرات التي تتطلب خططاً تُبنى آلياً عبر "بناء الخطط الذكية" (/forms/build-plans)
+// (تحليل تقرير الهيئة → توليد الخطة). القيمة = وصف مختصر يظهر بالزر.
+export const INDICATOR_SMART_PLANS: Record<number, string> = {
+  1: 'الخطة التشغيلية',            // 1-1-1-1 تضع المدرسة خطة تشغيلية
+  2: 'متابعة الخطة التشغيلية',     // 1-1-1-2 تتابع تنفيذ الخطة
+  14: 'تقرير واقع المدرسة',        // 1-4-1-6 التقويم الذاتي
+  15: 'خطة التحسين وتنفيذها',      // 1-4-1-7 خطة التحسين
+}
+
+export function getSmartPlanHint(indicatorId: number): string | null {
+  return INDICATOR_SMART_PLANS[indicatorId] || null
+}
