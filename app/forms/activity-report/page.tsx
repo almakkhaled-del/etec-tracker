@@ -86,6 +86,7 @@ export default function ActivityReportPage() {
         .rep-photo { height: 185px; }
         @media print {
           .no-print { display: none !important; }
+          .page-main { display: block !important; padding: 0 !important; max-width: none !important; }
           html, body { background: #fff !important; }
           #report, #report * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           #report { box-shadow: none !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: none !important; }
