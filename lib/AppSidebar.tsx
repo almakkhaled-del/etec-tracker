@@ -25,6 +25,8 @@ function Icon({ name, size = 20, sw = 1.8 }: { name: string; size?: number; sw?:
       return (<svg {...p}><rect x="5" y="3.5" width="14" height="17" rx="2" stroke="currentColor" strokeWidth={sw} /><path d="M9 8.5H15M9 12H15M9 15.5H13" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" /></svg>)
     case 'generator':
       return (<svg {...p}><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="currentColor" strokeWidth={sw} /><path d="M8 9.5L10 12L8 14.5M12.5 14.5H16" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" /></svg>)
+    case 'upload':
+      return (<svg {...p}><path d="M12 15V4M8 8l4-4 4 4" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" /><path d="M5 15v3c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-3" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" /></svg>)
     case 'plans':
       return (<svg {...p}><rect x="4.5" y="6" width="15" height="13" rx="2.5" stroke="currentColor" strokeWidth={sw} /><path d="M12 6V3.5M12 3.5H10M12 3.5H14" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" /><circle cx="9" cy="12" r="1.1" fill="currentColor" /><circle cx="15" cy="12" r="1.1" fill="currentColor" /><path d="M9.5 15.5H14.5" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" /></svg>)
     case 'print':
@@ -295,6 +297,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
               الذكية" برابط واحد /forms/build-plans — الصفحتان القديمتان بقيتا
               شغّالتين بالكود (غير محذوفتين) لكن ما عادتا مرتبطتين من هنا. */}
           <NavItem href="/forms/build-plans" icon="plans" label="بناء الخطط الذكية" active={pathname === '/forms/build-plans'} />
+          <NavItem href="/forms/smart-upload" icon="upload" label="الرفع الذكي للشواهد" active={pathname === '/forms/smart-upload'} />
           <NavItem href="/forms/activity-report" icon="forms" label="مولّد تقارير الأنشطة" active={pathname === '/forms/activity-report'} />
           <NavItem href="/print" icon="print" label="التقرير الكامل" active={pathname === '/print'} />
         </nav>
