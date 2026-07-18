@@ -399,13 +399,13 @@ export default function Landing() {
           </div>
 
           <div className="comparison-grid">
-            {/* الوضع الحالي */}
-            <div style={{ background: '#FEF6F5', border: '1px solid rgba(220,38,38,0.12)', borderRadius: 20, padding: '2.2rem 2rem', boxShadow: '0 10px 26px rgba(220,38,38,0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingBottom: 18, borderBottom: '1px solid rgba(220,38,38,0.1)' }}>
-                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(220,38,38,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="x" color="#DC2626" size={18} />
+            {/* الوضع الحالي — كارت رمادي مطفأ */}
+            <div style={{ background: '#F3F4F6', border: '1px solid rgba(10,59,88,0.09)', borderRadius: 20, padding: '2.2rem 2rem', boxShadow: '0 4px 14px rgba(10,59,88,0.04)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingBottom: 18, borderBottom: '1px solid rgba(10,59,88,0.08)' }}>
+                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(203,94,90,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="x" color="#CB5E5A" size={18} />
                 </span>
-                <h3 style={{ fontSize: 17, fontWeight: 800, color: '#991B1B', margin: 0 }}>الوضع الحالي (المرهق)</h3>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: '#6B7280', margin: 0 }}>الوضع الحالي (المرهق)</h3>
               </div>
               <div style={{ display: 'grid', gap: 16 }}>
                 {[
@@ -413,9 +413,9 @@ export default function Landing() {
                   { t: 'حيرة الصياغة والمطلوب', d: '"وش أرفع هنا بالضبط؟" — سؤال يتكرر كل مرة، وينتج عنه شواهد غير كافية للجنة.' },
                   { t: 'مأزق الوقت الضيق', d: 'التجهيز الحقيقي يبدأ قبل الزيارة بأيام قليلة، تحت ضغط يهدر جودة العمل.' },
                 ].map(x => (
-                  <div key={x.t} className="body-font" style={{ fontSize: 14.5, color: '#4C5A66', lineHeight: 1.8 }}>
-                    <p style={{ fontWeight: 700, color: '#991B1B', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <Icon name="x" color="#DC2626" size={14} /> {x.t}
+                  <div key={x.t} className="body-font" style={{ fontSize: 14.5, color: '#6B7280', lineHeight: 1.8 }}>
+                    <p style={{ fontWeight: 700, color: '#7B8494', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Icon name="x" color="#CB5E5A" size={14} /> {x.t}
                     </p>
                     <p style={{ margin: 0, paddingRight: 22 }}>{x.d}</p>
                   </div>
@@ -423,11 +423,12 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* الوضع الذكي مع شواهدي */}
-            <div style={{ background: 'rgba(31,110,150,0.06)', border: '1px solid rgba(31,110,150,0.25)', borderRadius: 20, padding: '2.2rem 2rem', boxShadow: '0 12px 32px rgba(10,59,88,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingBottom: 18, borderBottom: '1px solid rgba(31,110,150,0.2)' }}>
-                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(31,110,150,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="sparkle" color={NAVY} size={18} />
+            {/* الوضع الذكي مع شواهدي — الكارت البطل: أبيض ناصع + حد ملوّن + ظل بارز */}
+            <div style={{ background: '#fff', border: `2px solid ${GOLD}`, borderRadius: 20, padding: '2.4rem 2rem', boxShadow: '0 22px 48px rgba(10,59,88,0.16)', position: 'relative' }}>
+              <span style={{ position: 'absolute', top: -14, insetInlineStart: 24, background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: '#fff', fontSize: 12, fontWeight: 800, padding: '5px 16px', borderRadius: 20, boxShadow: '0 6px 14px rgba(31,110,150,0.3)' }}>الحل الذكي ✦</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingBottom: 18, borderBottom: '1px solid rgba(31,110,150,0.18)' }}>
+                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(22,163,74,0.13)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="sparkle" color="#16a34a" size={18} />
                 </span>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: NAVY, margin: 0 }}>الوضع الذكي (مع شواهدي)</h3>
               </div>
@@ -439,7 +440,7 @@ export default function Landing() {
                 ].map(x => (
                   <div key={x.t} className="body-font" style={{ fontSize: 14.5, color: '#374151', lineHeight: 1.8 }}>
                     <p style={{ fontWeight: 700, color: NAVY, margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <Icon name="check" color={GOLD} size={14} /> {x.t}
+                      <Icon name="check" color="#16a34a" size={14} /> {x.t}
                     </p>
                     <p style={{ margin: 0, paddingRight: 22 }}>{x.d}</p>
                   </div>
@@ -619,9 +620,10 @@ export default function Landing() {
               {/* يوجّه لصفحة الاشتراك داخل المنصة (تتطلب دخولاً — نحتاج بيانات
                   المدرسة كاملة قبل الدفع). غير المسجل يُحوَّل للدخول ثم يرجع
                   لصفحة الاشتراك تلقائياً عبر ?next=. */}
-              <a href="/subscribe" style={{
-                display: 'block', textAlign: 'center', padding: '16px', fontSize: 16, fontWeight: 700,
-                background: `linear-gradient(135deg, #3E8AB0, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none'
+              <a href="/subscribe" className="cta-gold" style={{
+                display: 'block', textAlign: 'center', padding: '17px', fontSize: 16.5, fontWeight: 800,
+                background: `linear-gradient(135deg, #4E9BC0, ${GOLD})`, color: NAVY, borderRadius: 12, textDecoration: 'none',
+                boxShadow: '0 12px 30px rgba(78,155,192,0.5)'
               }}>
                 اشترك الآن ←
               </a>

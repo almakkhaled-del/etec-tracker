@@ -29,7 +29,6 @@ export default function AccountPage() {
     </div>
   )
 
-  const daysLeft = school ? Math.max(0, Math.ceil((new Date(school.subscription_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0
   const endDate = school ? new Date(school.subscription_end).toLocaleDateString('ar-SA') : '—'
   const startDate = school?.subscription_start ? new Date(school.subscription_start).toLocaleDateString('ar-SA') : '—'
   const planName = isTrial ? 'تجريبي (مجاني)' : 'مشترك'
@@ -64,9 +63,7 @@ export default function AccountPage() {
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: '0 0 4px' }}>نوع الاشتراك</p>
                   <p style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>{planName}</p>
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 700, background: isTrial ? 'rgba(127,179,203,0.2)' : 'rgba(134,239,172,0.2)', color: isTrial ? GOLD_LIGHT : '#86EFAC', padding: '6px 14px', borderRadius: 20, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
-                  {daysLeft} يوم متبقٍ
-                </span>
+                {/* عدّاد الأيام المتبقية أُخفي بناءً على طلب المرحلة الحالية (لا يُعرض عدّ تنازلي) */}
               </div>
               <div style={{ display: 'flex', gap: 24 }}>
                 <div>

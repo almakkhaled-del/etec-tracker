@@ -6,6 +6,7 @@ import AppSidebar from '@/lib/AppSidebar'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
 import { getEvidenceGuide } from '@/lib/indicatorEvidenceGuide'
+import { getFormNumbersForIndicator } from '@/lib/indicatorForms'
 
 const NAVY = '#0A3B58'
 const GOLD = '#1F6E96'
@@ -40,6 +41,7 @@ function IndicatorPageInner() {
   const [file, setFile] = useState<File | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [relatedForms, setRelatedForms] = useState<{ order_num: number; title_ar: string; file_url: string; file_name: string }[]>([])
   const fileRef = useRef<HTMLInputElement>(null)
   const [pdfJsReady, setPdfJsReady] = useState(false)
 
@@ -53,6 +55,22 @@ function IndicatorPageInner() {
     }
     document.body.appendChild(script)
   }, [])
+
+  // النماذج الجاهزة المرتبطة بهذا المؤشر (للتعليم العام فقط) — تُعرض كأزرار
+  // تحميل مباشرة داخل صفحة المؤشر لتسهيل الوصول (كان الزملاء لا يكتشفونها).
+  useEffect(() => {
+    if (isProgram) { setRelatedForms([]); return }
+    const nums = getFormNumbersForIndicator(Number(id))
+    if (nums.length === 0) { setRelatedForms([]); return }
+    let active = true
+    ;(async () => {
+      const { data } = await supabase.from('forms').select('order_num, title_ar, file_url, file_name').in('order_num', nums)
+      if (!active) return
+      const ordered = nums.map(n => (data || []).find((f: any) => f.order_num === n)).filter(Boolean) as any[]
+      setRelatedForms(ordered)
+    })()
+    return () => { active = false }
+  }, [id, isProgram])
 
   async function loadEvidences(schoolId: string) {
     const { data: evs } = await supabase.from('evidences').select('*').eq(evField, Number(id)).eq('school_id', schoolId).order('created_at', { ascending: false })
@@ -260,6 +278,43 @@ function IndicatorPageInner() {
                 {status} — {evidences.length} شواهد
               </span>
             </div>
+
+            {/* مولّد تقرير النشاط/الزيارة — متاح لكل المؤشرات كشاهد جاهز */}
+            <Link href="/forms/activity-report" style={{ textDecoration: 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, background: 'linear-gradient(110deg, #178B7E, #3FA24C)', borderRadius: 14, padding: '14px 18px', boxShadow: '0 6px 18px rgba(23,139,126,0.22)' }}>
+                <span style={{ fontSize: 22 }}>📝</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: '0 0 2px' }}>أنشئ تقرير نشاط / زيارة جاهزاً لهذا المؤشر</p>
+                  <p className="body-font" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: 0 }}>عبّئ البيانات وارفع الصور، ثم احفظه PDF وارفعه كشاهد.</p>
+                </div>
+                <span style={{ fontSize: 18, color: '#fff' }}>←</span>
+              </div>
+            </Link>
+
+            {/* النماذج الجاهزة المرتبطة بالمؤشر — تحميل مباشر */}
+            {relatedForms.length > 0 && (
+              <div style={{ marginBottom: 24, background: '#F2FBF5', border: '1.5px solid rgba(22,163,74,0.35)', borderRadius: 16, padding: '18px 20px', boxShadow: '0 6px 18px rgba(22,163,74,0.08)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <span style={{ fontSize: 18 }}>📎</span>
+                  <p style={{ fontSize: 15, fontWeight: 800, color: '#15803D', margin: 0 }}>نماذج جاهزة تساعدك في هذا المؤشر</p>
+                </div>
+                <p className="body-font" style={{ fontSize: 12, color: '#4B8B63', margin: '0 0 14px' }}>حمّل النموذج، عبّئه، ثم ارفعه كشاهد بالأسفل.</p>
+                <div style={{ display: 'grid', gap: 10 }}>
+                  {relatedForms.map(f => (
+                    <a key={f.order_num} href={f.file_url} download className="ev-card" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', background: '#fff', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 12, padding: '12px 14px', transition: 'box-shadow 0.18s' }}>
+                      <span style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(22,163,74,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M14 3H6.5C5.7 3 5 3.7 5 4.5v15c0 .8.7 1.5 1.5 1.5h11c.8 0 1.5-.7 1.5-1.5V8L14 3Z" stroke="#16a34a" strokeWidth="1.7" strokeLinejoin="round" /><path d="M14 3v5h5" stroke="#16a34a" strokeWidth="1.7" strokeLinejoin="round" /></svg>
+                      </span>
+                      <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700, color: NAVY, lineHeight: 1.5 }}>{f.title_ar}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 700, color: '#16a34a', flexShrink: 0 }}>
+                        تحميل
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 4v11M7 11l5 4 5-4M5 20h14" stroke="#16a34a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* الشواهد المتوقعة لهذا المؤشر — من دليل هيئة تقويم التعليم والتدريب لأخصائي التقويم المدرسي */}
             {evidenceGuide ? (

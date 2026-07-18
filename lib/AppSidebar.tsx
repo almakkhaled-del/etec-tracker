@@ -295,6 +295,7 @@ export default function AppSidebar({ activeDomainId }: { activeDomainId?: number
               الذكية" برابط واحد /forms/build-plans — الصفحتان القديمتان بقيتا
               شغّالتين بالكود (غير محذوفتين) لكن ما عادتا مرتبطتين من هنا. */}
           <NavItem href="/forms/build-plans" icon="plans" label="بناء الخطط الذكية" active={pathname === '/forms/build-plans'} />
+          <NavItem href="/forms/activity-report" icon="forms" label="مولّد تقارير الأنشطة" active={pathname === '/forms/activity-report'} />
           <NavItem href="/print" icon="print" label="التقرير الكامل" active={pathname === '/print'} />
         </nav>
 
