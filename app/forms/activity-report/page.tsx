@@ -78,15 +78,19 @@ export default function ActivityReportPage() {
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Tajawal', sans-serif", direction: 'rtl' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>{`
-        .rep-box { border: 2px solid ${TEAL_BORDER}; border-radius: 12px; padding: 10px 14px 12px; margin: 0; min-height: 40px; }
+        #report { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .rep-box { border: 2px solid ${TEAL_BORDER}; border-radius: 12px; padding: 8px 14px 10px; margin: 0; min-height: 36px; }
         .rep-box > legend { margin: 0 auto; padding: 0 10px; color: ${TEAL}; font-weight: 800; font-size: 13px; text-align: center; }
-        .rep-box p, .rep-box li { font-family: 'IBM Plex Sans Arabic', sans-serif; color: #223; font-size: 12.5px; line-height: 1.85; margin: 0; }
+        .rep-box p, .rep-box li { font-family: 'IBM Plex Sans Arabic', sans-serif; color: #223; font-size: 12.5px; line-height: 1.8; margin: 0; }
         .rep-box ol { margin: 0; padding-inline-start: 18px; }
+        .rep-photo { height: 185px; }
         @media print {
           .no-print { display: none !important; }
+          html, body { background: #fff !important; }
+          #report, #report * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           #report { box-shadow: none !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: none !important; }
-          @page { size: A4 portrait; margin: 8mm; }
-          body { background: #fff !important; }
+          .rep-photo { height: 150px !important; }
+          @page { size: A4 portrait; margin: 7mm; }
         }
       `}</style>
 
@@ -217,7 +221,7 @@ export default function ActivityReportPage() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
                   {[photo1, photo2].map((ph, i) => (
-                    <div key={i} style={{ border: `2px solid ${TEAL_BORDER}`, borderRadius: 10, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#F7FAF9' }}>
+                    <div key={i} className="rep-photo" style={{ border: `2px solid ${TEAL_BORDER}`, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#F7FAF9' }}>
                       {ph ? <img src={ph.url} alt="شاهد" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: '#9AA6B0', fontSize: 12, fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>صورة الشاهد {i + 1}</span>}
                     </div>
                   ))}
